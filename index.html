@@ -824,6 +824,78 @@
         .animate-attention {
             animation: attention-pulsate 2s infinite;
         }
+
+        /* --- SLIDER CUSTOMIZATION --- */
+        .slider-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 0.5rem; /* h-2 */
+            background-color: #334155; /* slate-700 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transform: translateY(-50%);
+            z-index: 10;
+            pointer-events: none;
+        }
+        .slider-tick {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #94a3b8; /* slate-400 */
+            z-index: 20;
+            pointer-events: none;
+        }
+        .tick-major {
+            width: 2px;
+            height: 16px; /* h-4 */
+            background-color: #cbd5e1; /* slate-300 */
+        }
+        .tick-minor {
+            width: 1px;
+            height: 8px; /* h-2 */
+            opacity: 0.5;
+        }
+        .tick-label {
+            position: absolute;
+            top: 20px; /* Below the track/thumb */
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: #94a3b8; /* slate-400 */
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .slider-tooltip {
+            position: absolute;
+            bottom: 25px; /* Above thumb */
+            left: 0;
+            transform: translateX(-50%);
+            background-color: #0f172a; /* slate-900 */
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            border: 1px solid #475569;
+            opacity: 0;
+            transition: opacity 0.2s, left 0.05s ease-out;
+            font-family: 'Public Sans', sans-serif;
+        }
+        .group:hover .slider-tooltip,
+        .slider-active .slider-tooltip {
+            opacity: 1;
+        }
+        
+        /* Ensure input thumb is accessible and above */
+        input[type=range] {
+            position: relative;
+            z-index: 30 !important;
+        }
     </style>
 </head>
 
@@ -844,7 +916,11 @@
                     href="#calculator-controls">Economic Impact Calculator</a>
             </div>
             <div class="flex items-center gap-3">
-
+                <a href="https://github.com/savefw/casino-economic-impact-calculator.git" target="_blank" class="flex size-10 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-white transition-colors" title="View Source on GitHub">
+                    <svg class="size-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+                    </svg>
+                </a>
                 <button onclick="openDrawer()"
                     class="flex md:hidden size-10 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                     <span class="material-symbols-outlined">menu</span>
@@ -1195,7 +1271,7 @@
                         Decoding the <span class="text-orange-600">Spin</span>
                     </h3>
                     <p class="text-lg text-slate-600 dark:text-slate-300 italic leading-relaxed">
-                        "The words you see on the reels aren't random. They are a direct comparison between the marketing promises being sold to Fort Wayne and the documented reality of casino impacts."
+                        "Nothing on these slot-machine reels is random. Every word is a side-by-side comparison of the promises being marketed to Fort Wayne versus the real-world outcomes casinos tend to produce."
                     </p>
                 </div>
 
@@ -1218,7 +1294,7 @@
 
                     <div class="space-y-12">
                     <!-- Category 1 -->
-                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl">
                         <h4 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
                             <span class="material-symbols-outlined text-orange-500">trending_down</span>
                             "Economic Engine" Myth
@@ -1304,7 +1380,7 @@
                     </div>
 
                     <!-- Category 2 -->
-                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl">
                         <h4 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
                             <span class="material-symbols-outlined text-orange-500">work_off</span>
                             "Jobs" Promise
@@ -1362,7 +1438,7 @@
                     </div>
 
                     <!-- Category 3 -->
-                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl">
                         <h4 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
                             <span class="material-symbols-outlined text-orange-500">medical_services</span>
                             Community Health & Safety
@@ -1448,7 +1524,7 @@
                     </div>
 
                     <!-- Category 4 -->
-                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl">
                         <h4 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
                             <span class="material-symbols-outlined text-orange-500">public_off</span>
                             "World-Class" Destination
@@ -1647,10 +1723,18 @@
             <!-- Impact Map Section -->
             <div class="mb-12">
                 <div class="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-sm">
-                    <h3 class="font-bold text-white mb-6 flex items-center gap-2">
+                    <h3 class="text-xl font-bold text-slate-300 dark:text-white mb-2">
                         <span class="material-symbols-outlined text-blue-500">map</span>
                         Casino Impact Zone Visualizer
                     </h3>
+                    <p class="text-slate-400 leading-relaxed mb-8">
+                        This interactive tool visualizes the geographic reach of gambling-related risks. You can <strong>drag the CASINO marker</strong> to any Indiana location on the map to see how the proximity-based risk zones shift. Moving the pin automatically recalculates the population distribution across the three impact tiers (High, Elevated, and Baseline Risk) shown in the cards below, which in turn updates the Net Impact Analysis. 
+                        Please note the current version of this tool calculates impact only for the assessed county. It does not currently factor spillover impact to neighboring counties in Indiana or neighboring states when the impact radius extends beyond county limits. Future versions will address this gap, once GeoJSON data from neighboring states is added to our dataset.
+                    </p>
+                    <p class="text-slate-400 dark:text-slate-400 leading-relaxed border-t border-slate-700 pt-4 mb-8">
+                        Furthermore, in an effort to encourage community involvement and transparency, the entirety of this Economic Impact Calculator has been published on <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline hover:text-blue-500 font-bold transition-colors">Github</a>. 
+                        We specifically invite developers, data scientists, and researchers to improve the economic impact calculator, enhance data visualizations, as well as assist in the auditing and updating of latest research sources.
+                    </p>
 
                     <!-- Map Container -->
                     <!-- Map Container with Overlay -->
@@ -1732,7 +1816,7 @@
                         </div>
                         <span class="text-orange-500 font-bold font-mono text-xl" id="val-rate">2.3%</span>
                     </div>
-                    <div class="relative w-full group flex items-center mb-1">
+                    <div class="relative w-full group flex items-center mb-10">
                         <!-- Tick: 2.3% (Default) - Tall line -->
                         <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-px h-3 bg-slate-400 z-10"
                             style="left: 37.3%"></div>
@@ -1816,15 +1900,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-4">
                     <!-- T1: High Risk -->
                     <div
-                        class="p-4 bg-blue-900/20 rounded-xl border border-blue-800 transition-colors hover:bg-blue-900/40 relative overflow-hidden group">
+                        class="p-4 bg-blue-900/20 rounded-xl border border-blue-800 transition-colors hover:bg-blue-900/40 relative overflow-hidden group flex flex-col">
                         <div
                             class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                             2.0x Risk</div>
-                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles (High
-                            Risk)
+                        <div class="flex-1">
+                            <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles (High
+                                Risk)
+                            </div>
+                            <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
+                            <div class="text-xs text-slate-500 mb-3">Population</div>
                         </div>
-                        <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
-                        <div class="text-xs text-slate-500 mb-3">Population</div>
 
                         <div class="bg-black/20 rounded-lg p-2 border border-blue-900/30">
                             <div class="flex justify-between items-center text-xs mb-1">
@@ -1843,14 +1929,16 @@
 
                     <!-- T2: Elevated Risk -->
                     <div
-                        class="p-4 bg-red-900/20 rounded-xl border border-red-800 transition-colors hover:bg-red-900/40 relative overflow-hidden group">
+                        class="p-4 bg-red-900/20 rounded-xl border border-red-800 transition-colors hover:bg-red-900/40 relative overflow-hidden group flex flex-col">
                         <div
                             class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                             1.5x Risk</div>
-                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
-                            (Elevated)</div>
-                        <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
-                        <div class="text-xs text-slate-500 mb-3">Population</div>
+                        <div class="flex-1">
+                            <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
+                                (Elevated)</div>
+                            <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
+                            <div class="text-xs text-slate-500 mb-3">Population</div>
+                        </div>
 
                         <div class="bg-black/20 rounded-lg p-2 border border-red-900/30">
                             <div class="flex justify-between items-center text-xs mb-1">
@@ -1869,15 +1957,17 @@
 
                     <!-- T3: Baseline -->
                     <div
-                        class="p-4 bg-orange-900/20 rounded-xl border border-orange-800 relative overflow-hidden group">
+                        class="p-4 bg-orange-900/20 rounded-xl border border-orange-800 relative overflow-hidden group flex flex-col">
                         <div
                             class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                             1.0x Risk</div>
-                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">>20 Miles
-                            (Baseline)
+                        <div class="flex-1">
+                            <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">>20 Miles
+                                (Baseline)
+                            </div>
+                            <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
+                            <div class="text-xs text-slate-500 mb-3" id="label-t3">Population</div>
                         </div>
-                        <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
-                        <div class="text-xs text-slate-500 mb-3" id="label-t3">Population</div>
 
                         <div class="bg-black/20 rounded-lg p-2 border border-orange-800">
                             <div class="flex justify-between items-center text-xs mb-1">
@@ -1970,30 +2060,22 @@
                     <span class="material-symbols-outlined text-blue-500">tune</span>
                     Adjust the Variables
                 </h3>
-                <div class="space-y-8">
+                <div class="space-y-12">
                     <!-- AGR Input -->
                     <div class="mb-8 border-b border-slate-700 pb-8">
                         <div class="flex justify-between items-end mb-4">
                             <label class="text-base font-bold text-white">Adjusted Gross Revenue (AGR)</label>
                             <span class="text-emerald-400 font-bold font-mono" id="val-agr">$0 M</span>
                         </div>
-                        <div class="relative w-full group flex items-center mb-4">
-                            <input type="range" min="0" max="600" step="1" value="112" 
+                        <div class="relative w-full group flex items-center mb-10">
+                            <input type="range" min="0" max="1000" step="1" value="112" 
                                 id="input-agr"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
                         </div>
                         
-                        <!-- Effective Rate Display -->
-                         <div class="flex flex-col gap-2">
-                             <div class="flex justify-between items-center bg-slate-900/50 p-3 rounded-lg border border-slate-600">
-                                <span class="text-sm font-medium text-slate-400">Effective Tax Rate</span>
-                                <span class="text-emerald-400 font-bold font-mono" id="val-effective-rate">0%</span>
-                            </div>
-                            
-                            <!-- Tax Details (Always Visible) -->
-                            <div id="tax-details-container" class="bg-slate-900/80 rounded-lg p-4 text-xs font-mono text-slate-300 border border-slate-700 shadow-inner">
-                                <!-- Populated by JS -->
-                            </div>
+                        <!-- Tax Details (Always Visible) -->
+                        <div id="tax-details-container" class="bg-slate-900/80 rounded-lg p-4 mt-10 text-sm font-mono text-slate-300 border border-slate-700 shadow-inner">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
 
@@ -2002,23 +2084,26 @@
                         <div class="flex justify-between items-end mb-4">
                             <label class="text-base font-bold text-white">Tax
                                 Revenue</label>
+                                <p class="mt-2 text-sm text-slate-400 italic">Default: Spectrum Gaming Projection ($27.5M)
+                        </p>
                             <span class="text-emerald-500 font-bold font-mono" id="val-revenue">$27.5 M</span>
                         </div>
-                        <div class="relative w-full group flex items-center">
-                            <input type="range" min="0" max="150" step="0.5" value="27.5" data-default="27.5"
+                        <div class="relative w-full group flex items-center mb-10">
+                            <input type="range" min="0" max="400" step="0.5" value="27.5" data-default="27.5"
                                 id="input-revenue"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
                             <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                style="left: calc(18.33% + 6.33px)"></div>
+                                style="left: calc(6.875% + 6.33px)"></div>
                         </div>
-                        <p class="mt-2 text-sm text-slate-400 italic">Default: Spectrum Gaming Projection ($27.5M)
-                        </p>
                     </div>
 
                     <!-- Revenue Allocation Control -->
                     <div class="border-t border-slate-700 pt-6">
-                        <div class="flex justify-between items-end mb-3">
+                        <div class="flex flex-col mb-3">
                             <label class="text-base font-bold text-white">Tax Revenue Allocation</label>
+                            <p class="text-sm text-slate-400 italic">
+                                Drag to adjust the split between the Humanitarian Fund and General Taxpayer Services.
+                            </p>
                         </div>
                         
                         <!-- Visual Bar / Slider Wrapper -->
@@ -2026,26 +2111,23 @@
                             <!-- Backgrounds -->
                             <div class="absolute inset-0 flex">
                                 <div id="alloc-bar-human" class="h-full bg-purple-600 transition-all duration-75 flex items-center pl-3 overflow-hidden" style="width: 40%">
-                                    <span class="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap drop-shadow-md">Humanitarian</span>
+                                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap drop-shadow-md">Humanitarian</span>
                                 </div>
                                 <div id="alloc-bar-taxpayer" class="h-full bg-emerald-600 transition-all duration-75 flex items-center justify-end pr-3 overflow-hidden" style="width: 60%">
-                                    <span class="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap drop-shadow-md">Taxpayer Svcs</span>
+                                    <span class="text-xs sm:text-sm font-bold text-white whitespace-nowrap drop-shadow-md">Taxpayer Services</span>
                                 </div>
                             </div>
                             
                             <!-- Percentage Overlay (Centered) -->
                             <div class="absolute inset-0 flex justify-center items-center pointer-events-none gap-4">
-                                <div class="bg-slate-900/80 px-2 py-1 rounded text-xs font-mono font-bold text-purple-300 border border-purple-500/30" id="alloc-text-human">40%</div>
-                                <div class="bg-slate-900/80 px-2 py-1 rounded text-xs font-mono font-bold text-emerald-300 border border-emerald-500/30" id="alloc-text-taxpayer">60%</div>
+                                <div class="bg-slate-900/80 px-2 py-1 rounded text-sm font-mono font-bold text-purple-300 border border-purple-500/30" id="alloc-text-human">40%</div>
+                                <div class="bg-slate-900/80 px-2 py-1 rounded text-sm font-mono font-bold text-emerald-300 border border-emerald-500/30" id="alloc-text-taxpayer">60%</div>
                             </div>
 
                             <!-- Hidden Range Input -->
                             <input type="range" min="0" max="100" step="1" value="40" id="input-allocation"
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20" aria-label="Revenue Allocation">
                         </div>
-                        <p class="mt-2 text-xs text-slate-400 italic">
-                            Drag to adjust the split between the Humanitarian Fund and General Taxpayer Services.
-                        </p>
                     </div>
 
                     <!-- Social Cost Input -->
@@ -2058,9 +2140,10 @@
                                 <span class="text-red-500 font-bold font-mono text-lg"
                                     id="val-cost-total">$13,203</span>
                             </div>
+                            <p class="text-sm text-slate-400 italic mb-4">Default values based on Grinols (2011) ($9,393) adjusted for 2025 inflation ($13,205).</p>
                         </div>
 
-                        <div class="space-y-6 pl-2">
+                        <div class="space-y-12 pl-2">
                             <!-- Crime -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
@@ -2239,8 +2322,6 @@
                                         style="left: calc(50.55% + -0.11px)"></div>
                                 </div>
                             </div>
-                            <p class="mt-4 text-sm text-slate-400 italic">Default values based on Grinols (2011)
-                                ($9,393) adjusted for 2025 inflation ($13,205).</p>
                         </div>
                     </div>
                     <!-- County Selection -->
@@ -2282,7 +2363,7 @@
                                 <div class="text-slate-500 font-bold mb-3">=</div>
                                 <div class="flex flex-col items-center">
                                     <span class="text-slate-500 text-xs uppercase font-bold mb-1">New
-                                        Gamblers</span>
+                                        Problem Gamblers</span>
                                     <span class="text-white font-mono font-bold" id="calc-result">9,250</span>
                                 </div>
                             </div>
@@ -2296,7 +2377,7 @@
                             </div>
                             
                             <!-- Headers -->
-                            <div class="grid grid-cols-12 gap-2 text-[10px] uppercase text-slate-500 font-bold mb-2 px-2">
+                            <div class="grid grid-cols-12 gap-2 text-[12px] uppercase text-slate-500 font-bold mb-2 px-2">
                                 <div class="col-span-6">Category</div>
                                 <div class="col-span-3 text-right">Cost/Victim</div>
                                 <div class="col-span-3 text-right">Total</div>
@@ -2309,8 +2390,8 @@
                                         <span class="text-purple-300 font-bold uppercase">Public Health</span>
                                         <span class="text-xs text-purple-500/80">Humanitarian Fund</span>
                                     </div>
-                                    <div class="col-span-3 text-right font-mono text-slate-400 text-xs" id="calc-break-health-per">-</div>
-                                    <div class="col-span-3 text-right font-mono font-bold text-purple-400 text-base" id="calc-break-health-total">-</div>
+                                    <div class="col-span-3 text-right font-mono text-slate-400" id="calc-break-health-per">-</div>
+                                    <div class="col-span-3 text-right font-mono font-bold text-slate-200 text-base" id="calc-break-health-total">-</div>
                                 </div>
 
                                 <!-- 2. Social Services (Now General) -->
@@ -2319,8 +2400,8 @@
                                         <span class="text-slate-300 font-bold uppercase">Social Services</span>
                                         <span class="text-xs text-slate-500">Welfare, Unemployment</span>
                                     </div>
-                                    <div class="col-span-3 text-right font-mono text-slate-400 text-xs" id="calc-break-social-per">-</div>
-                                    <div class="col-span-3 text-right font-mono font-bold text-white text-base" id="calc-break-social-total">-</div>
+                                    <div class="col-span-3 text-right font-mono text-slate-400" id="calc-break-social-per">-</div>
+                                    <div class="col-span-3 text-right font-mono font-bold text-slate-200 text-base" id="calc-break-social-total">-</div>
                                 </div>
 
                                 <!-- 3. Criminal Justice -->
@@ -2329,8 +2410,8 @@
                                         <span class="text-slate-300 font-bold uppercase">Law Enforcement</span>
                                         <span class="text-xs text-slate-500">Police, Courts, Jail</span>
                                     </div>
-                                    <div class="col-span-3 text-right font-mono text-slate-400 text-xs" id="calc-break-crime-per">-</div>
-                                    <div class="col-span-3 text-right font-mono font-bold text-red-400 text-base" id="calc-break-crime-total">-</div>
+                                    <div class="col-span-3 text-right font-mono text-slate-400" id="calc-break-crime-per">-</div>
+                                    <div class="col-span-3 text-right font-mono font-bold text-slate-200 text-base" id="calc-break-crime-total">-</div>
                                 </div>
 
                                 <!-- 4. Civil Legal -->
@@ -2339,8 +2420,8 @@
                                         <span class="text-slate-300 font-bold uppercase">Civil Legal</span>
                                         <span class="text-xs text-slate-500">Bankruptcy, Debts</span>
                                     </div>
-                                    <div class="col-span-3 text-right font-mono text-slate-400 text-xs" id="calc-break-legal-per">-</div>
-                                    <div class="col-span-3 text-right font-mono font-bold text-yellow-400 text-base" id="calc-break-legal-total">-</div>
+                                    <div class="col-span-3 text-right font-mono text-slate-400" id="calc-break-legal-per">-</div>
+                                    <div class="col-span-3 text-right font-mono font-bold text-slate-200 text-base" id="calc-break-legal-total">-</div>
                                 </div>
 
                                 <!-- 5. Economic -->
@@ -2349,14 +2430,14 @@
                                         <span class="text-slate-300 font-bold uppercase">Local Economy</span>
                                         <span class="text-xs text-slate-500">Job Loss, Family Theft</span>
                                     </div>
-                                    <div class="col-span-3 text-right font-mono text-slate-400 text-xs" id="calc-break-econ-per">-</div>
+                                    <div class="col-span-3 text-right font-mono text-slate-400" id="calc-break-econ-per">-</div>
                                     <div class="col-span-3 text-right font-mono font-bold text-slate-200 text-base" id="calc-break-econ-total">-</div>
                                 </div>
                             </div>
                             
                             <!-- Total Line -->
                             <div class="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center">
-                                <span class="text-sm text-slate-400 uppercase font-bold">Total Annual Social Cost</span>
+                                <span class="text-sm text-slate-300 uppercase font-bold">Total Annual Social Cost</span>
                                 <span class="text-white font-mono font-bold text-lg" id="calc-total-cost-combined">-</span>
                             </div>
                         </div>
@@ -2367,7 +2448,7 @@
                                 Net Impact Analysis
                             </div>
                             
-                            <div class="grid grid-cols-4 gap-2 text-[10px] uppercase text-slate-500 font-bold mb-2 px-2 border-b border-slate-700 pb-2">
+                            <div class="grid grid-cols-4 gap-2 text-sm uppercase text-slate-500 font-bold mb-2 px-2 border-b border-slate-700 pb-2">
                                 <div class="col-span-1">Group</div>
                                 <div class="col-span-1 text-right">Revenue</div>
                                 <div class="col-span-1 text-right">Burden</div>
@@ -2379,8 +2460,8 @@
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
                                     <div class="font-bold text-purple-400">Public Health (Humanitarian)</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-health-human-rev">-</div>
-                                    <div class="text-right text-purple-400 font-mono" id="bal-health-human-cost">-</div>
-                                    <div class="text-right font-bold font-mono" id="bal-health-human-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-health-human-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-health-human-net">-</div>
                                 </div>
 
                                 <!-- 1b. Public Health (Taxpayer) -->
@@ -2388,7 +2469,15 @@
                                     <div class="font-bold text-purple-400">Public Health (Taxpayer)</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-health-tax-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-health-tax-cost">-</div>
-                                    <div class="text-right font-bold font-mono" id="bal-health-tax-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-health-tax-net">-</div>
+                                </div>
+
+                                <!-- Public Health Subtotal -->
+                                <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-600 bg-slate-800/30 py-2 font-bold">
+                                    <div class="font-bold text-purple-400 pl-2">Subtotal: Public Health</div>
+                                    <div class="text-right text-emerald-400 font-mono" id="bal-health-sub-rev">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-health-sub-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-health-sub-net">-</div>
                                 </div>
 
                                 <!-- 2. Law Enforcement -->
@@ -2396,7 +2485,7 @@
                                     <div class="font-bold text-slate-300">Law Enforcement</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-crime-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-crime-cost">-</div>
-                                    <div class="text-right font-bold font-mono" id="bal-crime-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-crime-net">-</div>
                                 </div>
 
                                 <!-- 3. Social Services -->
@@ -2404,31 +2493,60 @@
                                     <div class="font-bold text-slate-300">Social Services</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-social-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-social-cost">-</div>
-                                    <div class="text-right font-bold font-mono" id="bal-social-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-social-net">-</div>
                                 </div>
 
                                 <!-- 4. Civil Legal -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
                                     <div class="font-bold text-slate-300">Civil Legal</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-legal-rev">-</div>
-                                    <div class="text-right text-yellow-400 font-mono" id="bal-legal-cost">-</div>
-                                    <div class="text-right font-bold font-mono" id="bal-legal-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-legal-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-legal-net">-</div>
+                                </div>
+
+                                <!-- Subtotal: General Taxpayer Services -->
+                                <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-600 bg-slate-800/30 py-2 font-bold">
+                                    <div class="font-bold text-slate-300 pl-2">Subtotal: Gen. Taxpayer Svcs</div>
+                                    <div class="text-right text-emerald-400 font-mono" id="bal-gen-sub-rev">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-gen-sub-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-gen-sub-net">-</div>
+                                </div>
+
+                                <!-- Subtotal: Total Public Burden -->
+                                <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t-2 border-slate-500 bg-slate-800/50 py-2 font-black">
+                                    <div class="font-black text-white pl-2 uppercase tracking-wide text-[10px] sm:text-xs">Subtotal: Public Sector Impact</div>
+                                    <div class="text-right text-emerald-400 font-mono" id="bal-public-sub-rev">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-public-sub-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-public-sub-net">-</div>
                                 </div>
 
                                 <!-- 5. Private Econ -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
                                     <div class="font-bold text-slate-300">Local Economy</div>
                                     <div class="text-right text-slate-600 font-mono">$0</div>
-                                    <div class="text-right text-slate-400 font-mono" id="bal-econ-cost">-</div>
-                                    <div class="text-right font-bold text-red-500 font-mono" id="bal-econ-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-econ-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-econ-net">-</div>
                                 </div>
 
                                 <!-- TOTAL NET IMPACT -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t-2 border-slate-500 pt-3 mt-2 bg-slate-800/50 -mx-2 px-2 py-2 rounded-lg">
-                                    <div class="font-black text-white uppercase tracking-wider text-[10px] sm:text-xs">Total Net Impact</div>
+                                    <div class="font-black text-white uppercase tracking-wider text-xs sm:text-sm">Total Net Impact</div>
                                     <div class="text-right text-emerald-400 font-bold font-mono" id="bal-total-rev">-</div>
-                                    <div class="text-right text-red-400 font-bold font-mono" id="bal-total-cost">-</div>
-                                    <div class="text-right font-black font-mono text-base" id="bal-total-net">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-total-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-total-net">-</div>
+                                </div>
+                            </div>
+
+                            <!-- Programmatic Analysis & Disclaimer -->
+                            <div class="mt-6 pt-4 border-t border-slate-700">
+                                <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-4 mb-4">
+                                    <h5 class="text-blue-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <span class="material-symbols-outlined">analytics</span>
+                                        Model Interpretation
+                                    </h5>
+                                    <p class="text-slate-300 leading-relaxed" id="analysis-text">
+                                        <!-- Populated by JS -->
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -2439,12 +2557,12 @@
                                 <span class="text-emerald-500">Revenue Covered</span>
                                 <span class="text-red-500">Uncovered Cost</span>
                             </div>
-                            <div class="w-full bg-red-900/30 rounded-full h-4 overflow-hidden border border-slate-700">
+                            <div class="w-full bg-red-500/60 rounded-full h-4 overflow-hidden border border-slate-700">
                                 <div class="bg-emerald-500 h-full transition-all duration-500" style="width: 35%"
                                     id="res-bar"></div>
                             </div>
                             <p class="mt-4 text-center text-base text-slate-300 italic" id="res-footer">
-                                Tax Revenue covers only <strong class="text-white text-lg">35%</strong> of costs.
+                                Tax Revenue covers only <strong class="text-white text-lg">35%</strong> of social costs.
                             </p>
                         </div>
 
@@ -2792,6 +2910,10 @@
 
                                     let totalTax = supplementalTax + bracketTax;
                                     breakdown.push({ label: "TOTAL ESTIMATED TAX", val: fmt(totalTax), note: "", type: 'total' });
+                                    
+                                    // Effective Rate
+                                    const effRate = agr > 0 ? (totalTax / agr) * 100 : 0;
+                                    breakdown.push({ label: "Effective Tax Rate of AGR", val: effRate.toFixed(2) + '%', note: "", type: 'eff-rate' });
 
                                     // Step E: Total
                                     return { total: totalTax, breakdown: breakdown };
@@ -2843,6 +2965,7 @@
                                         
                                         // Update Revenue Slider (Snap disabled for calculated updates)
                                         els.inRevenue.value = revenueM.toFixed(2);
+                                        els.inRevenue.dispatchEvent(new Event('slider-update'));
                                     } else if (source === els.inRevenue) {
                                         // Master: Revenue
                                         revenueM = parseFloat(els.inRevenue.value);
@@ -2853,6 +2976,7 @@
                                         
                                         // Update AGR Slider
                                         els.inAGR.value = agrM.toFixed(1);
+                                        els.inAGR.dispatchEvent(new Event('slider-update'));
                                     } else {
                                         // Init or other inputs: Default to Revenue as Master (e.g. 27.5M)
                                         // If this is init, inRevenue has 27.5.
@@ -2861,18 +2985,15 @@
                                         const agr = calculateAGRFromTax(targetTax);
                                         agrM = agr / 1000000;
                                         taxResult = calculateTax(agr); // Recalculate for breakdown
-                                        if (!source) els.inAGR.value = agrM.toFixed(1); // Only update on init
+                                        if (!source) {
+                                            els.inAGR.value = agrM.toFixed(1); // Only update on init
+                                            els.inAGR.dispatchEvent(new Event('slider-update'));
+                                        }
                                     }
 
                                     // Update Displays
                                     els.valRevenue.textContent = '$' + revenueM.toFixed(1) + ' M';
                                     els.valAGR.textContent = '$' + agrM.toFixed(1) + ' M';
-                                    
-                                    let effectiveRate = 0;
-                                    if (agrM > 0) {
-                                        effectiveRate = (revenueM / agrM) * 100;
-                                    }
-                                    els.valEffectiveRate.textContent = effectiveRate.toFixed(2) + '%';
                                     
                                     // RENDER TAX BREAKDOWN
                                     const container = document.getElementById('tax-details-container');
@@ -2884,6 +3005,7 @@
                                         container.innerHTML = taxResult.breakdown.map(item => {
                                             let colorClass = 'text-slate-400';
                                             if (item.type === 'total') colorClass = 'text-emerald-400 font-bold border-t border-slate-600 pt-2 mt-2';
+                                            if (item.type === 'eff-rate') colorClass = 'text-emerald-600 dark:text-emerald-500 font-bold text-sm border-t border-slate-700/50 pt-1 mt-1';
                                             if (item.type === 'add') colorClass = 'text-emerald-500/80 pl-2';
                                             if (item.type === 'header') colorClass = 'text-white font-bold pb-1 border-b border-slate-700 mb-1';
                                             if (item.type === 'sub-header') colorClass = 'text-slate-200 font-semibold mt-2';
@@ -3020,6 +3142,7 @@
                                     const totalCostEcon = victims * costEconPer;
 
                                     const totalCost = totalCostHealth + totalCostSocial + totalCostCrime + totalCostLegal + totalCostEcon;
+                                    const totalCostM = totalCost / 1000000;
                                     // --- REVENUE SPLIT ---
                                     const totalRevenue = revenueM * 1000000;
                                     
@@ -3149,6 +3272,16 @@
                                     setTxt('bal-health-tax-net', fmtDiff(netHealthTax));
                                     setClass('bal-health-tax-net', `text-right font-bold font-mono ${netHealthTax >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
 
+                                    // Subtotal: Public Health
+                                    const subHealthRev = revHealthPool + revHealthFromGen;
+                                    const subHealthCost = revHealthAllocated + healthUncovered;
+                                    const subHealthNet = healthSurplus + netHealthTax;
+                                    
+                                    setTxt('bal-health-sub-rev', fmtM(subHealthRev));
+                                    setTxt('bal-health-sub-cost', fmtM(subHealthCost));
+                                    setTxt('bal-health-sub-net', fmtDiff(subHealthNet));
+                                    setClass('bal-health-sub-net', `text-right font-bold font-mono ${subHealthNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
                                     // Law Enforcement
                                     const netCrime = revCrime - totalCostCrime;
                                     setTxt('bal-crime-rev', fmtM(revCrime));
@@ -3169,6 +3302,26 @@
                                     setTxt('bal-legal-cost', fmtM(totalCostLegal));
                                     setTxt('bal-legal-net', fmtDiff(netLegal));
                                     setClass('bal-legal-net', `text-right font-bold font-mono ${netLegal >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+                                    // Subtotal: General Taxpayer Services (Law + Social + Legal)
+                                    const subGenRev = revCrime + revSocial + revLegal;
+                                    const subGenCost = totalCostCrime + totalCostSocial + totalCostLegal;
+                                    const subGenNet = netCrime + netSocial + netLegal;
+                                    
+                                    setTxt('bal-gen-sub-rev', fmtM(subGenRev));
+                                    setTxt('bal-gen-sub-cost', fmtM(subGenCost));
+                                    setTxt('bal-gen-sub-net', fmtDiff(subGenNet));
+                                    setClass('bal-gen-sub-net', `text-right font-bold font-mono ${subGenNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+                                    // Subtotal: Total Public Burden (Public Health + General Taxpayer Services)
+                                    const subPublicRev = subHealthRev + subGenRev; // Should equal totalRevenue allocated effectively (minus any unallocated surplus if logic differed, but here it matches)
+                                    const subPublicCost = subHealthCost + subGenCost;
+                                    const subPublicNet = subHealthNet + subGenNet;
+
+                                    setTxt('bal-public-sub-rev', fmtM(subPublicRev));
+                                    setTxt('bal-public-sub-cost', fmtM(subPublicCost));
+                                    setTxt('bal-public-sub-net', fmtDiff(subPublicNet));
+                                    setClass('bal-public-sub-net', `text-right font-black font-mono ${subPublicNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
 
                                     // Private Econ (0 Allocation)
                                     const netEcon = revEcon - totalCostEcon;
@@ -3208,6 +3361,75 @@
                                         {
                                             els.resFooter.innerHTML = `Tax Revenue covers only <strong class="text-white text-lg">${percentCovered.toFixed(0)}%</strong> of costs.`;
                                         }
+                                    }
+
+                                    // --- DYNAMIC ANALYSIS TEXT ---
+                                    const analysisEl = document.getElementById('analysis-text');
+                                    if (analysisEl) {
+                                        const costRatio = totalRevenue > 0 ? (totalCost / totalRevenue).toFixed(2) : "N/A";
+                                        let analysisHTML = '';
+                                        
+                                        // 1. Disclaimer (Sub-header + Bullet)
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm">Disclaimer</div>`;
+                                        analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+                                        analysisHTML += `<li>This model estimates social costs based on prevalence rates from peer-reviewed studies (<a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Grinols</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/26615561/" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Welte</a>).</li>`;
+                                        analysisHTML += `<li>It does not account for economic multipliers or indirect tax benefits often cited by proponents, focusing strictly on the direct fiscal impact of problem gambling on county services and household stability. Such factors may be included in future updates to the Economic Impact Calculator.</li>`;
+                                        analysisHTML += `<li>SaveFW has published the source code for this Economic Impact Calculator as free and open-source software (FOSS) under the AGPL-3.0 License, available on GitHub at <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">https://github.com/savefw/casino-economic-impact-calculator</a>.</li>`;
+                                        analysisHTML += `</ul>`;
+
+                                        // 2. Assumptions (Sub-header + Bullets)
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm">Assumptions</div>`;
+                                        analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+                                        analysisHTML += `<li>The <strong class="text-white">Humanitarian Fund</strong> (${allocPct}%) prioritizes Public Health costs.</li>`;
+                                        analysisHTML += `<li>The <strong class="text-white">General Fund</strong> (${100 - allocPct}%) is distributed <strong class="text-white">pro rata</strong> (proportionally based on share of total cost) to cover remaining burdens: Law Enforcement, Social Services, Civil Legal, and unfunded Public Health costs.</li>`;
+                                        analysisHTML += `<li>The <strong class="text-white">Local Economy</strong> category represents private sector losses (productivity, debt) borne directly by households and businesses.</li>`;
+                                        analysisHTML += `</ul>`;
+
+                                        // 3. Analysis (Sub-header + Dynamic Bullets)
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm">Analysis</div>`;
+                                        analysisHTML += '<ul class="list-disc pl-8 space-y-3 text-slate-300">';
+                                        
+                                        // 1. Overall Fiscal Health
+                                        if (netTotalBalance < 0) {
+                                            analysisHTML += `<li>The projected social costs exceed the direct tax revenue, resulting in a net fiscal deficit for the county. The projected <strong class="text-white">${fmtM(totalRevenue)}</strong> in revenue is outweighed by <strong class="text-white">${fmtM(totalCost)}</strong> in public liabilities, leaving taxpayers with a <strong class="text-red-400">${fmtM(Math.abs(netTotalBalance))} annual deficit</strong>.</li>`;
+                                            analysisHTML += `<li>For every <strong class="text-white">$1</strong> in tax revenue gained, the county incurs <strong class="text-red-400">$${costRatio}</strong> in social costs (crime, bankruptcy, lost productivity).</li>`;
+                                        } else {
+                                            analysisHTML += `<li>Under this scenario, the casino generates a <strong class="text-emerald-400">net surplus</strong>. The projected revenue of <strong class="text-white">${fmtM(totalRevenue)}</strong> exceeds the estimated social costs of <strong class="text-white">${fmtM(totalCost)}</strong>.</li>`;
+                                        }
+
+                                        // 2. Public Health Coverage
+                                        if (revHealthPool >= totalCostHealth) {
+                                            analysisHTML += `<li>The <strong class="text-white">${allocPct}%</strong> Humanitarian allocation is <strong class="text-emerald-400">fully sufficient</strong> to cover the projected <strong class="text-white">${fmtM(totalCostHealth)}</strong> in Public Health costs.</li>`;
+                                        } else if (subHealthNet >= -0.01) {
+                                            analysisHTML += `<li>While the <strong class="text-white">${allocPct}%</strong> Humanitarian allocation falls short, the Public Health costs are <strong class="text-white">fully covered</strong> when supplemented by General Fund contributions.</li>`;
+                                        } else {
+                                            analysisHTML += `<li>The projected Public Health costs exceed the combined capacity of the <strong class="text-white">${allocPct}%</strong> Humanitarian allocation and available General Fund support, leaving a <strong class="text-red-400">funding gap</strong> for addiction treatment.</li>`;
+                                        }
+
+                                        // 3. General Services Coverage
+                                        const genCoverage = totalGeneralBurden > 0 ? (revGeneralPool / totalGeneralBurden) * 100 : 100;
+                                        if (genCoverage < 100) {
+                                            analysisHTML += `<li>General Taxpayer Services (Law Enforcement, Social Services, Courts) are funded at only <strong class="text-red-400">${genCoverage.toFixed(1)}%</strong> of their projected new burdens, creating deficits across all municipal departments.</li>`;
+                                        } else {
+                                            analysisHTML += `<li>General Taxpayer Services are fully funded by the General Fund allocation.</li>`;
+                                        }
+
+                                        // 4. Local Economy Impact
+                                        const econShare = totalCost > 0 ? (totalCostEcon / totalCost) * 100 : 0;
+                                        analysisHTML += `<li>The <strong class="text-white">Local Economy</strong> bears the most significant burden (<strong class="text-red-400">${fmtM(totalCostEcon)}</strong>), accounting for <strong class="text-white">${econShare.toFixed(0)}%</strong> of the total social cost. This represents direct wealth extraction from Fort Wayne households and businesses (via lost productivity, bad debt, and embezzlement) which receives <strong class="text-red-400">zero</strong> tax revenue offset.</li>`;
+
+                                        // 5. Conclusion (Multipliers Context)
+                                        if (netTotalBalance < 0) {
+                                            const deficitM = Math.abs(netTotalBalance) / 1000000;
+                                            if (deficitM > 50) {
+                                                analysisHTML += `<li>Given the magnitude of this deficit (<strong class="text-red-400">${fmtM(Math.abs(netTotalBalance))}</strong>), it is statistically unlikely that unmodeled economic multipliers or indirect tax benefits would be sufficient to bridge the gap. Proponents would need to demonstrate substantial secondary economic activity to offset such a significant shortfall.</li>`;
+                                            } else {
+                                                analysisHTML += `<li>While this model does not account for economic multipliers or indirect tax benefits, proponents would need to demonstrate that such factors can generate at least <strong class="text-white">${fmtM(Math.abs(netTotalBalance))}</strong> in additional value to break even.</li>`;
+                                            }
+                                        }
+
+                                        analysisHTML += '</ul>';
+                                        analysisEl.innerHTML = analysisHTML;
                                     }
                                 }
 
@@ -5135,6 +5357,9 @@
             let stateLayer = null;
             let highlightLayer = null;
             let stateData = null;
+            let label10 = null;
+            let label20 = null;
+            let labelBaseline = null;
 
             // DOM Elements
             const els = {
@@ -5174,6 +5399,7 @@
             let hintTimeout;
 
             function showHint() {
+                if (document.fullscreenElement) return; // No hint in FS
                 zoomHint.style.opacity = '1';
                 clearTimeout(hintTimeout);
                 hintTimeout = setTimeout(() => {
@@ -5182,8 +5408,13 @@
             }
 
             // Detect CTRL key state during wheel event to enable/disable zoom dynamically
-            // This works without needing to "click" the page first for focus
             const onWheel = (e) => {
+                if (document.fullscreenElement) {
+                    map.scrollWheelZoom.enable();
+                    zoomHint.style.opacity = '0';
+                    return;
+                }
+
                 if (e.ctrlKey) {
                     map.scrollWheelZoom.enable();
                     zoomHint.style.opacity = '0';
@@ -5302,58 +5533,10 @@
 
 
 
-                    // Add instruction overlay
-                    addInstructions();
-
-
                 } catch (e)
                 {
                     console.error("State Map Load Error", e);
                 }
-            }
-
-            function addInstructions()
-            {
-                if (document.getElementById('map-instructions')) return;
-
-                const instr = L.control({ position: 'bottomleft' });
-                instr.onAdd = function (map)
-                {
-                    const div = L.DomUtil.create('div', 'info legend');
-                    div.id = 'map-instructions';
-                    div.className = 'bg-white/95 dark:bg-slate-800/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-[220px] transition-all duration-300';
-                    div.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="m-0 font-black text-slate-900 dark:text-white text-sm uppercase tracking-wider">Step 1: Select</h4>
-                        <button id="reset-map" class="hidden text-[10px] font-bold bg-accent hover:bg-accent/80 text-white px-2 py-1 rounded-lg transition-colors uppercase tracking-tighter" onclick="resetMapState()">
-                            Reset
-                        </button>
-                    </div>
-                    <p id="instr-text" class="m-0 text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">Click any county (e.g. Allen) to begin analysis.</p>
-                `;
-                    return div;
-                };
-                instr.addTo(map);
-
-                // Expose reset function globally
-                window.resetMapState = function ()
-                {
-                    // Zoom out
-                    map.setView([39.8, -86.15], 7);
-
-                    // Reset Instructions
-                    const btn = document.getElementById('reset-map');
-                    const text = document.getElementById('instr-text');
-                    const title = document.querySelector('#map-instructions h4');
-
-                    if (btn) btn.classList.add('hidden');
-                    if (text) text.textContent = "Click any county (e.g. Allen) to begin analysis.";
-                    if (title) title.textContent = "Step 1: Select";
-
-                    // Clear Highlight
-                    if (highlightLayer) map.removeLayer(highlightLayer);
-                    highlightLayer = null;
-                };
             }
 
             // Add Marker
@@ -5422,8 +5605,57 @@
                 radius: 16093.4
             }).addTo(map);
 
+            // Combined Fullscreen and Labels Control (Top Right)
+            const mapOverlayControls = L.control({ position: 'topright' });
+            mapOverlayControls.onAdd = function (map) {
+                const container = L.DomUtil.create('div', 'flex flex-col items-end gap-2 mt-4 mr-2');
+                container.id = 'map-overlay-topright';
+                
+                // Fullscreen Button
+                const btn = L.DomUtil.create('button', 'bg-white text-slate-700 hover:bg-slate-100 w-10 h-10 flex items-center justify-center rounded-lg shadow-xl cursor-pointer border border-slate-300 transition-colors mb-2', container);
+                btn.innerHTML = '<span class="material-symbols-outlined text-2xl leading-none">fullscreen</span>';
+                btn.title = "Toggle Fullscreen";
+                btn.id = "fs-toggle-btn";
+                
+                btn.onclick = function() {
+                    const mapEl = document.getElementById('impact-map').parentElement;
+                    if (!document.fullscreenElement) {
+                        mapEl.requestFullscreen().catch(err => {
+                            console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                        });
+                    } else {
+                        document.exitFullscreen();
+                    }
+                };
+
+                // Label Stack
+                const labelStack = L.DomUtil.create('div', 'flex flex-col gap-2', container);
+                labelStack.innerHTML = `
+                    <div class="bg-blue-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105" id="label-high">High Risk: -</div>
+                    <div class="bg-red-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105" id="label-elevated">Elevated Risk: -</div>
+                    <div class="bg-orange-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105" id="label-baseline">Baseline: -</div>
+                `;
+                
+                return container;
+            };
+            mapOverlayControls.addTo(map);
+
+            // Listen for Fullscreen Changes to update icon and zoom behavior
+            document.addEventListener('fullscreenchange', () => {
+                const btn = document.getElementById('fs-toggle-btn');
+                if (btn) {
+                    if (document.fullscreenElement) {
+                        btn.innerHTML = '<span class="material-symbols-outlined text-2xl leading-none">fullscreen_exit</span>';
+                        map.scrollWheelZoom.enable(); // Enable by default in FS
+                    } else {
+                        btn.innerHTML = '<span class="material-symbols-outlined text-2xl leading-none">fullscreen</span>';
+                        map.scrollWheelZoom.disable();
+                    }
+                }
+            });
+
             // 3. Logic: Load Data
-            async function loadCounty(countyId)
+            async function loadCounty(countyId, skipMarkerMove = false)
             {
                 if (!countyId) return;
 
@@ -5431,8 +5663,9 @@
                 if (cache[countyId])
                 {
                     currentGeoJSON = cache[countyId];
+                    currentCountyId = countyId; // Ensure currentCountyId is updated
                     // Visual Update
-                    highlightCountyVisuals(countyId);
+                    highlightCountyVisuals(countyId, skipMarkerMove);
                     // Calculation Update
                     calculateImpact();
                     return;
@@ -5448,8 +5681,9 @@
 
                     cache[countyId] = data;
                     currentGeoJSON = data;
+                    currentCountyId = countyId;
 
-                    highlightCountyVisuals(countyId);
+                    highlightCountyVisuals(countyId, skipMarkerMove);
                     calculateImpact();
 
                 } catch (e)
@@ -5486,7 +5720,7 @@
                 }
             }
 
-            function highlightCountyVisuals(countyId)
+            function highlightCountyVisuals(countyId, skipMarkerMove = false)
             {
                 if (!stateData) return; // Wait for state map loading
 
@@ -5514,15 +5748,18 @@
                     circle10.bringToFront();
 
                     // Zoom to county
-                    const bounds = highlightLayer.getBounds();
-                    map.fitBounds(bounds, { padding: [50, 50] });
+                    if (!skipMarkerMove)
+                    {
+                        const bounds = highlightLayer.getBounds();
+                        map.fitBounds(bounds, { padding: [50, 50] });
 
-                    const latLng = bounds.getCenter();
+                        const latLng = bounds.getCenter();
 
-                    // Move marker to center of highlighted county
-                    marker.setLatLng(latLng);
-                    circle10.setLatLng(latLng);
-                    circle20.setLatLng(latLng);
+                        // Move marker to center of highlighted county
+                        marker.setLatLng(latLng);
+                        circle10.setLatLng(latLng);
+                        circle20.setLatLng(latLng);
+                    }
 
                     // Re-calc after move
                     // Note: calculateImpact uses 'currentGeoJSON' (detailed) which is correct.
@@ -5535,15 +5772,6 @@
                 {
                     els.displayCounty.textContent = cInfo.name;
                 }
-
-                // Update Instruction Overlay
-                const btn = document.getElementById('reset-map');
-                const text = document.getElementById('instr-text');
-                const title = document.querySelector('#map-instructions h4');
-
-                if (btn) btn.classList.remove('hidden');
-                if (text) text.textContent = "Click & Drag the red pin to test different locations.";
-                if (title) title.textContent = "Step 2: Place";
             }
 
             // Add Search Control
@@ -5576,14 +5804,6 @@
 
                     // Trigger calculation
                     calculateImpact();
-
-                    // Also ensure instruction is updated
-                    const btn = document.getElementById('reset-map');
-                    const text = document.getElementById('instr-text');
-                    const title = document.querySelector('#map-instructions h4');
-                    if (btn) btn.classList.remove('hidden');
-                    if (text) text.textContent = "Click & Drag the red pin to test different locations.";
-                    if (title) title.textContent = "Step 2: Place";
                 })
                 .addTo(map);
 
@@ -5695,9 +5915,7 @@
                     if (labelT3) labelT3.textContent = "Population";
                 }
 
-                // Rates
-                if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
-                if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
+                // Rate: Baseline
                 if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
 
                 // Victims
@@ -5707,6 +5925,15 @@
 
                 // Total
                 if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictims).toLocaleString();
+
+                // --- UPDATE MAP OVERLAY LABELS ---
+                const lblHigh = document.getElementById('label-high');
+                const lblElevated = document.getElementById('label-elevated');
+                const lblBaseline = document.getElementById('label-baseline');
+
+                if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1Pop).toLocaleString()}`;
+                if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2Pop).toLocaleString()}`;
+                if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3Pop).toLocaleString()}`;
 
                 // PUSH TO GLOBAL CALCULATOR
                 // We update the inputs/results in the Calc section directly to sync state
@@ -5748,6 +5975,30 @@
                 const pos = marker.getLatLng();
                 circle10.setLatLng(pos);
                 circle20.setLatLng(pos);
+
+                // Auto-activate county
+                if (stateData)
+                {
+                    const pt = turf.point([pos.lng, pos.lat]);
+                    const matched = stateData.features.find(f => turf.booleanPointInPolygon(pt, f));
+                    if (matched)
+                    {
+                        const newCountyId = matched.properties.COUNTY;
+                        if (newCountyId !== currentCountyId)
+                        {
+                            currentCountyId = newCountyId;
+                            loadCounty(newCountyId, true); // true = skipMarkerMove
+
+                            // Sync Dropdown
+                            const cInfo = countyReference.find(c => c.id === newCountyId);
+                            if (cInfo)
+                            {
+                                window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop } }));
+                            }
+                        }
+                    }
+                }
+
                 calculateImpact();
             });
 
@@ -6142,6 +6393,112 @@
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(initLights, 100);
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sliderConfigs = [
+                { id: 'input-rate', stepMajor: 1.0, stepMinor: 0.5, format: v => v + '%' },
+                { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'M' },
+                { id: 'input-revenue', stepMajor: 50, stepMinor: 10, format: v => '$' + v + 'M' },
+                { id: 'input-cost-crime', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+                { id: 'input-cost-business', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+                { id: 'input-cost-bankruptcy', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+                { id: 'input-cost-illness', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+                { id: 'input-cost-services', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+                { id: 'input-cost-abused', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() }
+            ];
+    
+            sliderConfigs.forEach(cfg => {
+                const input = document.getElementById(cfg.id);
+                if (!input) return;
+    
+                const container = input.parentElement;
+                
+                // 1. Clean up existing manual ticks (divs that are NOT the input)
+                const children = Array.from(container.children);
+                children.forEach(child => {
+                    if (child !== input && child.tagName === 'DIV' && (child.className.includes('absolute') || child.className.includes('slider-tick') || child.className.includes('tick-label'))) {
+                        child.remove();
+                    }
+                });
+    
+                // 2. Modify Input Styling (Make transparent to show track)
+                input.classList.remove('bg-slate-700');
+                input.classList.add('bg-transparent');
+                input.style.backgroundColor = 'transparent'; 
+    
+                // 3. Create Track
+                const track = document.createElement('div');
+                track.className = 'slider-track';
+                container.insertBefore(track, input);
+    
+                // 4. Generate Ticks
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+                const range = max - min;
+    
+                if (range > 0) {
+                    const startMajor = Math.ceil(min / cfg.stepMajor) * cfg.stepMajor;
+                    for (let v = startMajor; v <= max; v += cfg.stepMajor) {
+                        addTick(v, 'tick-major', cfg.format(v));
+                    }
+                    
+                    const startMinor = Math.ceil(min / cfg.stepMinor) * cfg.stepMinor;
+                    for (let v = startMinor; v <= max; v += cfg.stepMinor) {
+                        if (v % cfg.stepMajor !== 0) {
+                            addTick(v, 'tick-minor');
+                        }
+                    }
+                }
+    
+                function addTick(val, typeClass, labelText = null) {
+                    const tick = document.createElement('div');
+                    tick.className = `slider-tick ${typeClass}`;
+                    const pct = ((val - min) / range) * 100;
+                    tick.style.left = `${pct}%`;
+                    container.appendChild(tick);
+
+                    if (labelText) {
+                        const label = document.createElement('div');
+                        label.className = 'tick-label';
+                        label.textContent = labelText;
+                        label.style.left = `${pct}%`;
+                        container.appendChild(label);
+                    }
+                }
+    
+                // 5. Tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'slider-tooltip';
+                tooltip.textContent = cfg.format(input.value);
+                container.appendChild(tooltip);
+    
+                const updateTooltip = () => {
+                    const val = parseFloat(input.value);
+                    const pct = ((val - min) / range) * 100;
+                    tooltip.style.left = `${pct}%`;
+                    tooltip.textContent = cfg.format(val);
+                    container.classList.add('slider-active');
+                };
+    
+                const hideTooltip = () => {
+                    container.classList.remove('slider-active');
+                };
+    
+                input.addEventListener('input', updateTooltip);
+                input.addEventListener('change', updateTooltip);
+                input.addEventListener('slider-update', updateTooltip);
+                input.addEventListener('mousedown', updateTooltip);
+                input.addEventListener('touchstart', updateTooltip);
+                
+                input.addEventListener('blur', hideTooltip);
+                input.addEventListener('mouseup', hideTooltip);
+                input.addEventListener('touchend', hideTooltip);
+                
+                updateTooltip();
+                hideTooltip(); 
             });
         });
     </script>
