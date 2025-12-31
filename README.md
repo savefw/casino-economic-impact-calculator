@@ -25,6 +25,13 @@ Save Fort Wayne is a grassroots coalition project dedicated to protecting the co
 - **Geospatial Logic:** [Turf.js](https://turfjs.org/) for impact radius calculations.
 - **Content:** Markdown-based analysis reports and PDF integration.
 
+## Open Source and Contributions
+
+This project is being shared openly to encourage community involvement and technical improvements. We specifically invite developers, data scientists, and researchers to:
+- **Improve the Economic Impact Calculator:** Refine the social cost algorithms, add more granular data points, or improve the interactive modeling logic.
+- **Enhance Data Visualizations:** Build upon the existing mapping and charting tools to provide even clearer insights into community impacts.
+- **Audit and Update Sources:** Ensure the latest research and economic data are reflected in the platform's models.
+
 ## Getting Started
 
 ### Local Development
