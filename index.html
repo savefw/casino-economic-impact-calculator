@@ -868,14 +868,14 @@
         }
         .slider-tooltip {
             position: absolute;
-            bottom: 25px; /* Above thumb */
+            bottom: 30px; /* Raised slightly to accommodate larger text */
             left: 0;
             transform: translateX(-50%);
             background-color: #0f172a; /* slate-900 */
             color: #fff;
-            padding: 4px 8px;
+            padding: 6px 10px; /* Slightly increased padding */
             border-radius: 6px;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             font-weight: 800;
             white-space: nowrap;
             pointer-events: none;
@@ -912,8 +912,8 @@
                     href="#">Home</a>
                 <a class="text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
                     href="#" onclick="openFlipbook(event)">Our Analysis</a>
-                <a class="text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
-                    href="#calculator-controls">Economic Impact Calculator</a>
+                                <li><a class="nav-link text-slate-300 hover:text-white transition-colors"
+                                        href="#impact-visualizer">Economic Impact Calculator</a></li>
             </div>
             <div class="flex items-center gap-3">
                 <a href="https://github.com/savefw/casino-economic-impact-calculator.git" target="_blank" class="flex size-10 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-white transition-colors" title="View Source on GitHub">
@@ -1719,7 +1719,7 @@
             </div>
 
             <!-- Impact Map Section -->
-            <div class="mb-12">
+            <div id="impact-visualizer" class="mb-12">
                 <div class="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-sm">
                     <h3 class="text-xl font-bold text-slate-300 dark:text-white mb-2">
                         <span class="material-symbols-outlined text-blue-500">map</span>
@@ -1842,7 +1842,7 @@
                                     <span>Diagnosed</span>
                                     <span class="material-symbols-outlined text-[12px]">info</span>
                                 </div>
-                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                     Hoosiers meeting clinical criteria for Gambling Disorder (2023).
                                 </div>
                             </div>
@@ -1856,7 +1856,7 @@
                                     <span>Problem</span>
                                     <span class="material-symbols-outlined text-[12px]">info</span>
                                 </div>
-                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                     Self-reported "problems with gambling" in state surveys.
                                 </div>
                             </div>
@@ -2147,22 +2147,6 @@
                             <input type="range" min="0" max="1000" step="1" value="112" data-default="112"
                                 id="input-agr"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
-
-                            <input type="radio" name="agr-default" value="112"
-                                class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#10b981_40%)] checked:border-emerald-500 pointer-events-none transition-all group-hover:scale-110"
-                                style="left: calc(11.2% + 5.6px)">
-
-                            <!-- Default Label -->
-                            <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(11.2% + 5.6px)">
-                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
-                                        <span>Default</span>
-                                        <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
-                                    This is the primary Adjusted Gross Revenue projection from the Spectrum Gaming Group study.
-                                </div>
-                                    </div>
-                                </div>
                         </div>
                         
                         <!-- Tax Details (Always Visible) -->
@@ -2195,7 +2179,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                     This represents the primary projection from the Spectrum Gaming Group study.
                                 </div>
                                     </div>
@@ -2286,7 +2270,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                             This is the inflation-adjusted default value based on Grinols (2011).
                                         </div>
                                     </div>
@@ -2329,7 +2313,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                             This is the inflation-adjusted default value based on Grinols (2011).
                                         </div>
                                     </div>
@@ -2371,7 +2355,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                             This is the inflation-adjusted default value based on Grinols (2011).
                                         </div>
                                     </div>
@@ -2413,7 +2397,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                             This is the inflation-adjusted default value based on Grinols (2011).
                                         </div>
                                     </div>
@@ -2456,7 +2440,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                             This is the inflation-adjusted default value based on Grinols (2011).
                                         </div>
                                     </div>
@@ -2499,7 +2483,7 @@
                                     <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
                                         <span>Default</span>
                                         <span class="material-symbols-outlined text-[12px]">info</span>
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                             This is the inflation-adjusted default value based on Grinols (2011).
                                         </div>
                                     </div>
@@ -3816,7 +3800,7 @@
                                             baselineDesc = `a Custom Rate of ${baselineRateVal.toFixed(1)}%, which is a <strong class="${variance > 0 ? 'text-red-400' : 'text-emerald-400'}">${varianceStr}</strong> variance from Indiana's Diagnosed Rate (2.3%)`;
                                         }
 
-                                        analysisHTML += `<li><strong class="text-white">Impact Distribution:</strong> 
+                                        analysisHTML += `<li><strong class="text-white">Impact Distribution:</strong> This distribution models the increased statistical likelihood of residents developing problem gambling behaviors (Gambling Disorder) based on their geographic proximity to the casino site.
                                             <ul class="list-[circle] pl-8 mt-2 space-y-2">
                                                 <li><strong class="text-white">High Risk Zone (0-10 miles):</strong> ${t1Pop} residents are subject to a ${t1Rate} prevalence rate due to immediate proximity.</li>
                                                 <li><strong class="text-white">Elevated Risk Zone (10-20 miles):</strong> ${t2Pop} residents are subject to a ${t2Rate} prevalence rate.</li>`;
@@ -3850,28 +3834,30 @@
                                         } else {
                                             analysisHTML += `<li><strong class="text-white">Public Health:</strong> The projected Public Health costs exceed the capacity of the ${allocPct}% Humanitarian allocation, leaving a funding gap for addiction and mental health treatments. This shortfall risks exacerbating homelessness and straining emergency medical services as untreated conditions escalate.</li>`;
                                         }
-                                        // General Taxpayer Services
-                                        const genCoverage = totalGeneralBurden > 0 ? (revGeneralPool / totalGeneralBurden) * 100 : 100;
+                                        // General Taxpayer Services Analysis (Dollar Amounts)
                                         
                                         // Law Enforcement
-                                        if (genCoverage < 100) {
-                                            analysisHTML += `<li><strong class="text-white">Law Enforcement:</strong> With funding at only ${genCoverage.toFixed(1)}% of the projected burden, the department faces critical operational shortfalls. This deficit is projected to result in slower response times, significantly reduced clearance rates for property crimes, and a diminished capacity to manage the anticipated surge in domestic disturbance calls.</li>`;
+                                        const gapCrime = totalCostCrime - revCrime;
+                                        if (gapCrime > 0) {
+                                            analysisHTML += `<li><strong class="text-white">Law Enforcement:</strong> The department faces a projected deficit of ${fmtM(gapCrime)}, necessitating a reduction in operational throughput. This budgetary deficit is projected to result in increased response latencies, diminished clearance rates for property crimes, and a reduced capacity to manage the anticipated surge in domestic disturbance calls.</li>`;
                                         } else {
-                                            analysisHTML += `<li><strong class="text-white">Law Enforcement:</strong> Projecting full funding under this allocation model, the department is positioned to maintain operational readiness. This surplus would enable the implementation of enhanced community policing initiatives and the establishment of specialized units dedicated to investigating complex financial crimes, such as embezzlement.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">Law Enforcement:</strong> The department projects a budget surplus of ${fmtM(Math.abs(gapCrime))}, positioning it to maintain high operational readiness. This additional capacity enables the implementation of enhanced community policing initiatives and the establishment of specialized units dedicated to investigating complex financial crimes.</li>`;
                                         }
 
                                         // Social Services
-                                        if (genCoverage < 100) {
-                                            analysisHTML += `<li><strong class="text-white">Social Services:</strong> Funding is projected at only ${genCoverage.toFixed(1)}% of the required level, creating a precarious safety net for the county's most vulnerable residents. This shortfall risks overwhelming the foster care system due to increased child neglect cases and leaves the county without adequate resources to support families displaced by homelessness or foreclosure.</li>`;
+                                        const gapSocial = totalCostSocial - revSocial;
+                                        if (gapSocial > 0) {
+                                            analysisHTML += `<li><strong class="text-white">Social Services:</strong> This sector faces a projected deficit of ${fmtM(gapSocial)}, diminishing the programmatic efficacy of the regional social safety net. A deficit of this magnitude risks exceeding the throughput capacity of the foster care system and restricts the availability of essential support resources for households experiencing displacement or foreclosure.</li>`;
                                         } else {
-                                            analysisHTML += `<li><strong class="text-white">Social Services:</strong> With projected full funding, the county can maintain a robust safety net for at-risk populations. This financial stability allows for the expansion of proactive family stabilization programs and ensures adequate resources are available for food banks and emergency housing assistance to mitigate downstream social costs.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">Social Services:</strong> With a projected surplus of ${fmtM(Math.abs(gapSocial))}, the county can maintain a robust and stable safety net. This financial stability facilitates the expansion of proactive family stabilization programs and ensures adequate resource availability for food banks and emergency housing assistance.</li>`;
                                         }
 
                                         // Courts (Civil Legal)
-                                        if (genCoverage < 100) {
-                                            analysisHTML += `<li><strong class="text-white">Civil Legal (Courts):</strong> The judicial system is funded at only ${genCoverage.toFixed(1)}%, inevitably leading to significant administrative bottlenecks. This lack of resources will likely cause severe backlogs in bankruptcy proceedings, extended delays in divorce and custody hearings, and an inability to process the rising volume of eviction cases efficiently.</li>`;
+                                        const gapLegal = totalCostLegal - revLegal;
+                                        if (gapLegal > 0) {
+                                            analysisHTML += `<li><strong class="text-white">Civil Legal (Courts):</strong> The judicial system faces a projected deficit of ${fmtM(gapLegal)}, resulting in systemic administrative bottlenecks. This budgetary deficit is anticipated to generate substantial backlogs in bankruptcy proceedings, extended processing delays for divorce and custody hearings, and an inability to manage the projected volume of eviction cases efficiently.</li>`;
                                         } else {
-                                            analysisHTML += `<li><strong class="text-white">Civil Legal (Courts):</strong> Projecting full funding, the judicial system is equipped to maintain operational efficiency despite increased caseloads. This financial capacity facilitates the timely processing of civil matters and provides necessary funding for mediation services and diversion programs that reduce the long-term burden on the criminal justice system.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">Civil Legal (Courts):</strong> The system projects a budget surplus of ${fmtM(Math.abs(gapLegal))}, equipping it to maintain operational efficiency despite increased caseloads. This financial capacity facilitates the timely processing of civil matters and provides necessary funding for mediation services and diversion programs.</li>`;
                                         }
                                         // Local Economy
                                         const econShare = totalCost > 0 ? (totalCostEcon / totalCost) * 100 : 0;
@@ -4972,8 +4958,8 @@
                 <a class="text-lg font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
                     href="#" onclick="openFlipbook(event); closeDrawer()">Our
                     Analysis</a>
-                <a class="text-lg font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
-                    href="#calculator-controls" onclick="closeDrawer()">Economic Impact Calculator</a>
+                <a class="block py-3 text-lg font-bold border-b border-slate-800"
+                    href="#impact-visualizer" onclick="closeDrawer()">Economic Impact Calculator</a>
                 <a class="text-lg font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-white transition-colors"
                     href="mailto:outreach@savefw.com" onclick="closeDrawer()">Contact</a>
             </div>
@@ -7124,12 +7110,32 @@
                 const container = input.parentElement;
                 
                 // 1. Clean up existing manual ticks (divs that are NOT the input)
+                // REVERTED to safer cleanup: Only remove elements we know we generated
                 const children = Array.from(container.children);
                 children.forEach(child => {
-                    // Do not remove the "Default" label (group/lbl) or the radio inputs
-                    if (child !== input && child.tagName === 'DIV' && !child.className.includes('group/lbl') && (child.className.includes('absolute') || child.className.includes('slider-tick') || child.className.includes('tick-label'))) {
+                    if (child.className.includes('slider-tick') || child.className.includes('tick-label') || child.className.includes('slider-tooltip') || child.className.includes('slider-track')) {
                         child.remove();
                     }
+                });
+
+                // Bind Radio Buttons to Slider (If any exist in the HTML)
+                const radios = container.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        input.value = radio.value;
+                        input.dispatchEvent(new Event('input'));
+                        input.dispatchEvent(new Event('change')); // Ensure change fires
+                    });
+                    
+                    // Sync radio state on slider input
+                    input.addEventListener('input', () => {
+                        // Use a small tolerance for float comparison if needed, but integers are fine here
+                        if (Math.abs(parseFloat(input.value) - parseFloat(radio.value)) < 0.1) {
+                            radio.checked = true;
+                        } else {
+                            radio.checked = false;
+                        }
+                    });
                 });
     
                 // 2. Modify Input Styling (Make transparent to show track)
@@ -7212,6 +7218,90 @@
                 
                 updateTooltip();
                 hideTooltip(); 
+
+                // Specific Logic for AGR Slider Markers
+                if (cfg.id === 'input-agr') {
+                    // 1. Clear ANY existing markers (static or previous JS injection) to prevent duplicates
+                    container.querySelectorAll('.group\\/lbl').forEach(el => el.remove());
+
+                    const markers = [
+                        { value: 43, label: '$43M', tooltip: 'Spectrum Gaming Study scenario accounting for full Tribal Competition.' },
+                        { value: 112, label: 'Default', tooltip: 'This is the primary Adjusted Gross Revenue projection from the Spectrum Gaming Group study.' },
+                        { value: 204, label: '$204M', tooltip: 'Spectrum Gaming Study scenario assuming NO Tribal Competition.' },
+                        { value: 330, label: '$330M', tooltip: "Greater Fort Wayne Inc.'s \"FWFirst\" Sales Pitch, based on Union Gaming projections." }
+                    ];
+
+                    markers.forEach(m => {
+                        const pct = ((m.value - min) / range) * 100;
+                        
+                        // Wrapper: Positioned at vertical center of slider
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'absolute top-1/2 -translate-x-1/2 z-40 flex flex-col items-center group/lbl pointer-events-none transition-all';
+                        wrapper.style.left = `calc(${pct}% + 5.6px)`;
+
+                        // Z-Index Promotion on Hover (Fixes tooltip occlusion by neighbors)
+                        wrapper.addEventListener('mouseenter', () => {
+                            wrapper.style.zIndex = '100';
+                        });
+                        wrapper.addEventListener('mouseleave', () => {
+                            wrapper.style.zIndex = ''; // Reverts to CSS class (z-40)
+                        });
+
+                        // Radio Input: Centered exactly on the line
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = 'agr-default';
+                        radio.value = m.value;
+                        // -translate-y-1/2 centers it vertically on the wrapper's top-1/2 baseline
+                        radio.className = 'w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#10b981_40%)] checked:border-emerald-500 transition-all cursor-pointer hover:scale-110 pointer-events-auto relative z-50 -translate-y-1/2 shadow-sm';
+                        
+                        if (Math.abs(parseFloat(input.value) - m.value) < 0.1) radio.checked = true;
+
+                        // Interaction
+                        radio.addEventListener('change', () => {
+                            input.value = m.value;
+                            input.dispatchEvent(new Event('input'));
+                            input.dispatchEvent(new Event('change'));
+                        });
+
+                        // Sync state
+                        input.addEventListener('input', () => {
+                            if (Math.abs(parseFloat(input.value) - m.value) < 0.1) {
+                                radio.checked = true;
+                            } else {
+                                radio.checked = false;
+                            }
+                        });
+
+                        wrapper.appendChild(radio);
+
+                        // Label & Tooltip Container: Hanging below
+                        // top-4 pushes the start of this container just below the radio button
+                        const labelContainer = document.createElement('div');
+                        labelContainer.className = 'flex flex-col items-center pointer-events-auto absolute top-4'; 
+
+                        // Connector Line (Standard height to match other UI elements)
+                        const line = document.createElement('div');
+                        line.className = 'h-10 w-px bg-slate-500/50 mb-1'; 
+                        labelContainer.appendChild(line);
+
+                        // Text Label
+                        const labelText = document.createElement('div');
+                        // Removed whitespace-nowrap to allow tooltip text to wrap
+                        labelText.className = 'flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider relative group/tooltip';
+                        labelText.innerHTML = `
+                            <span class="whitespace-nowrap">${m.label}</span>
+                            <span class="material-symbols-outlined text-[12px]">info</span>
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg whitespace-normal">
+                                ${m.tooltip}
+                            </div>
+                        `;
+                        labelContainer.appendChild(labelText);
+
+                        wrapper.appendChild(labelContainer);
+                        container.appendChild(wrapper);
+                    });
+                }
             });
         });
     </script>
