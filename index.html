@@ -1736,30 +1736,11 @@
                         We specifically invite developers, data scientists, and researchers to improve the economic impact calculator, enhance data visualizations, as well as assist in the auditing and updating of latest research sources.
                     </p>
 
-                    <!-- Map Container -->
-                    <!-- Map Container with Overlay -->
-                    <div
-                        class="relative w-full h-[600px] mb-6 rounded-2xl overflow-hidden group">
-
-                        <!-- Custom Search Container -->
-                        <div id="map-search-container"
-                            class="absolute top-4 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4"></div>
-
-                        <div id="impact-map" class="w-full h-full z-0 transition-all duration-500"></div>
-
-                        <!-- Zoom Hint Overlay -->
-                        <div id="map-zoom-hint"
-                            style="opacity: 0; pointer-events: none; transition: opacity 0.5s;"
-                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-xl font-black uppercase tracking-widest z-[400] text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                            Use CTRL + Scroll to zoom
-                        </div>
-                    </div>
-
-                    <!-- Tiered Risk Controls -->
-                    <div class="mb-8 bg-slate-900/50 rounded-2xl p-6 border border-slate-600">
+                                        <!-- Tiered Risk Controls -->
+                    <div class="mb-8 rounded-2xl p-6">
                         <!-- Impacted County Display -->
                         <!-- Impacted County Display / Selector -->
-                        <div class="mb-6 pb-4 border-b border-slate-700 relative z-50">
+                        <div class="mb-6 pb-4 relative z-50">
                             <label class="text-base font-bold text-slate-300 mb-2 block">Assessed
                                 County</label>
 
@@ -1770,7 +1751,7 @@
                                 </select>
 
                                 <button id="county-trigger"
-                                    class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group">
+                                    class="w-full bg-slate-700 border border-slate-500 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group">
                                     <span class="font-medium flex items-center gap-2">
                                         <span
                                             class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors">location_on</span>
@@ -1814,20 +1795,37 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="text-orange-500 font-bold font-mono text-xl" id="val-rate">2.3%</span>
+                        <span class="text-white font-bold font-mono text-xl" id="val-rate">2.3%</span>
                     </div>
-                    <div class="relative w-full group flex items-center mb-10">
-                        <!-- Tick: 2.3% (Default) - Tall line -->
-                        <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-px h-3 bg-slate-400 z-10"
-                            style="left: 37.3%"></div>
+                    <div class="relative w-full group flex items-center">
+                        <!-- Radio: 2.3% -->
+                        <input type="radio" name="gambling-rate-preset" value="2.3"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                            style="left: calc(37.3% + 1.5px)">
 
-                        <!-- Tick: 3.0% - Medium line -->
-                        <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-px h-3 bg-slate-400 z-10"
-                            style="left: 49.1%"></div>
+                        <!-- Radio: 3.0% -->
+                        <input type="radio" name="gambling-rate-preset" value="3.0"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                            style="left: 49.1%">
 
-                        <!-- Tick: 5.5% - Medium line -->
-                        <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-px h-3 bg-slate-400 z-10"
-                            style="left: 91.5%"></div>
+                        <!-- Radio: 5.5% -->
+                        <input type="radio" name="gambling-rate-preset" value="5.5"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                            style="left: calc(91.5% - 6px)">
+                            
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                const slider = document.getElementById('input-rate');
+                                const radios = document.querySelectorAll('input[name="gambling-rate-preset"]');
+                                
+                                // Initial sync
+                                radios.forEach(r => r.checked = (r.value === slider.value));
+
+                                slider.addEventListener('input', (e) => {
+                                    radios.forEach(r => r.checked = (r.value === e.target.value));
+                                });
+                            });
+                        </script>
 
                         <input type="range" min="0.1" max="6.0" step="0.1" value="2.3" data-default="2.3"
                             id="input-rate"
@@ -1835,50 +1833,40 @@
                     </div>
 
                     <!-- Legend / Labels -->
-                    <div
-                        class="relative h-12 w-full mt-2 text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                    <div class="relative z-50 h-12 w-full mt-0 text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-8">
 
                         <!-- 2.3% Label -->
-                        <div
-                            class="absolute top-0 left-[37.3%] -translate-x-1/2 flex flex-col items-center group/lbl w-24">
-                            <span class="text-white">2.3%</span>
-                            <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors">
+                        <div class="absolute top-0 left-[calc(37.3%_+_1.5px)] -translate-x-1/2 flex flex-col items-center group/lbl w-24">
+                            <div class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors pointer-events-auto">
                                 <span>Diagnosed</span>
                                 <span class="material-symbols-outlined text-[12px]">info</span>
                             </div>
                             <!-- Tooltip -->
-                            <div
-                                class="absolute bottom-full mb-2 w-36 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            <div class="absolute bottom-full mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                 Hoosiers meeting clinical criteria for Gambling Disorder (2023).
                             </div>
                         </div>
 
                         <!-- 3.0% Label -->
-                        <div
-                            class="absolute top-0 left-[49.1%] -translate-x-1/2 flex flex-col items-center group/lbl w-24">
-                            <span>3.0%</span>
-                            <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors">
+                        <div class="absolute top-0 left-[49.1%] -translate-x-1/2 flex flex-col items-center group/lbl w-24">
+                            <div class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors pointer-events-auto">
                                 <span>Problem</span>
                                 <span class="material-symbols-outlined text-[12px]">info</span>
                             </div>
                             <!-- Tooltip -->
-                            <div
-                                class="absolute bottom-full mb-2 w-36 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            <div class="absolute bottom-full mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                 Self-reported "problems with gambling" in state surveys.
                             </div>
                         </div>
 
                         <!-- 5.5% Label -->
-                        <div
-                            class="absolute top-0 left-[91.5%] -translate-x-1/2 flex flex-col items-center group/lbl w-24">
-                            <span>5.5%</span>
-                            <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors">
+                        <div class="absolute top-0 left-[calc(91.5%_-_6px)] -translate-x-1/2 flex flex-col items-center group/lbl w-24">
+                            <div class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors pointer-events-auto">
                                 <span>At-Risk</span>
                                 <span class="material-symbols-outlined text-[12px]">info</span>
                             </div>
                             <!-- Tooltip -->
-                            <div
-                                class="absolute bottom-full right-0 mb-2 w-36 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            <div class="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                 Broader Combined At-Risk & Problem Rate (National Average).
                             </div>
                         </div>
@@ -1886,15 +1874,26 @@
 
                     <p class="mt-4 text-xs text-slate-400 italic">Adjusts the baseline rate. Inner zones scale
                         automatically (10mi: 2.0x, 20mi: 1.5x).</p>
-
-                    <!-- Methodology Button -->
-                    <button onclick="openMethodologyModal()"
-                        class="mt-6 w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-500/80 hover:bg-blue-500 border border-blue-800 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg group">
-                        <span
-                            class="material-symbols-outlined group-hover:text-white transition-colors">science</span>
-                        View Research Methodology
-                    </button>
                 </div>
+
+                    <!-- Map Container -->
+                    <!-- Map Container with Overlay -->
+                    <div
+                        class="relative w-full h-[600px] mb-6 rounded-2xl overflow-hidden group">
+
+                        <!-- Custom Search Container -->
+                        <div id="map-search-container"
+                            class="absolute top-4 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4"></div>
+
+                        <div id="impact-map" class="w-full h-full z-0 transition-all duration-500"></div>
+
+                        <!-- Zoom Hint Overlay -->
+                        <div id="map-zoom-hint"
+                            style="opacity: 0; pointer-events: none; transition: opacity 0.5s;"
+                            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-xl font-black uppercase tracking-widest z-[400] text-center drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                            Use CTRL + Scroll to zoom
+                        </div>
+                    </div>
 
                 <!-- Impact Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-4">
@@ -2060,21 +2059,37 @@
                     <span class="material-symbols-outlined text-blue-500">tune</span>
                     Adjust the Variables
                 </h3>
-                <div class="space-y-12">
+                <div class="space-y-5">
                     <!-- AGR Input -->
-                    <div class="mb-8 border-b border-slate-700 pb-8">
+                    <div class="border-b border-slate-700 pb-8">
                         <div class="flex justify-between items-end mb-4">
                             <label class="text-base font-bold text-white">Adjusted Gross Revenue (AGR)</label>
-                            <span class="text-emerald-400 font-bold font-mono" id="val-agr">$0 M</span>
+                            <span class="text-emerald-400 font-bold font-mono" id="val-agr">$0 MM</span>
                         </div>
-                        <div class="relative w-full group flex items-center mb-10">
-                            <input type="range" min="0" max="1000" step="1" value="112" 
+                        <div class="relative w-full group flex items-center  overflow-visible">
+                            <input type="range" min="0" max="1000" step="1" value="112" data-default="112"
                                 id="input-agr"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
+
+                            <input type="radio" name="agr-default" value="112"
+                                class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#10b981_40%)] checked:border-emerald-500 pointer-events-none transition-all group-hover:scale-110"
+                                style="left: calc(11.2% + 5.6px)">
+
+                            <!-- Default Label -->
+                            <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(11.2% + 5.6px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                    This is the primary Adjusted Gross Revenue projection from the Spectrum Gaming Group study.
+                                </div>
+                                    </div>
+                                </div>
                         </div>
                         
                         <!-- Tax Details (Always Visible) -->
-                        <div id="tax-details-container" class="bg-slate-900/80 rounded-lg p-4 mt-10 text-sm font-mono text-slate-300 border border-slate-700 shadow-inner">
+                        <div id="tax-details-container" class="bg-slate-900/80 rounded-lg p-4 mt-20 text-sm font-mono text-slate-300 border border-slate-700 shadow-inner">
                             <!-- Populated by JS -->
                         </div>
                     </div>
@@ -2082,18 +2097,32 @@
                     <!-- Revenue Input -->
                     <div>
                         <div class="flex justify-between items-end mb-4">
-                            <label class="text-base font-bold text-white">Tax
-                                Revenue</label>
-                                <p class="mt-2 text-sm text-slate-400 italic">Default: Spectrum Gaming Projection ($27.5M)
-                        </p>
-                            <span class="text-emerald-500 font-bold font-mono" id="val-revenue">$27.5 M</span>
+                            <div class="flex flex-col">
+                                <label class="text-base font-bold text-white">Tax Revenue</label>
+                                <p class="text-xs text-slate-400 italic">Default: Spectrum Gaming Projection ($27.5MM)</p>
+                            </div>
+                            <span class="text-emerald-500 font-bold font-mono" id="val-revenue">$27.5 MM</span>
                         </div>
-                        <div class="relative w-full group flex items-center mb-10">
+                        <div class="relative w-full group flex items-center  overflow-visible">
                             <input type="range" min="0" max="400" step="0.5" value="27.5" data-default="27.5"
                                 id="input-revenue"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
-                            <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                style="left: calc(6.875% + 6.33px)"></div>
+                            
+                            <input type="radio" name="revenue-default" value="27.5"
+                                class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#10b981_40%)] checked:border-emerald-500 pointer-events-none transition-all group-hover:scale-110"
+                                style="left: calc(6.875% + 6.33px)">
+
+                            <!-- Default Label -->
+                            <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(6.875% + 6.33px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                    This represents the primary projection from the Spectrum Gaming Group study.
+                                </div>
+                                    </div>
+                                </div>
                         </div>
                     </div>
 
@@ -2131,7 +2160,7 @@
                     </div>
 
                     <!-- Social Cost Input -->
-                    <div>
+                    <div class="pb-10">
                         <div class="mb-4">
                             <label class="text-base font-bold text-white block mb-2">Social Cost
                                 Variables (Per Problem Gambler)</label>
@@ -2143,7 +2172,7 @@
                             <p class="text-sm text-slate-400 italic mb-4">Default values based on Grinols (2011) ($9,393) adjusted for 2025 inflation ($13,205).</p>
                         </div>
 
-                        <div class="space-y-12 pl-2">
+                        <div class="space-y-24 pl-2">
                             <!-- Crime -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
@@ -2166,12 +2195,25 @@
                                     <span class="text-lg font-bold font-mono text-white"
                                         id="val-cost-crime">$1,625</span>
                                 </div>
-                                <div class="relative w-full group flex items-center">
+                                <div class="relative w-full group flex items-center  overflow-visible">
                                     <input type="range" min="0" max="10000" step="25" value="1625" data-default="1625.0"
                                         id="input-cost-crime"
                                         class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
-                                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                        style="left: calc(16.25% + 6.75px)"></div>
+                                    <input type="radio" name="crime-default" value="1625"
+                                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#ef4444_40%)] checked:border-red-500 pointer-events-none transition-all group-hover:scale-110"
+                                        style="left: calc(16.25% + 6.75px)">
+                                    
+                                    <!-- Default Label -->
+                                    <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(16.25% + 6.75px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                            This is the inflation-adjusted default value based on Grinols (2011).
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                             <!-- Business -->
@@ -2196,12 +2238,25 @@
                                     <span class="text-lg font-bold font-mono text-white"
                                         id="val-cost-business">$4,051</span>
                                 </div>
-                                <div class="relative w-full group flex items-center">
+                                <div class="relative w-full group flex items-center  overflow-visible">
                                     <input type="range" min="0" max="10000" step="50" value="4051" data-default="4051.0"
                                         id="input-cost-business"
                                         class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
-                                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                        style="left: calc(40.51% + 1.90px)"></div>
+                                    <input type="radio" name="business-default" value="4051"
+                                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#ef4444_40%)] checked:border-red-500 pointer-events-none transition-all group-hover:scale-110"
+                                        style="left: calc(40.51% + 1.90px)">
+
+                                    <!-- Default Label -->
+                                    <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(40.51% + 1.90px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                            This is the inflation-adjusted default value based on Grinols (2011).
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                             <!-- Bankruptcy -->
@@ -2225,12 +2280,25 @@
                                     <span class="text-lg font-bold font-mono text-white"
                                         id="val-cost-bankruptcy">$431</span>
                                 </div>
-                                <div class="relative w-full group flex items-center">
+                                <div class="relative w-full group flex items-center  overflow-visible">
                                     <input type="range" min="0" max="10000" step="10" value="431" data-default="431.0"
                                         id="input-cost-bankruptcy"
                                         class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
-                                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                        style="left: calc(4.31% + 9.14px)"></div>
+                                    <input type="radio" name="bankruptcy-default" value="431"
+                                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#ef4444_40%)] checked:border-red-500 pointer-events-none transition-all group-hover:scale-110"
+                                        style="left: calc(4.31% + 9.14px)">
+
+                                    <!-- Default Label -->
+                                    <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(4.31% + 9.14px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                            This is the inflation-adjusted default value based on Grinols (2011).
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                             <!-- Illness -->
@@ -2254,12 +2322,25 @@
                                     <span class="text-lg font-bold font-mono text-white"
                                         id="val-cost-illness">$1,328</span>
                                 </div>
-                                <div class="relative w-full group flex items-center">
+                                <div class="relative w-full group flex items-center  overflow-visible">
                                     <input type="range" min="0" max="10000" step="25" value="1328" data-default="1328.0"
                                         id="input-cost-illness"
                                         class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
-                                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                        style="left: calc(13.28% + 7.34px)"></div>
+                                    <input type="radio" name="illness-default" value="1328"
+                                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#ef4444_40%)] checked:border-red-500 pointer-events-none transition-all group-hover:scale-110"
+                                        style="left: calc(13.28% + 7.34px)">
+
+                                    <!-- Default Label -->
+                                    <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(13.28% + 7.34px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                            This is the inflation-adjusted default value based on Grinols (2011).
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                             <!-- Social Services -->
@@ -2284,12 +2365,25 @@
                                     <span class="text-lg font-bold font-mono text-white"
                                         id="val-cost-services">$713</span>
                                 </div>
-                                <div class="relative w-full group flex items-center">
+                                <div class="relative w-full group flex items-center  overflow-visible">
                                     <input type="range" min="0" max="10000" step="25" value="713" data-default="713.0"
                                         id="input-cost-services"
                                         class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
-                                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                        style="left: calc(7.13% + 8.57px)"></div>
+                                    <input type="radio" name="services-default" value="713"
+                                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#ef4444_40%)] checked:border-red-500 pointer-events-none transition-all group-hover:scale-110"
+                                        style="left: calc(7.13% + 8.57px)">
+
+                                    <!-- Default Label -->
+                                    <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(7.13% + 8.57px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                            This is the inflation-adjusted default value based on Grinols (2011).
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                             <!-- Abused Dollars -->
@@ -2314,12 +2408,25 @@
                                     <span class="text-lg font-bold font-mono text-white"
                                         id="val-cost-abused">$5,055</span>
                                 </div>
-                                <div class="relative w-full group flex items-center">
+                                <div class="relative w-full group flex items-center  overflow-visible">
                                     <input type="range" min="0" max="10000" step="50" value="5055" data-default="5055.0"
                                         id="input-cost-abused"
                                         class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
-                                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-900 dark:bg-white pointer-events-none z-10"
-                                        style="left: calc(50.55% + -0.11px)"></div>
+                                    <input type="radio" name="abused-default" value="5055"
+                                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#ef4444_40%)] checked:border-red-500 pointer-events-none transition-all group-hover:scale-110"
+                                        style="left: calc(50.55% + -0.11px)">
+
+                                    <!-- Default Label -->
+                                    <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none" style="left: calc(50.55% - 0.11px)">
+                                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                                    <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto relative">
+                                        <span>Default</span>
+                                        <span class="material-symbols-outlined text-[12px]">info</span>
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                            This is the inflation-adjusted default value based on Grinols (2011).
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -2365,6 +2472,30 @@
                                     <span class="text-slate-500 text-xs uppercase font-bold mb-1">New
                                         Problem Gamblers</span>
                                     <span class="text-white font-mono font-bold" id="calc-result">9,250</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Cost Calculation Breakdown -->
+                        <div class="mb-6 relative z-10 bg-slate-900/50 rounded-xl p-4 border border-slate-600">
+                            <div class="text-xs text-slate-400 uppercase tracking-widest font-bold mb-4 text-center">
+                                Annual Social Cost Calculation</div>
+                            <div class="flex items-center justify-between text-base sm:text-lg gap-2">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-slate-500 text-xs uppercase font-bold mb-1">New
+                                        Problem Gamblers</span>
+                                    <span class="text-white font-mono font-bold" id="calc-gamblers">-</span>
+                                </div>
+                                <div class="text-slate-500 font-bold mb-3">×</div>
+                                <div class="flex flex-col items-center">
+                                    <span class="text-slate-500 text-xs uppercase font-bold mb-1">Total Cost/Problem Gambler</span>
+                                    <span class="text-red-400 font-mono font-bold" id="calc-cost-per">-</span>
+                                </div>
+                                <div class="text-slate-500 font-bold mb-3">=</div>
+                                <div class="flex flex-col items-center">
+                                    <span class="text-slate-500 text-xs uppercase font-bold mb-1">Total
+                                        Annual Social Cost</span>
+                                    <span class="text-white font-mono font-bold" id="calc-total-cost">-</span>
                                 </div>
                             </div>
                         </div>
@@ -2436,16 +2567,17 @@
                             </div>
                             
                             <!-- Total Line -->
-                            <div class="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center">
-                                <span class="text-sm text-slate-300 uppercase font-bold">Total Annual Social Cost</span>
-                                <span class="text-white font-mono font-bold text-lg" id="calc-total-cost-combined">-</span>
+                            <div class="mt-4 pt-3 border-t border-slate-700 grid grid-cols-12 gap-2 items-center">
+                                <div class="col-span-6 text-sm text-slate-300 uppercase font-bold">Total Annual Social Cost</div>
+                                <div class="col-span-3 text-right font-mono font-bold text-red-400 text-base" id="calc-total-cost-per">-</div>
+                                <div class="col-span-3 text-right text-white font-mono font-bold text-lg" id="calc-total-cost-combined">-</div>
                             </div>
                         </div>
 
                         <!-- Split Balance Sheet -->
                         <div class="relative z-10 bg-slate-900/50 rounded-2xl p-6 border border-slate-600 mb-6 font-sans">
                             <div class="text-sm text-slate-400 uppercase tracking-widest font-bold mb-6 text-center">
-                                Net Impact Analysis
+                                Net Economic Impact
                             </div>
                             
                             <div class="grid grid-cols-4 gap-2 text-sm uppercase text-slate-500 font-bold mb-2 px-2 border-b border-slate-700 pb-2">
@@ -2482,7 +2614,7 @@
 
                                 <!-- 2. Law Enforcement -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
-                                    <div class="font-bold text-slate-300">Law Enforcement</div>
+                                    <div class="font-bold text-blue-400">Law Enforcement</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-crime-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-crime-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-crime-net">-</div>
@@ -2490,7 +2622,7 @@
 
                                 <!-- 3. Social Services -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
-                                    <div class="font-bold text-slate-300">Social Services</div>
+                                    <div class="font-bold text-blue-400">Social Services</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-social-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-social-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-social-net">-</div>
@@ -2498,7 +2630,7 @@
 
                                 <!-- 4. Civil Legal -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
-                                    <div class="font-bold text-slate-300">Civil Legal</div>
+                                    <div class="font-bold text-blue-400">Civil Legal</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-legal-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-legal-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-legal-net">-</div>
@@ -2506,7 +2638,7 @@
 
                                 <!-- Subtotal: General Taxpayer Services -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-600 bg-slate-800/30 py-2 font-bold">
-                                    <div class="font-bold text-slate-300 pl-2">Subtotal: Gen. Taxpayer Svcs</div>
+                                    <div class="font-bold text-blue-400 pl-2">Subtotal: General Taxpayer Services</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-gen-sub-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-gen-sub-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-gen-sub-net">-</div>
@@ -2514,7 +2646,7 @@
 
                                 <!-- Subtotal: Total Public Burden -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t-2 border-slate-500 bg-slate-800/50 py-2 font-black">
-                                    <div class="font-black text-white pl-2 uppercase tracking-wide text-[10px] sm:text-xs">Subtotal: Public Sector Impact</div>
+                                    <div class="font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 pl-2 uppercase tracking-wide text-[10px] sm:text-xs">Subtotal: Public Sector Impact</div>
                                     <div class="text-right text-emerald-400 font-mono" id="bal-public-sub-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-public-sub-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-public-sub-net">-</div>
@@ -2522,48 +2654,56 @@
 
                                 <!-- 5. Private Econ -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
-                                    <div class="font-bold text-slate-300">Local Economy</div>
+                                    <div class="font-bold text-orange-400">Local Economy</div>
                                     <div class="text-right text-slate-600 font-mono">$0</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-econ-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-econ-net">-</div>
                                 </div>
 
+                                <!-- Subtotal: Private Sector Impact -->
+                                <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t-2 border-slate-500 bg-slate-800/50 py-2 font-black">
+                                    <div class="font-black text-orange-400 pl-2 uppercase tracking-wide text-[10px] sm:text-xs">Subtotal: Private Sector Impact</div>
+                                    <div class="text-right text-slate-600 font-mono">$0</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-econ-sub-cost">-</div>
+                                    <div class="text-right text-red-400 font-mono" id="bal-econ-sub-net">-</div>
+                                </div>
+
                                 <!-- TOTAL NET IMPACT -->
                                 <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t-2 border-slate-500 pt-3 mt-2 bg-slate-800/50 -mx-2 px-2 py-2 rounded-lg">
-                                    <div class="font-black text-white uppercase tracking-wider text-xs sm:text-sm">Total Net Impact</div>
+                                    <div class="font-black text-white uppercase tracking-wider text-xs sm:text-sm">Total Net Economic Impact</div>
                                     <div class="text-right text-emerald-400 font-bold font-mono" id="bal-total-rev">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-total-cost">-</div>
                                     <div class="text-right text-red-400 font-mono" id="bal-total-net">-</div>
                                 </div>
                             </div>
 
+                            <!-- Progress Bar -->
+                            <div class="relative z-10 mt-8 mb-4">
+                                <div class="flex justify-between text-base font-bold mb-2">
+                                    <span class="text-emerald-500">Revenue Covered</span>
+                                    <span class="text-red-500">Uncovered Cost</span>
+                                </div>
+                                <div class="w-full bg-red-500/60 rounded-full h-4 overflow-hidden border border-slate-700">
+                                    <div class="bg-emerald-500 h-full transition-all duration-500" style="width: 35%"
+                                        id="res-bar"></div>
+                                </div>
+                                <p class="mt-4 text-center text-base text-slate-300 italic" id="res-footer">
+                                    Tax Revenue covers only <strong class="text-white text-lg">35%</strong> of social costs.
+                                </p>
+                            </div>
+
                             <!-- Programmatic Analysis & Disclaimer -->
                             <div class="mt-6 pt-4 border-t border-slate-700">
-                                <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-4 mb-4">
-                                    <h5 class="text-blue-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                                <div class="rounded-lg p-4 mb-4">
+                                    <h5 class="text-white font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                                         <span class="material-symbols-outlined">analytics</span>
-                                        Model Interpretation
+                                        SaveFW's Economic Impact Analysis
                                     </h5>
                                     <p class="text-slate-300 leading-relaxed" id="analysis-text">
                                         <!-- Populated by JS -->
                                     </p>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="relative z-10">
-                            <div class="flex justify-between text-base font-bold mb-2">
-                                <span class="text-emerald-500">Revenue Covered</span>
-                                <span class="text-red-500">Uncovered Cost</span>
-                            </div>
-                            <div class="w-full bg-red-500/60 rounded-full h-4 overflow-hidden border border-slate-700">
-                                <div class="bg-emerald-500 h-full transition-all duration-500" style="width: 35%"
-                                    id="res-bar"></div>
-                            </div>
-                            <p class="mt-4 text-center text-base text-slate-300 italic" id="res-footer">
-                                Tax Revenue covers only <strong class="text-white text-lg">35%</strong> of social costs.
-                            </p>
                         </div>
 
 
@@ -2858,13 +2998,13 @@
                                     let breakdown = [];
                                     
                                     // Format helper
-                                    const fmtM = (v) => '$' + (v/1000000).toFixed(1) + 'M';
+                                    const fmtM = (v) => '$' + (v/1000000).toFixed(1) + 'MM';
                                     const fmt = (v) => '$' + v.toLocaleString(undefined, {maximumFractionDigits:0});
 
                                     breakdown.push({ label: "Adjusted Gross Revenue (AGR)", val: fmt(agr), note: "", type: 'header' });
                                     breakdown.push({ label: "Supplemental Tax (3.5%)", val: fmt(supplementalTax), note: "Off the top", type: 'add' });
-                                    breakdown.push({ label: "Free Play Deduction", val: fmt(freePlayDeduction), note: "First $7M Exempt", type: 'info' });
-                                    breakdown.push({ label: "Taxable AGR", val: fmt(taxableAGR), note: "AGR - $7M", type: 'sub-header' });
+                                    breakdown.push({ label: "Free Play Deduction", val: fmt(freePlayDeduction), note: "First $7MM Exempt", type: 'info' });
+                                    breakdown.push({ label: "Taxable AGR", val: fmt(taxableAGR), note: "AGR - $7MM", type: 'sub-header' });
 
                                     let remaining = taxableAGR;
 
@@ -2873,40 +3013,40 @@
                                     let t1Tax = tier1Amt * baseRate;
                                     bracketTax += t1Tax;
                                     remaining -= tier1Amt;
-                                    breakdown.push({ label: `Tier 1 ($0-$25M) @ ${(baseRate*100).toFixed(0)}%`, val: fmt(t1Tax), note: `on ${fmtM(tier1Amt)}`, type: 'add' });
+                                    breakdown.push({ label: `Tier 1 ($0-$25MM) @ ${(baseRate*100).toFixed(0)}%`, val: fmt(t1Tax), note: `on ${fmtM(tier1Amt)}`, type: 'add' });
                                     
                                     // Tier 2: Next $25M ($25M-$50M) @ 20%
                                     let tier2Amt = Math.min(Math.max(0, remaining), 25000000);
                                     let t2Tax = tier2Amt * 0.20;
                                     bracketTax += t2Tax;
                                     remaining -= tier2Amt;
-                                    breakdown.push({ label: "Tier 2 ($25M-$50M) @ 20%", val: fmt(t2Tax), note: `on ${fmtM(tier2Amt)}`, type: 'add' });
+                                    breakdown.push({ label: "Tier 2 ($25MM-$50MM) @ 20%", val: fmt(t2Tax), note: `on ${fmtM(tier2Amt)}`, type: 'add' });
 
                                     // Tier 3: Next $25M ($50M-$75M) @ 25%
                                     let tier3Amt = Math.min(Math.max(0, remaining), 25000000);
                                     let t3Tax = tier3Amt * 0.25;
                                     bracketTax += t3Tax;
                                     remaining -= tier3Amt;
-                                    breakdown.push({ label: "Tier 3 ($50M-$75M) @ 25%", val: fmt(t3Tax), note: `on ${fmtM(tier3Amt)}`, type: 'add' });
+                                    breakdown.push({ label: "Tier 3 ($50MM-$75MM) @ 25%", val: fmt(t3Tax), note: `on ${fmtM(tier3Amt)}`, type: 'add' });
 
                                     // Tier 4: Next $75M ($75M-$150M) @ 30%
                                     let tier4Amt = Math.min(Math.max(0, remaining), 75000000);
                                     let t4Tax = tier4Amt * 0.30;
                                     bracketTax += t4Tax;
                                     remaining -= tier4Amt;
-                                    breakdown.push({ label: "Tier 4 ($75M-$150M) @ 30%", val: fmt(t4Tax), note: `on ${fmtM(tier4Amt)}`, type: 'add' });
+                                    breakdown.push({ label: "Tier 4 ($75MM-$150MM) @ 30%", val: fmt(t4Tax), note: `on ${fmtM(tier4Amt)}`, type: 'add' });
 
                                     // Tier 5: Next $450M ($150M-$600M) @ 35%
                                     let tier5Amt = Math.min(Math.max(0, remaining), 450000000);
                                     let t5Tax = tier5Amt * 0.35;
                                     bracketTax += t5Tax;
                                     remaining -= tier5Amt;
-                                    breakdown.push({ label: "Tier 5 ($150M-$600M) @ 35%", val: fmt(t5Tax), note: `on ${fmtM(tier5Amt)}`, type: 'add' });
+                                    breakdown.push({ label: "Tier 5 ($150MM-$600MM) @ 35%", val: fmt(t5Tax), note: `on ${fmtM(tier5Amt)}`, type: 'add' });
 
                                     // Tier 6: Over $600M @ 40%
                                     let t6Tax = Math.max(0, remaining) * 0.40;
                                     bracketTax += t6Tax;
-                                    breakdown.push({ label: "Tier 6 (Over $600M) @ 40%", val: fmt(t6Tax), note: `on ${fmtM(Math.max(0, remaining))}`, type: 'add' });
+                                    breakdown.push({ label: "Tier 6 (Over $600MM) @ 40%", val: fmt(t6Tax), note: `on ${fmtM(Math.max(0, remaining))}`, type: 'add' });
 
                                     let totalTax = supplementalTax + bracketTax;
                                     breakdown.push({ label: "TOTAL ESTIMATED TAX", val: fmt(totalTax), note: "", type: 'total' });
@@ -2992,8 +3132,8 @@
                                     }
 
                                     // Update Displays
-                                    els.valRevenue.textContent = '$' + revenueM.toFixed(1) + ' M';
-                                    els.valAGR.textContent = '$' + agrM.toFixed(1) + ' M';
+                                    els.valRevenue.textContent = '$' + revenueM.toFixed(1) + 'MM';
+                                    els.valAGR.textContent = '$' + agrM.toFixed(1) + 'MM';
                                     
                                     // RENDER TAX BREAKDOWN
                                     const container = document.getElementById('tax-details-container');
@@ -3024,47 +3164,70 @@
                                     }
 
                                     // Snap Logic & Visual Update
-                                    // Removed els.inRevenue from generic snap to avoid fighting calc
                                     const inputs = [
-                                        els.inRate, els.inCostCrime, els.inCostBusiness,
+                                        els.inRate, els.inAGR, els.inRevenue, els.inCostCrime, els.inCostBusiness,
                                         els.inCostBankruptcy, els.inCostIllness, els.inCostServices, els.inCostAbused
                                     ];
 
                                     inputs.forEach(input =>
                                     {
                                         if (!input) return;
-                                        const def = parseFloat(input.dataset.default);
+                                        
+                                        // Support multiple defaults for Rate slider
+                                        const defs = input.id === 'input-rate' ? [2.3, 3.0, 5.5] : [parseFloat(input.dataset.default)];
                                         let val = parseFloat(input.value);
                                         const min = parseFloat(input.min);
                                         const max = parseFloat(input.max);
                                         const range = max - min;
-                                        const threshold = range * 0.015; // Reduced to 1.5% for granular control
+                                        const threshold = range * 0.015;
 
-                                        // Snap
-                                        if (Math.abs(val - def) < threshold) // Check if close
-                                        {
-                                            // Only force value update if actively dragging? 
-                                            // Actually `calculate` runs on input event.
-                                            // If we just loaded page, val might be def.
-                                            // If we drag close, we snap.
-
-                                            // Update value if needed (snap)
-                                            if (Math.abs(val - def) > 0.001)
-                                            { // avoid infinite loop if already equal
-                                                input.value = def;
-                                                val = def; // Update local var
+                                        let snapped = false;
+                                        let snapVal = null;
+                                        
+                                        for(const d of defs) {
+                                            if (Math.abs(val - d) < threshold) {
+                                                snapped = true;
+                                                snapVal = d;
+                                                break;
                                             }
+                                        }
 
-                                            // HIDE TICK visually
-                                            // Tick is the next element sibling?
-                                            // Structure: <div wrapper> <input> <div tick> </div>
-                                            const tick = input.nextElementSibling;
-                                            if (tick) tick.style.opacity = '0';
-                                        } else
+                                        const valDisplayId = input.id.replace('input-', 'val-');
+                                        const valDisplay = document.getElementById(valDisplayId);
+                                        
+                                        // Determine active color based on slider type
+                                        let activeColor = null;
+                                        if (input.id === 'input-rate') activeColor = 'text-orange-500';
+                                        else if (input.id === 'input-revenue') activeColor = 'text-emerald-500';
+                                        else if (input.id === 'input-agr') activeColor = 'text-emerald-400';
+
+                                        if (snapped) 
                                         {
-                                            // SHOW TICK
-                                            const tick = input.nextElementSibling;
-                                            if (tick) tick.style.opacity = '1';
+                                            if (Math.abs(val - snapVal) > 0.001) {
+                                                input.value = snapVal;
+                                                val = snapVal;
+                                            }
+                                            
+                                            if (valDisplay && activeColor) {
+                                                valDisplay.classList.remove('text-white');
+                                                valDisplay.classList.add(activeColor);
+                                            }
+                                        } else {
+                                            if (valDisplay && activeColor) {
+                                                valDisplay.classList.remove(activeColor);
+                                                valDisplay.classList.add('text-white');
+                                            }
+                                        }
+
+                                        // Update Sibling (Radio or Tick)
+                                        if (input.id === 'input-rate') {
+                                            const radios = document.querySelectorAll('input[name="gambling-rate-preset"]');
+                                            radios.forEach(r => r.checked = (snapped && parseFloat(r.value) === snapVal));
+                                        } else {
+                                            const sibling = input.nextElementSibling;
+                                            if (sibling && sibling.type === 'radio') {
+                                                sibling.checked = snapped;
+                                            }
                                         }
                                     });
 
@@ -3178,7 +3341,8 @@
 
                                     // 2. General Fund covers remaining burdens (Taxpayer Health + Crime + Social + Legal)
                                     // We use a weighted average distribution for the General Fund
-                                    const burdenHealth = healthUncovered;
+                                    // UPDATED: General Fund does NOT cover Public Health gaps. Public Health is solely the responsibility of the Humanitarian Fund.
+                                    const burdenHealth = 0; 
                                     const burdenCrime = totalCostCrime;
                                     const burdenSocial = totalCostSocial;
                                     const burdenLegal = totalCostLegal;
@@ -3207,10 +3371,10 @@
                                     // --- BALANCES (NET IMPACT ANALYSIS) ---
                                     
                                     // Helpers
-                                    const fmtM = (v) => '$' + (v/1000000).toFixed(1) + 'M';
+                                    const fmtM = (v) => '$' + (v/1000000).toFixed(1) + 'MM';
                                     const fmt = (v) => '$' + v.toLocaleString(undefined, {maximumFractionDigits:0});
                                     const fmtDiff = (v) => {
-                                        return (v >= 0 ? '+$' : '-$') + Math.abs(v/1000000).toFixed(1) + 'M';
+                                        return (v >= 0 ? '+$' : '-$') + Math.abs(v/1000000).toFixed(1) + 'MM';
                                     };
                                     const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
                                     const setClass = (id, cls) => { const el = document.getElementById(id); if(el) el.className = cls; };
@@ -3231,6 +3395,7 @@
                                     setTxt('calc-break-econ-per', fmt(costEconPer));
                                     setTxt('calc-break-econ-total', fmtM(totalCostEcon));
 
+                                    setTxt('calc-total-cost-per', fmt(costPer));
                                     setTxt('calc-total-cost-combined', fmtM(totalCost));
 
                                     // 2. Net Impact Analysis (Balance Sheet)
@@ -3327,6 +3492,12 @@
                                     const netEcon = revEcon - totalCostEcon;
                                     setTxt('bal-econ-cost', fmtM(totalCostEcon));
                                     setTxt('bal-econ-net', fmtDiff(netEcon));
+                                    setClass('bal-econ-net', 'text-right font-mono text-red-500');
+
+                                    // Subtotal: Private Sector Impact
+                                    setTxt('bal-econ-sub-cost', fmtM(totalCostEcon));
+                                    setTxt('bal-econ-sub-net', fmtDiff(netEcon));
+                                    setClass('bal-econ-sub-net', 'text-right font-mono text-red-500');
 
                                     // TOTAL NET IMPACT
                                     const netTotalBalance = totalRevenue - totalCost;
@@ -3340,6 +3511,11 @@
                                     els.calcPop.textContent = currentPop.toLocaleString();
                                     els.calcRate.textContent = gamblerGrowthRate.toFixed(2) + '%';
                                     els.calcResult.textContent = victims.toLocaleString();
+
+                                    // Update Calculation Breakdown 2 (Social Cost)
+                                    els.calcGamblers.textContent = victims.toLocaleString();
+                                    els.calcCostPer.textContent = '$' + costPer.toLocaleString();
+                                    els.calcTotalCost.textContent = fmtM(totalCost);
 
                                     // Bar
                                     let percentCovered = 0;
@@ -3367,65 +3543,127 @@
                                     const analysisEl = document.getElementById('analysis-text');
                                     if (analysisEl) {
                                         const costRatio = totalRevenue > 0 ? (totalCost / totalRevenue).toFixed(2) : "N/A";
+                                        const taxEffRate = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
+                                        
+                                        const countyInfo = countyData.find(c => c.pop === currentPop) || { name: "Selected", pop: currentPop };
+                                        const baselineRateVal = parseFloat(els.inRate.value);
+                                        const t1Pop = document.getElementById('val-t1').textContent;
+                                        const t2Pop = document.getElementById('val-t2').textContent;
+                                        const t3Pop = document.getElementById('val-t3').textContent;
+                                        const t1Rate = document.getElementById('rate-t1').textContent;
+                                        const t2Rate = document.getElementById('rate-t2').textContent;
+                                        const t3Rate = document.getElementById('rate-t3').textContent;
+                                        const effRateDisplay = document.getElementById('calc-rate').textContent;
+
                                         let analysisHTML = '';
                                         
                                         // 1. Disclaimer (Sub-header + Bullet)
-                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm">Disclaimer</div>`;
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Disclaimers</div>`;
                                         analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
-                                        analysisHTML += `<li>This model estimates social costs based on prevalence rates from peer-reviewed studies (<a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Grinols</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/26615561/" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Welte</a>).</li>`;
-                                        analysisHTML += `<li>It does not account for economic multipliers or indirect tax benefits often cited by proponents, focusing strictly on the direct fiscal impact of problem gambling on county services and household stability. Such factors may be included in future updates to the Economic Impact Calculator.</li>`;
-                                        analysisHTML += `<li>SaveFW has published the source code for this Economic Impact Calculator as free and open-source software (FOSS) under the AGPL-3.0 License, available on GitHub at <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">https://github.com/savefw/casino-economic-impact-calculator</a>.</li>`;
+                                        analysisHTML += `<li>SaveFW's Economic Impact Calculator does not account for economic multipliers or indirect tax benefits often cited by proponents, focusing strictly on the direct fiscal impact of problem gambling on county services and household stability. Such factors may be included in future updates to the Economic Impact Calculator.</li>`;
+                                        analysisHTML += `<li>This tool provides a programmatic economic analysis based on deterministic, rule-based logic and peer-reviewed data, rather than an artificial intelligence (AI) model or probabilistic algorithm. Unlike AI, which can be unpredictable, this programmatic approach ensures that all results are derived from fixed, transparent formulas. To provide clarity regarding the differences between these methodologies, we have outlined the key distinctions below:
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-3">
+                                                <li><strong class="text-white">Programmatic (Deterministic) Analysis:</strong> This methodology operates on fixed-logic inputs and rigid mathematical formulas where the relationship between variables is constant. Given a specific set of parameters, the model generates an identical output in every iteration. It is used to produce exact, reproducible figures based on predefined causal relationships (e.g., $Revenue = P \times Q$).</li>
+                                                <li><strong class="text-white">Probabilistic (Stochastic) Analysis:</strong> This approach treats variables as probability distributions rather than static integers to account for market volatility. By employing random sampling and statistical techniques like Monte Carlo simulations, the model calculates a range of potential outcomes and the statistical likelihood of each, typically expressed as a confidence interval.</li>
+                                                <li><strong class="text-white">AI (Machine Learning) Analysis:</strong> This paradigm utilizes algorithms that identify non-linear correlations within high-dimensional datasets by developing internal weightings through training. Unlike rule-based systems, the logic is derived from statistical pattern recognition rather than human-coded formulas, allowing the model to adapt its predictive weightings as it processes new information.</li>
+                                            </ul>
+                                        </li>`;
+                                        analysisHTML += `<li>Individuals and entities should recognize that all economic models are projections subject to data limitations and inherent variability. The responsibility for any actions or decisions made based on this analysis rests solely with the individual or entity, and SaveFW assumes no liability for the application or interpretation of these results.</li>`;
+                                        analysisHTML += `<li>In an effort to encourage community involvement and transparency, SaveFW has published the source code for this Economic Impact Calculator as free and open-source software (FOSS) under the AGPL-3.0 License, available on GitHub at <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">https://github.com/savefw/casino-economic-impact-calculator</a>.</li>`;
                                         analysisHTML += `</ul>`;
 
                                         // 2. Assumptions (Sub-header + Bullets)
-                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm">Assumptions</div>`;
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Assumptions</div>`;
                                         analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
-                                        analysisHTML += `<li>The <strong class="text-white">Humanitarian Fund</strong> (${allocPct}%) prioritizes Public Health costs.</li>`;
-                                        analysisHTML += `<li>The <strong class="text-white">General Fund</strong> (${100 - allocPct}%) is distributed <strong class="text-white">pro rata</strong> (proportionally based on share of total cost) to cover remaining burdens: Law Enforcement, Social Services, Civil Legal, and unfunded Public Health costs.</li>`;
+                                        analysisHTML += `<li>In the current state of this model, the <strong class="text-white">Humanitarian Fund</strong> (${allocPct}%) prioritizes Public Health costs. Future updates may include the ability to allocate specific 'buckets' for various humanitarian programs.</li>`;
                                         analysisHTML += `<li>The <strong class="text-white">Local Economy</strong> category represents private sector losses (productivity, debt) borne directly by households and businesses.</li>`;
                                         analysisHTML += `</ul>`;
 
-                                        // 3. Analysis (Sub-header + Dynamic Bullets)
-                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm">Analysis</div>`;
-                                        analysisHTML += '<ul class="list-disc pl-8 space-y-3 text-slate-300">';
+                                        // Geographic Analysis
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Analysis</div>`;
+                                        analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+                                        analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population and boundary data aggregated via <a href="https://censusreporter.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">CensusReporter.org</a> (Source: U.S. Census Bureau, 2020 Decennial Block Groups). Data files were processed, merged, and simplified using <a href="https://mapshaper.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Mapshaper.org</a>.</li>`;
+                                        analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The current version of the Economic Impact Calculator limits its analysis to the singular county being assessed. It does not factor spillover impact to neighboring counties in Indiana or neighboring states when the impact radius extends beyond county limits.</li>`;
+                                        analysisHTML += `<li><strong class="text-white">Assessed Area:</strong> This analysis focuses on <strong class="text-white">${countyInfo.name} County</strong>, with a total population of <strong class="text-white">${countyInfo.pop.toLocaleString()}</strong>.</li>`;
                                         
-                                        // 1. Overall Fiscal Health
-                                        if (netTotalBalance < 0) {
-                                            analysisHTML += `<li>The projected social costs exceed the direct tax revenue, resulting in a net fiscal deficit for the county. The projected <strong class="text-white">${fmtM(totalRevenue)}</strong> in revenue is outweighed by <strong class="text-white">${fmtM(totalCost)}</strong> in public liabilities, leaving taxpayers with a <strong class="text-red-400">${fmtM(Math.abs(netTotalBalance))} annual deficit</strong>.</li>`;
-                                            analysisHTML += `<li>For every <strong class="text-white">$1</strong> in tax revenue gained, the county incurs <strong class="text-red-400">$${costRatio}</strong> in social costs (crime, bankruptcy, lost productivity).</li>`;
+                                        // Proximity Model with programmatic Baseline details
+                                        let baselineDesc = '';
+                                        if (baselineRateVal === 2.3) {
+                                            baselineDesc = `<strong class="text-white">Indiana's Diagnosed Rate (2.3%)</strong>, which represents Hoosiers meeting clinical criteria for Gambling Disorder (2023)`;
+                                        } else if (baselineRateVal === 3.0) {
+                                            baselineDesc = `<strong class="text-white">Indiana's Problem Rate (3.0%)</strong>, derived from self-reported 'problems with gambling' in state surveys`;
+                                        } else if (baselineRateVal === 5.5) {
+                                            baselineDesc = `the <strong class="text-white">National Average (5.5%)</strong>, representing the broader combined At-Risk and Problem gambling rate`;
                                         } else {
-                                            analysisHTML += `<li>Under this scenario, the casino generates a <strong class="text-emerald-400">net surplus</strong>. The projected revenue of <strong class="text-white">${fmtM(totalRevenue)}</strong> exceeds the estimated social costs of <strong class="text-white">${fmtM(totalCost)}</strong>.</li>`;
+                                            const variance = ((baselineRateVal - 2.3) / 2.3) * 100;
+                                            const varianceStr = variance > 0 ? `+${variance.toFixed(1)}%` : `${variance.toFixed(1)}%`;
+                                            baselineDesc = `a <strong class="text-white">Custom Rate of ${baselineRateVal.toFixed(1)}%</strong>, which is a <strong class="${variance > 0 ? 'text-red-400' : 'text-emerald-400'}">${varianceStr}</strong> variance from Indiana's Diagnosed Rate (2.3%)`;
                                         }
 
-                                        // 2. Public Health Coverage
+                                        analysisHTML += `<li><strong class="text-white">Impact Distribution:</strong> 
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-2">
+                                                <li><strong class="text-white">High Risk Zone (0-10 miles):</strong> <strong class="text-white">${t1Pop}</strong> residents are subject to a <strong class="text-white">${t1Rate}</strong> prevalence rate due to immediate proximity.</li>
+                                                <li><strong class="text-white">Elevated Risk Zone (10-20 miles):</strong> <strong class="text-white">${t2Pop}</strong> residents are subject to a <strong class="text-white">${t2Rate}</strong> prevalence rate.</li>`;
+                                        
+                                        if (t3Pop === 'Fully Captured' || t3Pop === '0') {
+                                            analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> The High and Elevated Risk zones encompass the entire county population, leaving effectively zero residents in the baseline risk category.</li>`;
+                                        } else {
+                                            analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> <strong class="text-white">${t3Pop}</strong> residents are subject to the baseline <strong class="text-white">${t3Rate}</strong> rate.</li>`;
+                                        }
+                                        analysisHTML += `</ul></li>`;
+                                        analysisHTML += `<li><strong class="text-white">Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate is <strong class="text-white">${effRateDisplay}</strong>, projecting <strong class="text-white">${victims.toLocaleString()}</strong> new problem gamblers within the county.</li>`;
+                                        analysisHTML += `</ul>`;
+
+                                        // 4. Analysis (Split into sections)
+                                        
+                                        // A. TAX REVENUE
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Tax Revenue Analysis</div>`;
+                                        analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
+                                        analysisHTML += `<li><strong class="text-white">Adjusted Gross Revenue (AGR):</strong> The projected base of <strong class="text-white">${fmtM(agrM * 1000000)}</strong> represent the total wealth extracted from gamblers. Unlike standard sales or property taxes, gambling revenue is subject to a unique progressive structure in Indiana, utilizing a 3.5% supplemental tax and tiered brackets that scale based on volume.</li>`;
+                                        analysisHTML += `<li><strong class="text-white">Effective Tax Rate:</strong> For this scenario, the calculated effective tax rate is <strong class="text-white">${taxEffRate.toFixed(2)}%</strong>, resulting in <strong class="text-white">${fmtM(totalRevenue)}</strong> in estimated public tax revenue.</li>`;
+                                        analysisHTML += `<li><strong class="text-white">Revenue Allocation:</strong> The model directs <strong class="text-white">${allocPct}%</strong> (<strong class="text-white">${fmtM(revHealthPool)}</strong>) to the Humanitarian Fund and <strong class="text-white">${100-allocPct}%</strong> (<strong class="text-white">${fmtM(revGeneralPool)}</strong>) to the General Fund. This General Fund portion is distributed <strong class="text-white">pro rata</strong> (proportionally based on share of total cost) towards addressing remaining burdens: Law Enforcement, Social Services, and Civil Legal.</li>`;
+                                        analysisHTML += '</ul>';
+
+                                        // B. SOCIAL COSTS
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Social Cost Analysis</div>`;
+                                        analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
+                                        analysisHTML += `<li><strong class="text-white">Data Source:</strong> Baseline social cost valuations are derived from peer-reviewed research by <a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Grinols</a> (2011), with values adjusted for 2025 inflation to reflect current economic conditions.</li>`;
+                                        // Public Health
                                         if (revHealthPool >= totalCostHealth) {
-                                            analysisHTML += `<li>The <strong class="text-white">${allocPct}%</strong> Humanitarian allocation is <strong class="text-emerald-400">fully sufficient</strong> to cover the projected <strong class="text-white">${fmtM(totalCostHealth)}</strong> in Public Health costs.</li>`;
-                                        } else if (subHealthNet >= -0.01) {
-                                            analysisHTML += `<li>While the <strong class="text-white">${allocPct}%</strong> Humanitarian allocation falls short, the Public Health costs are <strong class="text-white">fully covered</strong> when supplemented by General Fund contributions.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">Public Health:</strong> The <strong class="text-white">${allocPct}%</strong> Humanitarian allocation is <strong class="text-white">fully sufficient</strong> to cover the projected <strong class="text-white">${fmtM(totalCostHealth)}</strong> in Public Health costs. This surplus enables proactive recovery initiatives, which can stabilize vulnerable households and reduce long-term homelessness.</li>`;
                                         } else {
-                                            analysisHTML += `<li>The projected Public Health costs exceed the combined capacity of the <strong class="text-white">${allocPct}%</strong> Humanitarian allocation and available General Fund support, leaving a <strong class="text-red-400">funding gap</strong> for addiction treatment.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">Public Health:</strong> The projected Public Health costs exceed the capacity of the <strong class="text-white">${allocPct}%</strong> Humanitarian allocation, leaving a <strong class="text-white">funding gap</strong> for addiction and mental health treatments. This shortfall risks exacerbating homelessness and straining emergency medical services as untreated conditions escalate.</li>`;
                                         }
-
-                                        // 3. General Services Coverage
+                                        // General Taxpayer Services
                                         const genCoverage = totalGeneralBurden > 0 ? (revGeneralPool / totalGeneralBurden) * 100 : 100;
                                         if (genCoverage < 100) {
-                                            analysisHTML += `<li>General Taxpayer Services (Law Enforcement, Social Services, Courts) are funded at only <strong class="text-red-400">${genCoverage.toFixed(1)}%</strong> of their projected new burdens, creating deficits across all municipal departments.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">General Taxpayer Services:</strong> Law Enforcement, Social Services, and Courts are funded at only <strong class="text-white">${genCoverage.toFixed(1)}%</strong> of their projected new burdens, creating deficits across all municipal departments.</li>`;
                                         } else {
-                                            analysisHTML += `<li>General Taxpayer Services are fully funded by the General Fund allocation.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">General Taxpayer Services:</strong> These services are fully funded by the General Fund allocation.</li>`;
                                         }
-
-                                        // 4. Local Economy Impact
+                                        // Local Economy
                                         const econShare = totalCost > 0 ? (totalCostEcon / totalCost) * 100 : 0;
-                                        analysisHTML += `<li>The <strong class="text-white">Local Economy</strong> bears the most significant burden (<strong class="text-red-400">${fmtM(totalCostEcon)}</strong>), accounting for <strong class="text-white">${econShare.toFixed(0)}%</strong> of the total social cost. This represents direct wealth extraction from Fort Wayne households and businesses (via lost productivity, bad debt, and embezzlement) which receives <strong class="text-red-400">zero</strong> tax revenue offset.</li>`;
+                                        analysisHTML += `<li><strong class="text-white">Local Economy:</strong> This category bears the most significant burden (<strong class="text-white">${fmtM(totalCostEcon)}</strong>), accounting for <strong class="text-white">${econShare.toFixed(0)}%</strong> of the total social cost. This represents direct wealth extraction from households and businesses which receives <strong class="text-white">zero</strong> tax revenue offset in this analysis, as potential economic multipliers and indirect tax benefits are not yet factored.</li>`;
+                                        analysisHTML += '</ul>';
 
-                                        // 5. Conclusion (Multipliers Context)
+                                        // C. NET ECONOMIC IMPACT
+                                        analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Net Economic Impact Analysis</div>`;
+                                        analysisHTML += '<ul class="list-disc pl-8 space-y-3 text-slate-300">';
+                                        
+                                        analysisHTML += `<li><strong class="text-white">Sector Comparison:</strong> The <strong class="text-white">Public Sector</strong> (government departments) projected impact is a <strong class="text-white">${fmtM(Math.abs(subPublicNet))} ${subPublicNet >= 0 ? 'surplus' : 'deficit'}</strong>. In comparison, the <strong class="text-white">Private Sector</strong> (Local Economy) faces an unmitigated loss of <strong class="text-white">${fmtM(totalCostEcon)}</strong>.</li>`;
+
                                         if (netTotalBalance < 0) {
+                                            analysisHTML += `<li><strong class="text-white">Fiscal Conclusion:</strong> The projected social costs exceed the direct tax revenue, resulting in a net fiscal deficit for the county. The projected <strong class="text-white">${fmtM(totalRevenue)}</strong> in revenue is outweighed by <strong class="text-white">${fmtM(totalCost)}</strong> in public liabilities, leaving taxpayers with a <strong class="text-white">${fmtM(Math.abs(netTotalBalance))} annual deficit</strong>.</li>`;
+                                            analysisHTML += `<li><strong class="text-white">Cost-to-Revenue:</strong> For every <strong class="text-white">$1</strong> in tax revenue gained, the county incurs <strong class="text-white">$${costRatio}</strong> in social costs (crime, bankruptcy, lost productivity).</li>`;
+                                            
                                             const deficitM = Math.abs(netTotalBalance) / 1000000;
                                             if (deficitM > 50) {
-                                                analysisHTML += `<li>Given the magnitude of this deficit (<strong class="text-red-400">${fmtM(Math.abs(netTotalBalance))}</strong>), it is statistically unlikely that unmodeled economic multipliers or indirect tax benefits would be sufficient to bridge the gap. Proponents would need to demonstrate substantial secondary economic activity to offset such a significant shortfall.</li>`;
+                                                analysisHTML += `<li><strong class="text-white">Secondary Offsets:</strong> Given the magnitude of this deficit (<strong class="text-white">${fmtM(Math.abs(netTotalBalance))}</strong>), it is statistically unlikely that unmodeled economic multipliers or indirect tax benefits would be sufficient to bridge the gap. Proponents would need to demonstrate substantial secondary economic activity to offset such a significant shortfall.</li>`;
                                             } else {
-                                                analysisHTML += `<li>While this model does not account for economic multipliers or indirect tax benefits, proponents would need to demonstrate that such factors can generate at least <strong class="text-white">${fmtM(Math.abs(netTotalBalance))}</strong> in additional value to break even.</li>`;
+                                                analysisHTML += `<li><strong class="text-white">Secondary Offsets:</strong> While this model does not account for economic multipliers or indirect tax benefits, proponents would need to demonstrate that such factors can generate at least <strong class="text-white">${fmtM(Math.abs(netTotalBalance))}</strong> in additional value to break even.</li>`;
                                             }
+                                        } else {
+                                            analysisHTML += `<li><strong class="text-white">Fiscal Conclusion:</strong> Under this scenario, the casino generates a <strong class="text-white">net surplus</strong>. The projected revenue of <strong class="text-white">${fmtM(totalRevenue)}</strong> exceeds the estimated social costs of <strong class="text-white">${fmtM(totalCost)}</strong>.</li>`;
                                         }
 
                                         analysisHTML += '</ul>';
@@ -5915,7 +6153,9 @@
                     if (labelT3) labelT3.textContent = "Population";
                 }
 
-                // Rate: Baseline
+                // Rate Updates
+                if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
+                if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
                 if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
 
                 // Victims
@@ -6400,8 +6640,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const sliderConfigs = [
                 { id: 'input-rate', stepMajor: 1.0, stepMinor: 0.5, format: v => v + '%' },
-                { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'M' },
-                { id: 'input-revenue', stepMajor: 50, stepMinor: 10, format: v => '$' + v + 'M' },
+                { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'MM' },
+                { id: 'input-revenue', stepMajor: 50, stepMinor: 10, format: v => '$' + v + 'MM' },
                 { id: 'input-cost-crime', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
                 { id: 'input-cost-business', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
                 { id: 'input-cost-bankruptcy', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
@@ -6419,7 +6659,8 @@
                 // 1. Clean up existing manual ticks (divs that are NOT the input)
                 const children = Array.from(container.children);
                 children.forEach(child => {
-                    if (child !== input && child.tagName === 'DIV' && (child.className.includes('absolute') || child.className.includes('slider-tick') || child.className.includes('tick-label'))) {
+                    // Do not remove the "Default" label (group/lbl) or the radio inputs
+                    if (child !== input && child.tagName === 'DIV' && !child.className.includes('group/lbl') && (child.className.includes('absolute') || child.className.includes('slider-tick') || child.className.includes('tick-label'))) {
                         child.remove();
                     }
                 });
@@ -6480,6 +6721,10 @@
                     const pct = ((val - min) / range) * 100;
                     tooltip.style.left = `${pct}%`;
                     tooltip.textContent = cfg.format(val);
+                };
+
+                const showTooltip = () => {
+                    updateTooltip();
                     container.classList.add('slider-active');
                 };
     
@@ -6490,8 +6735,9 @@
                 input.addEventListener('input', updateTooltip);
                 input.addEventListener('change', updateTooltip);
                 input.addEventListener('slider-update', updateTooltip);
-                input.addEventListener('mousedown', updateTooltip);
-                input.addEventListener('touchstart', updateTooltip);
+                
+                input.addEventListener('mousedown', showTooltip);
+                input.addEventListener('touchstart', showTooltip);
                 
                 input.addEventListener('blur', hideTooltip);
                 input.addEventListener('mouseup', hideTooltip);
