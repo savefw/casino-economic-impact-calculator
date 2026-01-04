@@ -42,53 +42,6 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 
 ---
 
-## Key Features
-
-Economic Impact Calculator
---------------------------
-The core of the platform is an interactive financial model that allows citizens to audit the "net benefit" claims made by developers. Users can adjust critical variables—including Adjusted Gross Revenue (AGR), tax revenue allocation strategies, and social cost multipliers—to calculate the true projected community deficit. Unlike static reports, this tool recalculates in real-time, showing how even optimistic revenue projections often fail to cover the public sector costs of addiction and crime. This transparency is vital for ensuring that the community isn't left with a multi-decade fiscal burden.
-<br /><br />
-<img src="docs/examples/Net-Economic-Impact-Table-Example.png" alt="Economic Impact Calculator Table" width="600" />
-<br /><br />
-
-Programmatic Economic Analysis
-------------------------------
-Moving beyond "AI estimates" or "black box" consulting studies, SaveFW employs a deterministic, rule-based analysis. This system processes user inputs against fixed mathematical formulas derived from peer-reviewed economic literature (Grinols, Welte, et al.). By basing the logic on established academic precedents, the platform ensures that every result is reproducible, transparent, and mathematically verifiable. This provides a "Programmatic Fact Check" that updates instantly as variables change, removing human bias from the calculation.
-<br /><br />
-<img src="docs/examples/Net-Economic-Impact-Automated-Analysis-Example.png" alt="Automated Economic Analysis" width="600" />
-<br /><br />
-
-Economic Impact Simulator
--------------------------
-For users who want to explore "What If" scenarios, the Simulator provides a guided wizard. It allows users to rapidly toggle between the State's conservative revenue estimates ($43M-$112M) and the Developer's sales pitch ($330M), applying varying degrees of social cost sensitivity to see if *any* scenario results in a net positive for the taxpayer. This helps demonstrate that the "economic engine" promised by promoters is often a mathematical impossibility when accounting for the predictable rise in local social expenditures.
-<br /><br />
-<img src="docs/examples/Economic-Impact-Simulator-Example.png" alt="Simulator Interface" width="600" />
-<br /><br />
-
-Interactive Slot Machine
-------------------------
-A visual metaphor for the deceptive marketing tactics used to sell the casino project. The digital slot machine demonstrates the "Near Miss" psychological effect—where "JOBS" appears just one click away from "ADDICTION"—highlighting how promises of economic prosperity are often just a facade for wealth extraction. This tool is designed to educate the public on the intentional design of gambling environments and their linguistic framing in political discourse.
-<br /><br />
-<img src="docs/examples/Slot-Machine-Example.png" alt="Slot Machine Metaphor" width="600" />
-<br /><br />
-
-Impact Zone Visualizer
-----------------------
-This Leaflet.js-based geospatial tool visualizes the "blast radius" of problem gambling. It maps high-risk (0-10 miles), elevated-risk (10-20 miles), and baseline risk zones, dynamically calculating the number of affected households based on 2020 Census block group data. By dragging the casino marker to different locations, users can immediately see how many families fall within the primary impact zones, providing a clear visual representation of the community's exposure.
-<br /><br />
-<img src="docs/examples/Casino-Impact-Zone-Visualizer-Example.png" alt="Map Visualizer" width="600" />
-<br /><br />
-
-Decoding the Spin
------------------
-A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"). This section uses a "Bait vs. Hook" format, supported by direct links to independent studies and government data, to help citizens see past the polished PR campaigns and understand the systemic risks.
-
-Detailed Demographics
----------------------
-The platform integrates granular population data for all 92 Indiana counties, allowing the impact model to be applied specifically to the local demographics of Allen County and its neighbors. This ensures that the analysis isn't just a generic statewide average, but a tailored report based on the specific socio-economic profile of the affected region.
-
----
-
 ## Repository Structure
 
 ```text
@@ -107,6 +60,49 @@ The platform integrates granular population data for all 92 Indiana counties, al
 ├── 📄 Dockerfile         # Multi-stage build for .NET 10
 └── 📄 SaveFW.sln         # Visual Studio Solution
 ```
+
+---
+
+## Key Features
+
+Economic Impact Calculator
+--------------------------
+The core of the platform is an interactive financial model that allows citizens to audit the "net benefit" claims made by developers. Users can adjust critical variables—including Adjusted Gross Revenue (AGR), tax revenue allocation strategies, and social cost multipliers—to calculate the true projected community deficit. Unlike static reports, this tool recalculates in real-time, showing how even optimistic revenue projections often fail to cover the public sector costs of addiction and crime. This transparency is vital for ensuring that the community isn't left with a multi-decade fiscal burden.
+<br /><br />
+<img src="docs/examples/Net-Economic-Impact-Table-Example.png" alt="Economic Impact Calculator Table" width="600" />
+<br /><br />
+
+Programmatic Economic Analysis
+------------------------------
+Moving beyond "AI estimates" or "black box" consulting studies, SaveFW employs a deterministic, rule-based analysis. This system processes user inputs against fixed mathematical formulas derived from peer-reviewed economic literature (Grinols, Welte, et al.). By basing the logic on established academic precedents, the platform ensures that every result is reproducible, transparent, and mathematically verifiable. This provides a "Programmatic Fact Check" that updates instantly as variables change, removing human bias from the calculation.
+<br /><br />
+
+Economic Impact Simulator
+-------------------------
+For users who want to explore "What If" scenarios, the Simulator provides a guided wizard. It allows users to rapidly toggle between the State's conservative revenue estimates ($43M-$112M) and the Developer's sales pitch ($330M), applying varying degrees of social cost sensitivity to see if *any* scenario results in a net positive for the taxpayer. This helps demonstrate that the "economic engine" promised by promoters is often a mathematical impossibility when accounting for the predictable rise in local social expenditures.
+<br /><br />
+<img src="docs/examples/Economic-Impact-Simulator-Example.png" alt="Simulator Interface" width="600" />
+<br /><br />
+
+Interactive Slot Machine
+------------------------
+A visual metaphor for the deceptive marketing tactics used to sell the casino project. The digital slot machine demonstrates the "Near Miss" psychological effect—where "JOBS" appears just one click away from "ADDICTION"—highlighting how promises of economic prosperity are often just a facade for wealth extraction. This tool is designed to educate the public on the intentional design of gambling environments and their linguistic framing in political discourse.
+<br /><br />
+
+Impact Zone Visualizer
+----------------------
+This Leaflet.js-based geospatial tool visualizes the "blast radius" of problem gambling. It maps high-risk (0-10 miles), elevated-risk (10-20 miles), and baseline risk zones, dynamically calculating the number of affected households based on 2020 Census block group data. By dragging the casino marker to different locations, users can immediately see how many families fall within the primary impact zones, providing a clear visual representation of the community's exposure.
+<br /><br />
+<img src="docs/examples/Casino-Impact-Zone-Visualizer-Example.png" alt="Map Visualizer" width="600" />
+<br /><br />
+
+Decoding the Spin
+-----------------
+A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"). This section uses a "Bait vs. Hook" format, supported by direct links to independent studies and government data, to help citizens see past the polished PR campaigns and understand the systemic risks.
+
+Detailed Demographics
+---------------------
+The platform integrates granular population data for all 92 Indiana counties, allowing the impact model to be applied specifically to the local demographics of Allen County and its neighbors. This ensures that the analysis isn't just a generic statewide average, but a tailored report based on the specific socio-economic profile of the affected region.
 
 ---
 
@@ -171,6 +167,21 @@ docker compose up --build -d
 ```
 
 The application is now running! Visit: **http://localhost:8080**
+
+---
+
+## System Requirements
+
+This project now includes a **Valhalla** routing engine for offline isochrone generation. This adds specific hardware requirements, particularly during the initial graph build process.
+
+| Resource | Minimum | Recommended | Notes |
+| :--- | :--- | :--- | :--- |
+| **RAM** | 8 GB | 16 GB | **Crucial:** Valhalla needs ~8-10GB RAM to "cook" the graph tiles for the 5-state Midwest region. Runtime usage is lower (~4GB). |
+| **CPU** | 4 Cores | 8+ Cores | Build is CPU-intensive but runs once. Runtime scaling depends on request volume. |
+| **Storage** | 20 GB | 100 GB | Graph tiles and PBF files consume ~10-15GB. 100GB is recommended for a stable server environment. |
+
+**Note for Proxmox/Container Users:**
+If running in a container (LXC/Docker), ensure you have allocated at least **10GB RAM** for the initial build. You may scale this down to **4-6GB** once the `custom_files/valhalla_tiles.tar` has been generated, as the runtime engine uses memory mapping.
 
 ---
 
