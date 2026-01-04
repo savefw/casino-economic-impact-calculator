@@ -70,6 +70,9 @@ A visual metaphor for the deceptive marketing tactics used to sell the casino pr
 
 ### 🗺️ Impact Zone Visualizer
 This Leaflet.js-based geospatial tool visualizes the "blast radius" of problem gambling. It maps high-risk (0-10 miles), elevated-risk (10-20 miles), and baseline risk zones, dynamically calculating the number of affected households based on 2020 Census block group data.
+<br />
+<img src="docs/examples/Casino-Impact-Zone-Visualizer-Example.png" alt="Map Visualizer" width="600" />
+<br /><br />
 
 ### 🕵️ Decoding the Spin
 A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"), supported by direct links to independent studies.
