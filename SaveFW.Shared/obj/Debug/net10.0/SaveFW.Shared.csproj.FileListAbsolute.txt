@@ -1,0 +1,11 @@
+/root/SaveFW/SaveFW.Shared/bin/Debug/net10.0/SaveFW.Shared.deps.json
+/root/SaveFW/SaveFW.Shared/bin/Debug/net10.0/SaveFW.Shared.dll
+/root/SaveFW/SaveFW.Shared/bin/Debug/net10.0/SaveFW.Shared.pdb
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/SaveFW.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/SaveFW.Shared.AssemblyInfoInputs.cache
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/SaveFW.Shared.AssemblyInfo.cs
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/SaveFW.Shared.csproj.CoreCompileInputs.cache
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/SaveFW.Shared.dll
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/refint/SaveFW.Shared.dll
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/SaveFW.Shared.pdb
+/root/SaveFW/SaveFW.Shared/obj/Debug/net10.0/ref/SaveFW.Shared.dll

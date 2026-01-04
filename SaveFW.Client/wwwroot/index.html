@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth bg-slate-900">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save Fort Wayne - Protect Our Future</title>
+    <base href="/" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f172a",
+                        "primary-dark": "#020617",
+                        "accent": "#e11d48",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#020617",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b",
+                        "fw-teal": "#0f172a",
+                        "fw-teal-dark": "#020617",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    backgroundImage: {
+                        'hero-gradient': 'linear-gradient(to right bottom, #0f172a, #1e293b, #334155)',
+                    },
+                    animation: {
+                        'loop-pre': 'loopPre 10s ease-in-out infinite',
+                        'loop-post': 'loopPost 10s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        loopPre: {
+                            '0%, 45%': { opacity: '1', zIndex: '20', pointerEvents: 'auto' },
+                            '55%, 95%': { opacity: '0', zIndex: '0', pointerEvents: 'none' },
+                            '100%': { opacity: '1', zIndex: '20', pointerEvents: 'auto' },
+                        },
+                        loopPost: {
+                            '0%, 45%': { opacity: '0', zIndex: '0', pointerEvents: 'none' },
+                            '55%, 95%': { opacity: '1', zIndex: '20', pointerEvents: 'auto' },
+                            '100%': { opacity: '0', zIndex: '0', pointerEvents: 'none' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Leaflet Plugins -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <!-- Turf.js & Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <!-- Custom Styles -->
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="SaveFW.Client.styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <style>
+        /* Custom Scrollbar - Critical for preventing layout shift */
+        ::-webkit-scrollbar {
+            width: 14px;
+            height: 14px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background-color: #64748b;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-300 antialiased font-display overflow-x-hidden">
+    <div id="app">
+        <!-- App content will be injected here -->
+    </div>
+
+    <!-- Custom Loading Screen -->
+    <div id="loading-screen"
+        class="fixed inset-0 min-h-screen flex items-center justify-center p-4 bg-slate-900 z-[9999] transition-opacity duration-500">
+        <div
+            class="bg-white p-10 rounded-2xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col items-center gap-6 max-w-sm w-full translate-y-0 hover:-translate-y-2 transition-transform duration-500 ease-in-out border border-slate-100">
+            <!-- Spinner -->
+            <svg class="animate-spin h-12 w-12 text-accent drop-shadow-lg" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+
+            <img src="assets/SAVEFW.svg" alt="Save Fort Wayne" class="w-48 drop-shadow-xl filter" />
+
+            <div class="text-accent font-black text-xl tracking-widest uppercase text-center flex flex-col items-center justify-center gap-1 drop-shadow-sm"
+                id="loading-text">
+                <div class="flex flex-wrap justify-center gap-[2px]">
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 100ms">P</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 150ms">R</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 200ms">O</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 250ms">T</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 300ms">E</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 350ms">C</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 400ms">T</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 450ms">I</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 500ms">N</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 550ms">G</span>
+
+                    <span class="w-2"></span>
+
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 650ms">O</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 700ms">U</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 750ms">R</span>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-[2px]">
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 850ms">C</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 900ms">O</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 950ms">M</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1000ms">M</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1050ms">U</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1100ms">N</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1150ms">I</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1200ms">T</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1250ms">Y</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+    <!-- Blazor -->
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        // Animation Keyframes
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(5px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s forwards ease-out;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Start Blazor manually and wait for animation
+        Blazor.start().then(async () =>
+        {
+            const minAnimationTime = 1800; // Total animation cycle
+            setTimeout(() =>
+            {
+                const loader = document.getElementById('loading-screen');
+                if (loader)
+                {
+                    loader.style.opacity = '0'; // Fade out
+                    setTimeout(() => loader.remove(), 500); // Remove after fade
+                }
+            }, minAnimationTime);
+        });
+    </script>
+
+    <!-- Custom Modules -->
+    <script src="js/components/slot-machine.js"></script>
+    <script src="js/components/map.js"></script>
+    <script src="js/components/legislators.js"></script>
+    <script src="js/components/modals.js"></script>
+    <script src="js/components/toc.js"></script>
+    <!-- <script src="js/economics/calculator.js"></script> -->
+    <script src="js/economics/substitution.js"></script>
+</body>
+
+</html>

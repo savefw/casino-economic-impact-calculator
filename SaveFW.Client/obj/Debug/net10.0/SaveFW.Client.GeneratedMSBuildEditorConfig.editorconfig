@@ -1,0 +1,105 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.VerifyReferenceTrimCompatibility = 
+build_property.VerifyReferenceAotCompatibility = 
+build_property.TargetFramework = net10.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v10.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = SaveFW.Client
+build_property.RootNamespace = SaveFW.Client
+build_property.ProjectDir = /root/SaveFW/SaveFW.Client/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /root/SaveFW/SaveFW.Client
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 10.0
+build_property.EnableCodeStyleSeverity = 
+
+[/root/SaveFW/SaveFW.Client/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ291bnRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/CrimeSafety.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ3JpbWVTYWZldHkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/EconomicImpact.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRWNvbm9taWNJbXBhY3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/FloatingTOC.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRmxvYXRpbmdUT0MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Footer.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRm9vdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/HeroSection.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSGVyb1NlY3Rpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Legislators.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTGVnaXNsYXRvcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Map.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTWFwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/MayorCritique.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTWF5b3JDcml0aXF1ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Modals.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTW9kYWxzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/SubstitutionEffect.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3Vic3RpdHV0aW9uRWZmZWN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/TribalAnalysis.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVHJpYmFsQW5hbHlzaXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/VoiceYourOpinion.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvVm9pY2VZb3VyT3Bpbmlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Pages/Weather.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvV2VhdGhlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/SaveFW/SaveFW.Client/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-jdozmzgdnm
+
+[/root/SaveFW/SaveFW.Client/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-63kk6ypti9
