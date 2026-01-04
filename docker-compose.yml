@@ -19,6 +19,23 @@ services:
     depends_on:
       - savefw-db
 
+  valhalla:
+    image: ghcr.io/nilsnolde/docker-valhalla/valhalla:latest
+    container_name: savefw_valhalla
+    network_mode: "host"
+    environment:
+      - tile_urls=https://download.geofabrik.de/north-america/us/indiana-latest.osm.pbf https://download.geofabrik.de/north-america/us/ohio-latest.osm.pbf https://download.geofabrik.de/north-america/us/michigan-latest.osm.pbf https://download.geofabrik.de/north-america/us/illinois-latest.osm.pbf https://download.geofabrik.de/north-america/us/kentucky-latest.osm.pbf
+      - build_admins=True
+      - build_time_zones=True
+      - build_elevation=False
+      - build_tar=True
+      - force_rebuild=False
+      - server_threads=4
+    volumes:
+      - ./infra/valhalla/custom_files:/custom_files
+      - ./infra/valhalla/osm:/osm:ro
+    restart: unless-stopped
+
   savefw-app:
     build:
       context: .
