@@ -40,3 +40,4 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<SaveFW.Server.Data.Entities.IsochroneCache>()
             .HasIndex(i => new { i.Lat, i.Lon, i.Minutes, i.SourceHash });
     }
+}

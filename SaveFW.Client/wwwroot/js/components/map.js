@@ -3,7 +3,7 @@ window.ImpactMap = (function ()
     let map;
     let marker;
     let circle10, circle20;
-    let stateLayer, highlightLayer, blockGroupLayer, tractLayer;
+    let stateLayer, highlightLayer, blockGroupLayer, tractLayer, scoresLayer;
     let stateData, currentGeoJSON;
     let currentCountyId;
     let satelliteTileLayer, streetTileLayer;
@@ -397,6 +397,7 @@ window.ImpactMap = (function ()
                 currentCountyId = countyId;
 
                 highlightCountyVisuals(countyId, skipMarkerMove);
+                loadScores(countyId);
                 calculateImpact();
             } catch (e)
             {
@@ -405,7 +406,50 @@ window.ImpactMap = (function ()
         }
     }
 
-    function preprocessPopulation(geoJSON, countyId)
+    async function loadScores(countyId)
+    {
+        if (!countyId) return;
+        if (scoresLayer) map.removeLayer(scoresLayer);
+
+        try
+        {
+            // Fetch scores from API
+            // Note: Defaulting to 15 minutes for now; could be parameterized
+            const res = await fetch(`/api/sitescores?countyId=${parseInt(countyId)}&minutes=15`);
+            if (!res.ok) return; // Silent fail if no scores yet
+
+            const scores = await res.json();
+
+            if (!scores || scores.length === 0) return;
+
+            // Simple visualization: Circle Markers colored by score
+            // Score range assumed 0-100 for now
+            scoresLayer = L.layerGroup();
+
+            scores.forEach(s =>
+            {
+                const color = s.score > 80 ? '#ef4444' : (s.score > 50 ? '#f97316' : '#22c55e');
+                L.circleMarker([s.lat, s.lon], {
+                    radius: 4,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).bindPopup(`Score: ${s.score.toFixed(1)}`).addTo(scoresLayer);
+            });
+
+            // Add to map if heatmap/scores layer is toggled (or default to visible for now)
+            // if (layersVisible.heatmap) ...
+            scoresLayer.addTo(map);
+
+        } catch (e)
+        {
+            console.error("Error loading scores:", e);
+        }
+    }
+
+    function highlightCountyVisuals(countyId, skipMarkerMove)
     {
         const countyInfo = countyReference.find(c => c.id === countyId);
         const totalPop = countyInfo ? countyInfo.pop : 0;
