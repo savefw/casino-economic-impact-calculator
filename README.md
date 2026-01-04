@@ -1,8 +1,7 @@
 <div align="center">
 
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <img alt="Save Fort Wayne Logo" src="docs/logo.svg" width="200">
+    <img alt="Save Fort Wayne Logo" src="docs/logo-dark.svg" width="200">
   </picture>
 
   # Save Fort Wayne
