@@ -63,50 +63,41 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 
 ---
 
-## Key Features
+# Key Features
 
-Economic Impact Calculator
---------------------------
+## Economic Impact Calculator
 The core of the platform is an interactive financial model that allows citizens to audit the "net benefit" claims made by developers. Users can adjust critical variables—including Adjusted Gross Revenue (AGR), tax revenue allocation strategies, and social cost multipliers—to calculate the true projected community deficit. Unlike static reports, this tool recalculates in real-time, showing how even optimistic revenue projections often fail to cover the public sector costs of addiction and crime. This transparency is vital for ensuring that the community isn't left with a multi-decade fiscal burden.
 <br /><br />
-<img src="docs/examples/Net-Economic-Impact-Table-Example.png" alt="Economic Impact Calculator Table" width="600" />
-<br /><br />
 
-Programmatic Economic Analysis
-------------------------------
+## Programmatic Economic Analysis
 Moving beyond "AI estimates" or "black box" consulting studies, SaveFW employs a deterministic, rule-based analysis. This system processes user inputs against fixed mathematical formulas derived from peer-reviewed economic literature (Grinols, Welte, et al.). By basing the logic on established academic precedents, the platform ensures that every result is reproducible, transparent, and mathematically verifiable. This provides a "Programmatic Fact Check" that updates instantly as variables change, removing human bias from the calculation.
 <br /><br />
 
-Economic Impact Simulator
--------------------------
+## Economic Impact Simulator
 For users who want to explore "What If" scenarios, the Simulator provides a guided wizard. It allows users to rapidly toggle between the State's conservative revenue estimates ($43M-$112M) and the Developer's sales pitch ($330M), applying varying degrees of social cost sensitivity to see if *any* scenario results in a net positive for the taxpayer. This helps demonstrate that the "economic engine" promised by promoters is often a mathematical impossibility when accounting for the predictable rise in local social expenditures.
 <br /><br />
 <img src="docs/examples/Economic-Impact-Simulator-Example.png" alt="Simulator Interface" width="600" />
 <br /><br />
 
-Interactive Slot Machine
-------------------------
+## Interactive Slot Machine
 A visual metaphor for the deceptive marketing tactics used to sell the casino project. The digital slot machine demonstrates the "Near Miss" psychological effect—where "JOBS" appears just one click away from "ADDICTION"—highlighting how promises of economic prosperity are often just a facade for wealth extraction. This tool is designed to educate the public on the intentional design of gambling environments and their linguistic framing in political discourse.
 <br /><br />
 
-Impact Zone Visualizer
-----------------------
+## Impact Zone Visualizer
 This Leaflet.js-based geospatial tool visualizes the "blast radius" of problem gambling. It maps high-risk (0-10 miles), elevated-risk (10-20 miles), and baseline risk zones, dynamically calculating the number of affected households based on 2020 Census block group data. By dragging the casino marker to different locations, users can immediately see how many families fall within the primary impact zones, providing a clear visual representation of the community's exposure.
 <br /><br />
 <img src="docs/examples/Casino-Impact-Zone-Visualizer-Example.png" alt="Map Visualizer" width="600" />
 <br /><br />
 
-Decoding the Spin
------------------
+## Decoding the Spin
 A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"). This section uses a "Bait vs. Hook" format, supported by direct links to independent studies and government data, to help citizens see past the polished PR campaigns and understand the systemic risks.
 
-Detailed Demographics
----------------------
+## Detailed Demographics
 The platform integrates granular population data for all 92 Indiana counties, allowing the impact model to be applied specifically to the local demographics of Allen County and its neighbors. This ensures that the analysis isn't just a generic statewide average, but a tailored report based on the specific socio-economic profile of the affected region.
 
 ---
 
-## Architecture
+# Architecture
 
 This project is built using a modern .NET 10 distributed architecture:
 
@@ -118,57 +109,9 @@ This project is built using a modern .NET 10 distributed architecture:
 
 ---
 
-## Getting Started
+# Getting Started
 
 The easiest way to run Save Fort Wayne is using **Docker**. This ensures the application, database, and all dependencies run exactly as intended without installing anything else on your machine.
-
-### 1. Prerequisites
-
-You only need **Docker** installed.
-
-<details>
-<summary><strong>Click here for Docker Installation Instructions</strong></summary>
-
-### Windows
-1. Download [Docker Desktop for Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe).
-2. Run the installer and follow the on-screen instructions.
-3. Restart your computer if prompted.
-4. Open PowerShell and verify by running: `docker --version`
-
-### macOS
-1. Download [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/).
-   - [Apple Silicon (M1/M2/M3)](https://desktop.docker.com/mac/main/arm64/Docker.dmg)
-   - [Intel Chip](https://desktop.docker.com/mac/main/amd64/Docker.dmg)
-2. Drag the Docker icon to your Applications folder.
-3. Open Docker from Applications.
-4. Open Terminal and verify by running: `docker --version`
-
-### Linux (Ubuntu/Debian)
-Run the convenience script to install Docker Engine:
-```bash
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-```
-Verify installation: `docker --version`
-
-</details>
-
-### 2. Run the Application
-
-Once **Docker** is installed, simply clone the repo and start the containers. The repository handles everything else (database setup, data seeding, dependencies).
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/savefw/casino-economic-impact-calculator.git
-cd casino-economic-impact-calculator/SaveFW
-
-# 2. Start the application
-docker compose up --build -d
-```
-
-The application is now running! Visit: **http://localhost:8080**
-
----
 
 ## System Requirements
 
@@ -185,7 +128,55 @@ If running in a container (LXC/Docker), ensure you have allocated at least **10G
 
 ---
 
-### For Developers (Optional)
+## 1. Prerequisites
+
+You only need **Docker** installed.
+
+<details>
+<summary><strong>Click here for Docker Installation Instructions</strong></summary>
+
+## Windows
+1. Download [Docker Desktop for Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe).
+2. Run the installer and follow the on-screen instructions.
+3. Restart your computer if prompted.
+4. Open PowerShell and verify by running: `docker --version`
+
+## macOS
+1. Download [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/).
+   - [Apple Silicon (M1/M2/M3)](https://desktop.docker.com/mac/main/arm64/Docker.dmg)
+   - [Intel Chip](https://desktop.docker.com/mac/main/amd64/Docker.dmg)
+2. Drag the Docker icon to your Applications folder.
+3. Open Docker from Applications.
+4. Open Terminal and verify by running: `docker --version`
+
+## Linux (Ubuntu/Debian)
+Run the convenience script to install Docker Engine:
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+Verify installation: `docker --version`
+
+</details>
+
+## 2. Run the Application
+
+Once **Docker** is installed, simply clone the repo and start the containers. The repository handles everything else (database setup, data seeding, dependencies).
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/savefw/casino-economic-impact-calculator.git
+cd casino-economic-impact-calculator/SaveFW
+
+# 2. Start the application
+docker compose up --build -d
+```
+
+The application is now running! Visit: **http://localhost:8080**
+
+---
+
+## For Developers (Optional)
 
 If you wish to modify the C# code or run the application without Docker, you will need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
@@ -198,7 +189,7 @@ dotnet run --project SaveFW.Server/SaveFW.Server.csproj --urls "http://0.0.0.0:8
 
 ---
 
-## Open Source and Contributions
+# Open Source and Contributions
 
 This project is shared openly to encourage community involvement. We invite developers and data scientists to:
 
@@ -206,12 +197,12 @@ This project is shared openly to encourage community involvement. We invite deve
 2.  Enhance Visualizations: Expand mapping and charting capabilities.
 3.  Audit Sources: Ensure the latest research is reflected in the platform models.
 
-## Contact
+# Contact
 
 For inquiries, feedback, or to join the coalition, please reach out to:
 outreach@savefw.com
 
-## Data and Sources
+# Data and Sources
 
 Social cost modeling is derived from established academic research:
 *   Grinols (2011): Social cost per problem gambler calculations (adjusted for 2025 inflation).
