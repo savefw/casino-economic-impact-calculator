@@ -83,30 +83,66 @@ This project is built using a modern .NET 10 distributed architecture:
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
-*   .NET 10 SDK
-*   Docker & Docker Compose
+The easiest way to run Save Fort Wayne is using **Docker**. This ensures the application, database, and all dependencies run exactly as intended without installing anything else on your machine.
 
-### Running with Docker
+### 1. Prerequisites
 
-Initialize the database and application containers:
+You only need **Docker** installed.
+
+<details>
+<summary><strong>🐳 Click here for Docker Installation Instructions</strong></summary>
+
+### Windows
+1. Download [Docker Desktop for Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe).
+2. Run the installer and follow the on-screen instructions.
+3. Restart your computer if prompted.
+4. Open PowerShell and verify by running: `docker --version`
+
+### macOS
+1. Download [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/).
+   - [Apple Silicon (M1/M2/M3)](https://desktop.docker.com/mac/main/arm64/Docker.dmg)
+   - [Intel Chip](https://desktop.docker.com/mac/main/amd64/Docker.dmg)
+2. Drag the Docker icon to your Applications folder.
+3. Open Docker from Applications.
+4. Open Terminal and verify by running: `docker --version`
+
+### Linux (Ubuntu/Debian)
+Run the convenience script to install Docker Engine:
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+Verify installation: `docker --version`
+
+</details>
+
+### 2. Run the Application
+
+Once Docker is installed, simply clone the repo and start the containers. The repository handles everything else (database setup, data seeding, dependencies).
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/savefw/casino-economic-impact-calculator.git
+cd casino-economic-impact-calculator/SaveFW
+
+# 2. Start the application
 docker compose up --build -d
 ```
 
-Access the application at: http://localhost:8080 (or the assigned host IP).
+🎉 The application is now running! Visit: **http://localhost:8080**
 
-### Local Development
+---
 
-To run the server directly:
+### 💻 For Developers (Optional)
+
+If you wish to modify the C# code or run the application without Docker, you will need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
+# Local Development Command
 export PATH=$PATH:/root/.dotnet
 cd SaveFW
-dotnet build
 dotnet run --project SaveFW.Server/SaveFW.Server.csproj --urls "http://0.0.0.0:8080"
 ```
 
