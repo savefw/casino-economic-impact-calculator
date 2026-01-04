@@ -16,7 +16,22 @@ builder.Services.AddOpenApi();
 
 // Register DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+        o => o.UseNetTopologySuite()));
+
+// Register Valhalla Client
+builder.Services.AddHttpClient<SaveFW.Server.Services.Valhalla.ValhallaClient>(client =>
+{
+    var baseUrl = builder.Configuration["Valhalla:BaseUrl"];
+    if (string.IsNullOrEmpty(baseUrl))
+    {
+        throw new InvalidOperationException("Valhalla:BaseUrl configuration is missing.");
+    }
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+// Register Workers
+builder.Services.AddHostedService<SaveFW.Server.Workers.ScoringWorker>();
 
 var app = builder.Build();
 
