@@ -17,12 +17,12 @@ Source: repo README + file listing. citeturn15view2turn15view3
 
 ## Goals
 
-- [ ] 1. Add a **self-hosted Valhalla** container to your existing `docker-compose.yml` so you can compute **isochrones locally** (no per-call API cost).
-- [ ] 2. Use **PostGIS (already present in your compose)** to make statewide precomputation scalable:
+- [x] 1. Add a **self-hosted Valhalla** container to your existing `docker-compose.yml` so you can compute **isochrones locally** (no per-call API cost).
+- [x] 2. Use **PostGIS (already present in your compose)** to make statewide precomputation scalable:
    - cache isochrone polygons
    - spatial joins against block groups/tracts (population, income)
    - store per-grid-point scores (overnight job)
-- [ ] 3. Integrate Valhalla into the .NET solution:
+- [x] 3. Integrate Valhalla into the .NET solution:
    - a typed HTTP client (`ValhallaClient`)
    - an internal API endpoint (optional) for admin/debug
    - a background worker (or separate service) to generate/cache scores
@@ -39,7 +39,7 @@ Source: repo README + file listing. citeturn15view2turn15view3
 
 ## 1.1 Create an `infra/valhalla/` host directory layout
 
-- [ ] In repo root (the directory containing `docker-compose.yml`), add:
+- [x] In repo root (the directory containing `docker-compose.yml`), add:
 
 ```
 infra/
@@ -51,7 +51,7 @@ infra/
       README.md                # short notes for maintainers
 ```
 
-- [ ] Add `.gitignore` entries:
+- [x] Add `.gitignore` entries:
 
 - `infra/valhalla/custom_files/**`
 - `infra/valhalla/osm/**`
@@ -63,7 +63,7 @@ Rationale: Valhalla’s docker image persists tiles/config/admin DB under the ma
 
 ## 1.2 Add `download-osm.sh`
 
-- [ ] Create `infra/valhalla/scripts/download-osm.sh`:
+- [x] Create `infra/valhalla/scripts/download-osm.sh`:
 
 - Use Geofabrik PBFs (Indiana + neighbors so isochrones don’t “hit a wall” at state borders).
 - Minimum set for Indiana analysis:
@@ -81,10 +81,10 @@ Script behavior:
 
 Gemini instructions:
 
-- [ ] 1. Open the existing `docker-compose.yml`.
-- [ ] 2. Note that your user is using `network_mode: "host"`. This simplifies networking but changes how we address services.
+- [x] 1. Open the existing `docker-compose.yml`.
+- [x] 2. Note that your user is using `network_mode: "host"`. This simplifies networking but changes how we address services.
 
-- [ ] 3. Add a new service block (merge into your existing compose conventions):
+- [x] 3. Add a new service block (merge into your existing compose conventions):
 
 **Recommended image**
 - Use the GIS•OPS Valhalla docker image (archived repo but still documents env var contract; upstream notes exist). citeturn13search0
@@ -142,12 +142,12 @@ Valhalla does **not** require PostGIS. The value is making your “grid scoring�
 
 Gemini instructions:
 
-- [ ] 1. In `SaveFW.Server` find your DbContext (README says `SaveFW.Server/Data` contains DbContext and seeding). citeturn15view2
-- [ ] 2. Ensure EF Core is already used (README says EF Core). citeturn15view2
-- [ ] 3. Add/confirm spatial mapping:
+- [x] 1. In `SaveFW.Server` find your DbContext (README says `SaveFW.Server/Data` contains DbContext and seeding). citeturn15view2
+- [x] 2. Ensure EF Core is already used (README says EF Core). citeturn15view2
+- [x] 3. Add/confirm spatial mapping:
    - `Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite`
 
-- [ ] 4. Add these tables (names can be adjusted to your conventions):
+- [x] 4. Add these tables (names can be adjusted to your conventions):
 
 ### `counties`
 - `id` (int / uuid)
@@ -232,12 +232,12 @@ If you prefer hex grids, use `ST_HexagonGrid` similarly. citeturn11search2
 
 Gemini instructions:
 
-- [ ] 1. In `SaveFW.Server`, add `Services/Valhalla/ValhallaClient.cs`.
-- [ ] 2. Configure as `HttpClient` via DI in `Program.cs`.
+- [x] 1. In `SaveFW.Server`, add `Services/Valhalla/ValhallaClient.cs`.
+- [x] 2. Configure as `HttpClient` via DI in `Program.cs`.
 
 ### Configuration
 
-- [ ] Add to `SaveFW.Server/appsettings.json` (or your existing config file):
+- [x] Add to `SaveFW.Server/appsettings.json` (or your existing config file):
 
 ```json
 {
@@ -259,19 +259,19 @@ Use Valhalla’s isochrone service contract:
 - `denoise` (0–1) as needed
 citeturn12search0
 
-- [ ] Implement:
+- [x] Implement:
 
 - method `Task<GeoJsonFeatureCollection> GetIsochroneAsync(double lat, double lon, int minutes, CancellationToken ct)`
 - POST to `/isochrone` (use JSON body form, not querystring, unless you already standardize on querystring)
 - include `polygons=true`
 
-- [ ] Also implement basic resiliency:
+- [x] Also implement basic resiliency:
 - timeouts (isochrones can be expensive during tile build)
 - retries only on transient errors (not on 4xx)
 
 ## 3.2 Optional: a minimal internal endpoint for testing
 
-- [ ] Add `SaveFW.Server/Controllers/ValhallaController.cs`:
+- [x] Add `SaveFW.Server/Controllers/ValhallaController.cs`:
 
 - `GET /api/valhalla/isochrone?lat=..&lon=..&minutes=..`
 - returns GeoJSON
@@ -296,7 +296,7 @@ Recommendation: **B** once this gets heavy.
 
 ## 4.1 Worker responsibilities
 
-- [ ] For each county:
+- [x] For each county:
 
 1. Generate candidate points (SQL grid → centroids).
 2. For each point:
@@ -336,9 +336,9 @@ Key functions:
 
 If you want “annual updates”:
 - [ ] run worker manually, or via host cron calling `docker compose run --rm savefw_worker ...`
-- [ ] or add a simple `Quartz.NET` schedule inside worker (still best to keep it explicit)
+- [x] or add a simple `Quartz.NET` schedule inside worker (still best to keep it explicit)
 
-- [ ] Also add a `source_hash` concept:
+- [x] Also add a `source_hash` concept:
 - When you update your census data / GeoJSON / tiles, bump a `DATASET_REVISION` setting so cached isochrones + scores can be recomputed cleanly.
 
 ---
