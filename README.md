@@ -14,17 +14,17 @@
   <br />
 
   <p>
-    <img src="https://img.shields.io/badge/.NET_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10" />
-    <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" />
-    <img src="https://img.shields.io/badge/Blazor_WASM-512BD4?style=for-the-badge&logo=blazor&logoColor=white" alt="Blazor" />
-    <img src="https://img.shields.io/badge/PostgreSQL_18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 18" />
-    <img src="https://img.shields.io/badge/PostGIS_3.6-005C84?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostGIS" />
-    <img src="https://img.shields.io/badge/Valhalla-FF6F00?style=for-the-badge&logo=openstreetmap&logoColor=white" alt="Valhalla" />
-    <img src="https://img.shields.io/badge/CloudBeaver-372923?style=for-the-badge&logo=dbeaver&logoColor=white" alt="CloudBeaver" />
-    <img src="https://img.shields.io/badge/Worker_Service-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt="Worker Service" />
-    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-    <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-    <img src="https://img.shields.io/badge/Leaflet-199903?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet" />
+    <a href="https://dotnet.microsoft.com/"><img src="https://img.shields.io/badge/.NET_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10" /></a>
+    <a href="https://learn.microsoft.com/en-us/dotnet/csharp/"><img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" /></a>
+    <a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor"><img src="https://img.shields.io/badge/Blazor_WASM-512BD4?style=for-the-badge&logo=blazor&logoColor=white" alt="Blazor" /></a>
+    <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL_18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 18" /></a>
+    <a href="https://postgis.net/"><img src="https://img.shields.io/badge/PostGIS_3.6-005C84?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostGIS" /></a>
+    <a href="https://github.com/valhalla/valhalla"><img src="https://img.shields.io/badge/Valhalla-FF6F00?style=for-the-badge&logo=openstreetmap&logoColor=white" alt="Valhalla" /></a>
+    <a href="https://cloudbeaver.io/"><img src="https://img.shields.io/badge/CloudBeaver-372923?style=for-the-badge&logo=dbeaver&logoColor=white" alt="CloudBeaver" /></a>
+    <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/workers"><img src="https://img.shields.io/badge/Worker_Service-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt="Worker Service" /></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
+    <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
+    <a href="https://leafletjs.com/"><img src="https://img.shields.io/badge/Leaflet-199903?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet" /></a>
   </p>
 
 </div>
