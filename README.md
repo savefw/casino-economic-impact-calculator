@@ -44,41 +44,38 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 
 ## Key Features
 
-*   **Economic Impact Calculator**
-    <br />
-    <img src="docs/examples/Net-Economic-Impact-Table-Example.png" alt="Economic Impact Calculator Table" width="600" />
-    <br />
-    Interactive model allowing users to adjust AGR, tax allocation, and social costs to calculate community deficit.
+### 💰 Economic Impact Calculator
+The core of the platform is an interactive financial model that allows citizens to audit the "net benefit" claims made by developers. Users can adjust critical variables—including Adjusted Gross Revenue (AGR), tax revenue allocation strategies, and social cost multipliers—to calculate the true projected community deficit. Unlike static reports, this tool recalculates in real-time, showing how even optimistic revenue projections often fail to cover the public sector costs of addiction and crime.
+<br />
+<img src="docs/examples/Net-Economic-Impact-Table-Example.png" alt="Economic Impact Calculator Table" width="600" />
+<br /><br />
 
-*   **Programmatic Economic Analysis**
-    <br />
-    <img src="docs/examples/Net-Economic-Impact-Automated-Analysis-Example.png" alt="Automated Economic Analysis" width="600" />
-    <br />
-    Deterministic financial modeling based on fixed-logic inputs and peer-reviewed data, ensuring reproducible and transparent results.
+### 📊 Programmatic Economic Analysis
+Moving beyond "AI estimates" or "black box" consulting studies, SaveFW employs a deterministic, rule-based analysis. This system processes user inputs against fixed mathematical formulas derived from peer-reviewed economic literature (Grinols, Welte, et al.). This ensures that every result is reproducible, transparent, and mathematically verifiable, providing a "Programmatic Fact Check" that updates instantly as variables change.
+<br />
+<img src="docs/examples/Net-Economic-Impact-Automated-Analysis-Example.png" alt="Automated Economic Analysis" width="600" />
+<br /><br />
 
-*   **Impact Zone Visualizer**
-    <br />
-    Leaflet.js map showing high-risk (0-10mi), elevated-risk, and baseline risk zones.
+### 🧪 Economic Impact Simulator
+For users who want to explore "What If" scenarios, the Simulator provides a guided wizard. It allows users to rapidly toggle between the State's conservative revenue estimates ($43M-$112M) and the Developer's sales pitch ($330M), applying varying degrees of social cost sensitivity to see if *any* scenario results in a net positive for the taxpayer.
+<br />
+<img src="docs/examples/Economic-Impact-Simulator-Example.png" alt="Simulator Interface" width="600" />
+<br /><br />
 
-*   **Economic Impact Simulator**
-    <br />
-    <img src="docs/examples/Economic-Impact-Simulator-Example.png" alt="Simulator Interface" width="600" />
-    <br />
-    A guided tool to run various growth and cost scenarios based on state and independent data.
+### 🎰 Interactive Slot Machine
+A visual metaphor for the deceptive marketing tactics used to sell the casino project. The digital slot machine demonstrates the "Near Miss" psychological effect—where "JOBS" appears just one click away from "ADDICTION"—highlighting how promises of economic prosperity are often just a facade for wealth extraction.
+<br />
+<img src="docs/examples/Slot-Machine-Example.png" alt="Slot Machine Metaphor" width="600" />
+<br /><br />
 
-*   **Interactive Slot Machine**
-    <br />
-    <img src="docs/examples/Slot-Machine-Example.png" alt="Slot Machine Metaphor" width="600" />
-    <br />
-    Visual metaphor for the "Near Miss" effect used in marketing terminology.
+### 🗺️ Impact Zone Visualizer
+This Leaflet.js-based geospatial tool visualizes the "blast radius" of problem gambling. It maps high-risk (0-10 miles), elevated-risk (10-20 miles), and baseline risk zones, dynamically calculating the number of affected households based on 2020 Census block group data.
 
-*   **Decoding the Spin**
-    <br />
-    Comparison between marketing claims and documented realities with peer-reviewed sources.
+### 🕵️ Decoding the Spin
+A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"), supported by direct links to independent studies.
 
-*   **Detailed Demographics**
-    <br />
-    Integrated population data for Indiana counties.
+### 👥 Detailed Demographics
+The platform integrates granular population data for all 92 Indiana counties, allowing the impact model to be applied specifically to the local demographics of Allen County and its neighbors.
 
 ---
 
