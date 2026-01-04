@@ -376,18 +376,18 @@ Valhalla gives you the polygons; PostGIS makes the scoring pipeline scalable.
 
 # 7) Gemini CLI execution checklist (do this in order)
 
-- [ ] 1. **Open repo** locally and locate the directory containing `docker-compose.yml` (README path may be slightly out of date; rely on filesystem truth). citeturn15view3
-- [ ] 2. Create `infra/valhalla/` directories + `.gitignore` updates.
-- [ ] 3. Patch `docker-compose.yml`:
+- [x] 1. **Open repo** locally and locate the directory containing `docker-compose.yml` (README path may be slightly out of date; rely on filesystem truth). citeturn15view3
+- [x] 2. Create `infra/valhalla/` directories + `.gitignore` updates.
+- [x] 3. Patch `docker-compose.yml`:
    - add `valhalla` service as described
    - keep existing PostGIS service (already present per Tucker)
-- [ ] 4. Add Server config:
+- [x] 4. Add Server config:
    - `Valhalla:BaseUrl`
-- [ ] 5. Add `ValhallaClient` + DI wiring
-- [ ] 6. Add optional controller endpoint for isochrone test
-- [ ] 7. Add EF Core spatial support (NetTopologySuite) and migrations for:
+- [x] 5. Add `ValhallaClient` + DI wiring
+- [x] 6. Add optional controller endpoint for isochrone test
+- [x] 7. Add EF Core spatial support (NetTopologySuite) and migrations for:
    - `counties`, `block_groups`, `isochrone_cache`, `site_scores`
-- [ ] 8. Add worker (in-process or separate) that:
+- [x] 8. Add worker (in-process or separate) that:
    - generates grid points (PostGIS `ST_SquareGrid`/`ST_HexagonGrid`) citeturn11search0turn11search2
    - calls Valhalla isochrone API citeturn12search0
    - stores/cache polygons + computes overlays
