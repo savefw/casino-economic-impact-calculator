@@ -44,12 +44,41 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 
 ## Key Features
 
-*   **Economic Impact Calculator:** Interactive model allowing users to adjust AGR, tax allocation, and social costs to calculate community deficit.
-*   **Programmatic Economic Analysis:** Deterministic financial modeling based on fixed-logic inputs and peer-reviewed data, ensuring reproducible and transparent results.
-*   **Impact Zone Visualizer:** Leaflet.js map showing high-risk (0-10mi), elevated-risk, and baseline risk zones.
-*   **Decoding the Spin:** Comparison between marketing claims and documented realities with peer-reviewed sources.
-*   **Interactive Slot Machine:** Visual metaphor for the "Near Miss" effect used in marketing terminology.
-*   **Detailed Demographics:** Integrated population data for Indiana counties.
+*   **Economic Impact Calculator**
+    <br />
+    <img src="docs/examples/Net-Economic-Impact-Table-Example.png" alt="Economic Impact Calculator Table" width="600" />
+    <br />
+    Interactive model allowing users to adjust AGR, tax allocation, and social costs to calculate community deficit.
+
+*   **Programmatic Economic Analysis**
+    <br />
+    <img src="docs/examples/Net-Economic-Impact-Automated-Analysis-Example.png" alt="Automated Economic Analysis" width="600" />
+    <br />
+    Deterministic financial modeling based on fixed-logic inputs and peer-reviewed data, ensuring reproducible and transparent results.
+
+*   **Impact Zone Visualizer**
+    <br />
+    Leaflet.js map showing high-risk (0-10mi), elevated-risk, and baseline risk zones.
+
+*   **Economic Impact Simulator**
+    <br />
+    <img src="docs/examples/Economic-Impact-Simulator-Example.png" alt="Simulator Interface" width="600" />
+    <br />
+    A guided tool to run various growth and cost scenarios based on state and independent data.
+
+*   **Interactive Slot Machine**
+    <br />
+    <img src="docs/examples/Slot-Machine-Example.png" alt="Slot Machine Metaphor" width="600" />
+    <br />
+    Visual metaphor for the "Near Miss" effect used in marketing terminology.
+
+*   **Decoding the Spin**
+    <br />
+    Comparison between marketing claims and documented realities with peer-reviewed sources.
+
+*   **Detailed Demographics**
+    <br />
+    Integrated population data for Indiana counties.
 
 ---
 
