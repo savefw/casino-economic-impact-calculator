@@ -1,6 +1,8 @@
 <div align="center">
 
-  <img src="docs/logo.svg" alt="Save Fort Wayne Logo" width="200" />
+  <div style="background-color: white; border-radius: 1rem; padding: 1.5rem; display: inline-block; margin-bottom: 1rem;">
+    <img src="docs/logo.svg" alt="Save Fort Wayne Logo" width="200" />
+  </div>
 
   # Save Fort Wayne
   ### Protect Our Future
