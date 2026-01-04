@@ -85,22 +85,22 @@ This project is built using a modern .NET 10 distributed architecture:
 
 ## Getting Started
 
-The easiest way to run Save Fort Wayne is using **Docker**. This ensures the application, database, and all dependencies run exactly as intended without installing anything else on your machine.
+The easiest way to run Save Fort Wayne is using 🐋 **Docker**. This ensures the application, database, and all dependencies run exactly as intended without installing anything else on your machine.
 
 ### 1. Prerequisites
 
-You only need **Docker** installed.
+You only need 🐋 **Docker** installed.
 
 <details>
 <summary><strong>Click here for Docker Installation Instructions</strong></summary>
 
-### Windows
+### 🪟 Windows
 1. Download [Docker Desktop for Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe).
 2. Run the installer and follow the on-screen instructions.
 3. Restart your computer if prompted.
 4. Open PowerShell and verify by running: `docker --version`
 
-### macOS
+### 🍎 macOS
 1. Download [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/).
    - [Apple Silicon (M1/M2/M3)](https://desktop.docker.com/mac/main/arm64/Docker.dmg)
    - [Intel Chip](https://desktop.docker.com/mac/main/amd64/Docker.dmg)
@@ -108,7 +108,7 @@ You only need **Docker** installed.
 3. Open Docker from Applications.
 4. Open Terminal and verify by running: `docker --version`
 
-### Linux (Ubuntu/Debian)
+### 🐧 Linux (Ubuntu/Debian)
 Run the convenience script to install Docker Engine:
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -120,7 +120,7 @@ Verify installation: `docker --version`
 
 ### 2. Run the Application
 
-Once Docker is installed, simply clone the repo and start the containers. The repository handles everything else (database setup, data seeding, dependencies).
+Once 🐋 **Docker** is installed, simply clone the repo and start the containers. The repository handles everything else (database setup, data seeding, dependencies).
 
 ```bash
 # 1. Clone the repository
@@ -137,7 +137,7 @@ The application is now running! Visit: **http://localhost:8080**
 
 ### For Developers (Optional)
 
-If you wish to modify the C# code or run the application without Docker, you will need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
+If you wish to modify the C# code or run the application without 🐋 **Docker**, you will need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
 # Local Development Command
