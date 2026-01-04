@@ -83,7 +83,7 @@ This project is built using a modern .NET 10 distributed architecture:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 The easiest way to run Save Fort Wayne is using **Docker**. This ensures the application, database, and all dependencies run exactly as intended without installing anything else on your machine.
 
@@ -92,7 +92,7 @@ The easiest way to run Save Fort Wayne is using **Docker**. This ensures the app
 You only need **Docker** installed.
 
 <details>
-<summary><strong>🐳 Click here for Docker Installation Instructions</strong></summary>
+<summary><strong>Click here for Docker Installation Instructions</strong></summary>
 
 ### Windows
 1. Download [Docker Desktop for Windows](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe).
@@ -131,11 +131,11 @@ cd casino-economic-impact-calculator/SaveFW
 docker compose up --build -d
 ```
 
-🎉 The application is now running! Visit: **http://localhost:8080**
+The application is now running! Visit: **http://localhost:8080**
 
 ---
 
-### 💻 For Developers (Optional)
+### For Developers (Optional)
 
 If you wish to modify the C# code or run the application without Docker, you will need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
