@@ -1,0 +1,21 @@
+## .NET Standard
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userprefs
+*.lock.json
+# Visual Studio Code
+.vscode/
+
+## Valhalla Integration
+infra/valhalla/custom_files/**
+infra/valhalla/osm/**
+*.osm.pbf
+valhalla_tiles.tar
+.file_hashes.txt
+
+## OS Generated
+.DS_Store
+Thumbs.db
