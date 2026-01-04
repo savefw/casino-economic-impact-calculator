@@ -116,7 +116,7 @@
                         <div class="border-b border-slate-700 pb-8">
                             <label class="text-base font-bold text-white block mb-4">AGR (Adjusted Gross Revenue)</label>
                             <div class="relative w-full group flex items-center mb-8">
-                                <input type="range" min="0" max="1000" step="1" @bind="InputAGR" @bind:event="oninput" @oninput="OnAGRChange" id="input-agr" 
+                                <input type="range" min="0" max="1000" step="1" @bind="InputAGR" @oninput="OnAGRChange" id="input-agr" 
                                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
                                 <span class="absolute right-0 -top-8 text-emerald-400 font-mono font-bold" id="val-agr">$@InputAGR.ToString("F0") MM</span>
                             </div>
@@ -152,7 +152,7 @@
                                 <div class="absolute w-full h-full pointer-events-none z-10">
                                     <!-- Ticks manually placed for key values could go here -->
                                 </div>
-                                <input type="range" min="0" max="400" step="0.5" @bind="InputRevenue" @bind:event="oninput" @oninput="OnRevenueChange" id="input-revenue" 
+                                <input type="range" min="0" max="400" step="0.5" @bind="InputRevenue" @oninput="OnRevenueChange" id="input-revenue" 
                                     class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 relative z-20">
                                 <span class="absolute right-0 -top-8 text-emerald-500 font-mono font-bold" id="val-revenue">$@InputRevenue.ToString("F1") MM</span>
                             </div>
@@ -168,7 +168,7 @@
                                     <div class="bg-slate-900/80 px-2 py-1 rounded text-xs font-mono text-white" id="alloc-text-human">@InputAllocation.ToString("F0")%</div>
                                     <div class="bg-slate-900/80 px-2 py-1 rounded text-xs font-mono text-white" id="alloc-text-taxpayer">@(100 - InputAllocation).ToString("F0")%</div>
                                 </div>
-                                <input type="range" min="0" max="100" step="5" @bind="InputAllocation" @bind:event="oninput" @oninput="Recalculate" id="input-allocation" 
+                                <input type="range" min="0" max="100" step="5" @bind="InputAllocation" @oninput="Recalculate" id="input-allocation" 
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40">
                             </div>
                             <div class="flex justify-between text-xs font-bold uppercase mt-2">
@@ -202,12 +202,12 @@
                                 }
                             }
 
-                            @RenderCostSlider("Crime Costs", InputCostCrime, v => InputCostCrime = v, 0, 10000, 1625)
-                            @RenderCostSlider("Lost Employment", InputCostBusiness, v => InputCostBusiness = v, 0, 10000, 4051)
-                            @RenderCostSlider("Bankruptcy", InputCostBankruptcy, v => InputCostBankruptcy = v, 0, 10000, 431)
-                            @RenderCostSlider("Illness", InputCostIllness, v => InputCostIllness = v, 0, 10000, 1328)
-                            @RenderCostSlider("Social Services", InputCostServices, v => InputCostServices = v, 0, 10000, 713)
-                            @RenderCostSlider("Abused Dollars", InputCostAbused, v => InputCostAbused = v, 0, 10000, 5055)
+                            @{ RenderCostSlider("Crime Costs", InputCostCrime, v => InputCostCrime = v, 0, 10000, 1625); }
+                            @{ RenderCostSlider("Lost Employment", InputCostBusiness, v => InputCostBusiness = v, 0, 10000, 4051); }
+                            @{ RenderCostSlider("Bankruptcy", InputCostBankruptcy, v => InputCostBankruptcy = v, 0, 10000, 431); }
+                            @{ RenderCostSlider("Illness", InputCostIllness, v => InputCostIllness = v, 0, 10000, 1328); }
+                            @{ RenderCostSlider("Social Services", InputCostServices, v => InputCostServices = v, 0, 10000, 713); }
+                            @{ RenderCostSlider("Abused Dollars", InputCostAbused, v => InputCostAbused = v, 0, 10000, 5055); }
 
                         </div>
                     </div>
@@ -799,7 +799,8 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- End Flex Col -->
+        </div> <!-- End Wrapper -->
+    </div> <!-- End Modal Root -->
 
         <!-- PART II: THE MYTH OF NET GROWTH -->
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-24 border-t border-slate-700 pt-24">
@@ -1061,7 +1062,7 @@
         new() { Id="043", Name="Floyd", Pop=80484 }, new() { Id="045", Name="Fountain", Pop=16479 }, new() { Id="047", Name="Franklin", Pop=22785 },
         new() { Id="049", Name="Fulton", Pop=20480 }, new() { Id="051", Name="Gibson", Pop=33011 }, new() { Id="053", Name="Grant", Pop=66674 },
         new() { Id="055", Name="Greene", Pop=30803 }, new() { Id="057", Name="Hamilton", Pop=347467 }, new() { Id="059", Name="Hancock", Pop=79840 },
-        new() { Id="061", Name="Harrison", Pop=39654 }, new() { Id="063", Name: "Hendricks", Pop= 174788 }, new() { Id="065", Name="Henry", Pop=48914 },
+        new() { Id="061", Name="Harrison", Pop=39654 }, new() { Id="063", Name="Hendricks", Pop=174788 }, new() { Id="065", Name="Henry", Pop=48914 },
         new() { Id="067", Name="Howard", Pop=82544 }, new() { Id="069", Name="Huntington", Pop=36662 }, new() { Id="071", Name="Jackson", Pop=46428 },
         new() { Id="073", Name="Jasper", Pop=32918 }, new() { Id="075", Name="Jay", Pop=20478 }, new() { Id="077", Name="Jefferson", Pop=33147 },
         new() { Id="079", Name="Jennings", Pop=27613 }, new() { Id="081", Name="Johnson", Pop=161765 }, new() { Id="083", Name="Knox", Pop=36282 },
@@ -1072,16 +1073,16 @@
         new() { Id="109", Name="Morgan", Pop=71780 }, new() { Id="111", Name="Newton", Pop=13830 }, new() { Id="113", Name="Noble", Pop=47457 },
         new() { Id="115", Name="Ohio", Pop=5940 }, new() { Id="117", Name="Orange", Pop=19867 }, new() { Id="119", Name="Owen", Pop=21321 },
         new() { Id="121", Name="Parke", Pop=16156 }, new() { Id="123", Name="Perry", Pop=19170 }, new() { Id="125", Name="Pike", Pop=12250 },
-        new() { Id="127", Name: "Porter", Pop=173215 }, new() { Id="129", Name="Posey", Pop=25222 }, new() { Id="131", Name: "Pulaski", Pop=12514 },
-        new() { Id="133", Name: "Putnam", Pop=36726 }, new() { Id="135", Name: "Randolph", Pop=24502 }, new() { Id="137", Name: "Ripley", Pop=28995 },
-        new() { Id="139", Name: "Rush", Pop=16752 }, new() { Id="141", Name: "St. Joseph", Pop=272912 }, new() { Id="143", Name: "Scott", Pop=24384 },
-        new() { Id="145", Name: "Shelby", Pop=45055 }, new() { Id="147", Name: "Spencer", Pop=19810 }, new() { Id="149", Name: "Starke", Pop=23371 },
-        new() { Id="151", Name: "Steuben", Pop=34435 }, new() { Id="153", Name: "Sullivan", Pop=20817 }, new() { Id="155", Name: "Switzerland", Pop=9737 },
-        new() { Id="157", Name: "Tippecanoe", Pop=186251 }, new() { Id="159", Name: "Tipton", Pop=15359 }, new() { Id="161", Name: "Union", Pop=7087 },
-        new() { Id="163", Name: "Vanderburgh", Pop=180136 }, new() { Id="165", Name: "Vermillion", Pop=15439 }, new() { Id="167", Name: "Vigo", Pop=106153 },
-        new() { Id="169", Name: "Wabash", Pop=30976 }, new() { Id="171", Name: "Warren", Pop=8440 }, new() { Id="173", Name: "Warrick", Pop=63898 },
-        new() { Id="175", Name: "Washington", Pop=28182 }, new() { Id="177", Name: "Wayne", Pop=66553 }, new() { Id="179", Name="Wells", Pop=28180 },
-        new() { Id="181", Name: "White", Pop=24688 }, new() { Id="183", Name: "Whitley", Pop=34191 }
+        new() { Id="127", Name="Porter", Pop=173215 }, new() { Id="129", Name="Posey", Pop=25222 }, new() { Id="131", Name="Pulaski", Pop=12514 },
+        new() { Id="133", Name="Putnam", Pop=36726 }, new() { Id="135", Name="Randolph", Pop=24502 }, new() { Id="137", Name="Ripley", Pop=28995 },
+        new() { Id="139", Name="Rush", Pop=16752 }, new() { Id="141", Name="St. Joseph", Pop=272912 }, new() { Id="143", Name="Scott", Pop=24384 },
+        new() { Id="145", Name="Shelby", Pop=45055 }, new() { Id="147", Name="Spencer", Pop=19810 }, new() { Id="149", Name="Starke", Pop=23371 },
+        new() { Id="151", Name="Steuben", Pop=34435 }, new() { Id="153", Name="Sullivan", Pop=20817 }, new() { Id="155", Name="Switzerland", Pop=9737 },
+        new() { Id="157", Name="Tippecanoe", Pop=186251 }, new() { Id="159", Name="Tipton", Pop=15359 }, new() { Id="161", Name="Union", Pop=7087 },
+        new() { Id="163", Name="Vanderburgh", Pop=180136 }, new() { Id="165", Name="Vermillion", Pop=15439 }, new() { Id="167", Name="Vigo", Pop=106153 },
+        new() { Id="169", Name="Wabash", Pop=30976 }, new() { Id="171", Name="Warren", Pop=8440 }, new() { Id="173", Name="Warrick", Pop=63898 },
+        new() { Id="175", Name="Washington", Pop=28182 }, new() { Id="177", Name="Wayne", Pop=66553 }, new() { Id="179", Name="Wells", Pop=28180 },
+        new() { Id="181", Name="White", Pop=24688 }, new() { Id="183", Name="Whitley", Pop=34191 }
     };
 
     // --- Outputs ---
