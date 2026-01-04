@@ -36,9 +36,9 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 
 ### Core Objectives
 *   **Public Education:** Uncover documented social costs including addiction, crime, and wealth extraction.
-*   **Data Transparency:** Provide interactive modeling tools to visualize community deficits.
+*   **Data Transparency:** Provide interactive modeling tools to visualize community deficits and providing the data to the public as an open source project (AGPL-3.0 license) to allow for community contribution and collaboration.
 *   **Policy Critique:** Refute marketing claims with independent studies and empirical data.
-*   **Advocacy:** Mobilize the community to demand a public referendum.
+*   **Advocacy:** Mobilize the community to demand a public referendum, which has been the historical precedent for other Indiana areas.
 
 ---
 
