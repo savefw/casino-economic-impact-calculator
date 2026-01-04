@@ -286,6 +286,119 @@
             border: none !important;
         }
 
+        /* --- SIREN LIGHT --- */
+        .siren-wrapper {
+            position: absolute;
+            top: -55px; /* Sits on top */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 60px;
+            z-index: 5; /* Behind marquee */
+            /* Ensure beam is visible outside */
+            overflow: visible; 
+            perspective: 1200px; /* Deep 3D space */
+        }
+        
+        /* The Projecting Light Beam */
+        .siren-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3000px; /* Massive coverage */
+            height: 3000px;
+            
+            /* Dual-ended soft searchlight beams */
+            background: conic-gradient(
+                from 0deg, 
+                transparent 0deg, 
+                rgba(255, 0, 0, 0) 50deg,
+                rgba(255, 20, 20, 0.1) 70deg, 
+                rgba(255, 50, 50, 0.6) 90deg, /* Beam 1 */
+                rgba(255, 20, 20, 0.1) 110deg,
+                rgba(255, 0, 0, 0) 130deg,
+                
+                transparent 180deg,
+                
+                rgba(255, 0, 0, 0) 230deg,
+                rgba(255, 20, 20, 0.1) 250deg, 
+                rgba(255, 50, 50, 0.6) 270deg, /* Beam 2 */
+                rgba(255, 20, 20, 0.1) 290deg,
+                rgba(255, 0, 0, 0) 310deg,
+                transparent 360deg
+            );
+            
+            transform-origin: center center;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            mix-blend-mode: screen; /* Additive light blend */
+            transition: opacity 0.5s;
+            
+            /* Extreme floor tilt to minimize "clock" look */
+            transform: translate(-50%, -50%) rotateX(75deg) rotate(0deg);
+        }
+
+        .siren-wrapper.siren-active::after {
+            opacity: 1;
+            animation: beam-spin 2s linear infinite;
+        }
+
+        @keyframes beam-spin {
+            from { transform: translate(-50%, -50%) rotateX(75deg) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(75deg) rotate(360deg); }
+        }
+
+        .siren-base {
+            width: 80px;
+            height: 12px;
+            background: linear-gradient(to bottom, #444, #111);
+            border-radius: 4px;
+            border: 1px solid #555;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+        .siren-bulb {
+            width: 60px;
+            height: 48px;
+            background: radial-gradient(circle at 30% 30%, #660000, #330000); /* Dark Red Off */
+            border-radius: 50% 50% 15% 15%;
+            margin: 0 auto;
+            position: relative;
+            top: 2px;
+            border: 1px solid #440000;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .siren-wrapper.siren-active .siren-bulb {
+            /* Base red glow */
+            background-color: #cc0000;
+            /* Moving beam gradient */
+            background-image: linear-gradient(110deg, 
+                rgba(204,0,0,0) 30%, 
+                rgba(255,100,100,0.8) 45%, 
+                rgba(255,255,255,1) 50%, 
+                rgba(255,100,100,0.8) 55%, 
+                rgba(204,0,0,0) 70%
+            );
+            background-size: 300% 100%;
+            box-shadow: 0 0 60px #ff0000, 0 0 20px #ff3333 inset;
+            border-color: #ff5555;
+            /* Double speed to match dual-beam */
+            animation: lighthouse-sweep 1s linear infinite;
+        }
+        
+        @keyframes lighthouse-sweep {
+            0% { background-position: 100% 0; }
+            100% { background-position: -50% 0; }
+        }
+
         /* --- SLOT MACHINE CONTAINER --- */
         .slot-machine-wrapper {
             background: linear-gradient(135deg, #bfa05d 0%, #ffebcd 50%, #bfa05d 100%);
@@ -453,24 +566,18 @@
             z-index: 50;
         }
 
-        /* Each Lightbulb - 3D glass bulb with socket integrated */
+        /* Each Lightbulb - Round Marquee Style */
         .casino-lights li {
             position: absolute;
-            width: 16px;
-            height: 22px;
-            margin-left: -8px;
-            margin-top: -4px;
-            /* Glass bulb dome shape */
-            border-radius: 50% 50% 35% 35%;
-            /* Lit bulb: warm glowing glass on top, metallic base at bottom */
+            width: 20px;
+            height: 20px;
+            margin-left: -10px;
+            margin-top: -10px;
+            /* Perfect circle */
+            border-radius: 50%;
+            /* Lit bulb: warm glowing glass */
             background: 
-                linear-gradient(to bottom, 
-                    transparent 0%,
-                    transparent 70%,
-                    #888 70%,
-                    #aaa 80%,
-                    #666 100%),
-                radial-gradient(ellipse 80% 70% at 40% 30%,
+                radial-gradient(circle at 30% 30%,
                     rgba(255, 255, 255, 1) 0%,
                     rgba(255, 245, 200, 0.95) 20%,
                     rgba(255, 210, 100, 0.9) 40%,
@@ -492,10 +599,10 @@
         .casino-lights li::after {
             content: '';
             position: absolute;
-            top: 2px;
-            left: 3px;
-            width: 4px;
-            height: 6px;
+            top: 3px;
+            left: 4px;
+            width: 5px;
+            height: 5px;
             background: linear-gradient(135deg,
                 rgba(255, 255, 255, 0.95) 0%,
                 rgba(255, 255, 255, 0.5) 40%,
@@ -506,13 +613,7 @@
         /* OFF state - dimmed bulb */
         .casino-lights li.bulb-off {
             background: 
-                linear-gradient(to bottom, 
-                    transparent 0%,
-                    transparent 70%,
-                    #666 70%,
-                    #888 80%,
-                    #444 100%),
-                radial-gradient(ellipse 80% 70% at 40% 30%,
+                radial-gradient(circle at 30% 30%,
                     rgba(120, 110, 90, 0.6) 0%,
                     rgba(90, 80, 60, 0.5) 40%,
                     rgba(60, 50, 35, 0.5) 80%,
@@ -1176,7 +1277,7 @@
     <section class="bg-surface-dark dark:bg-background-dark bg-hero-gradient relative w-full">
         <div class="mx-auto max-w-7xl flex flex-col lg:flex-row items-center">
             <!-- Text Content -->
-            <div class="flex-1 relative z-20 flex flex-col justify-center px-8 py-16 sm:px-12 lg:px-12 text-white">
+            <div class="flex-1 relative z-20 flex flex-col justify-center px-8 py-24 lg:py-32 sm:px-12 lg:px-12 text-white">
                 <h1 class="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl mb-6">
                     DON'T LET THEM<br />
                     <span class="text-accent underline decoration-4 decoration-accent/50 underline-offset-4">GAMBLE
@@ -1215,7 +1316,7 @@
             <div class="relative w-full lg:w-1/2">
                 <!-- Slot Machine (Moved Here) -->
                 <div
-                    class="relative max-w-[800px] mx-auto z-0 scale-75 sm:scale-90 lg:scale-100 origin-top lg:origin-center">
+                    class="relative max-w-[800px] mx-auto z-0 scale-75 sm:scale-90 lg:scale-100 origin-top lg:origin-center mt-6 lg:mt-10">
                     <!-- LEVER -->
                     <!-- LEVER BASE (Layered Behind) -->
                     <div class="lever-container" style="z-index: 0;">
@@ -1223,6 +1324,12 @@
                     </div>
 
                     <div class="slot-machine-wrapper">
+                        <!-- Siren Light -->
+                        <div class="siren-wrapper" id="siren">
+                            <div class="siren-base"></div>
+                            <div class="siren-bulb"></div>
+                        </div>
+
                         <!-- Marquee Logo -->
                         <div class="marquee-logo">
                             <img src="./SAVEFW.svg" alt="Save Fort Wayne" />
@@ -8114,12 +8221,17 @@
         let isAtFront = true; // State to toggle between index 0 and 8
         let isSpinning = false;
 
+        let lightAnimationId = null;
+
         // Casino Lights Generator
         function initLights()
         {
             const list = document.getElementById('casino-lights');
             const wrapper = document.querySelector('.slot-machine-wrapper');
             if (!list || !wrapper) return;
+
+            // Stop existing animation loop to prevent duplicates/memory leaks
+            if (lightAnimationId) cancelAnimationFrame(lightAnimationId);
 
             list.innerHTML = '';
 
@@ -8132,65 +8244,148 @@
             const ry = 100;
             const spacing = 35; // Pixel spacing between bulbs
 
+            const bulbs = [];
+
+            // Shift logic for right side (Move tiny bit to the left)
+            const getShiftedX = (x) => {
+                if (x <= rx) return x;
+                // Smoothly increase shift from 0 at center peak to 4px at the right edge
+                const factor = (x - rx) / rx;
+                return x - (factor * 4);
+            };
+
             // Helper to add a 3D bulb
             const addBulb = (x, y, rot, i) =>
             {
                 const li = document.createElement('li');
-                li.style.left = `${x}px`;
+                li.style.left = `${getShiftedX(x)}px`;
                 li.style.top = `${y}px`;
                 li.style.transform = `rotate(${rot}deg)`;
 
-                // Stagger blink timing for chase effect
-                const blinkDelay = (i % 6) * 0.4;
-
-                // Track bulb state
-                let isOff = (i % 2 === 0);
-
-                // Set initial state
-                if (isOff) {
-                    li.classList.add('bulb-off');
-                }
-
-                // Toggle function for on/off
-                const toggleBulb = () => {
-                    li.classList.toggle('bulb-off');
-                };
-
-                // Start the blinking interval with staggered delay
-                setTimeout(() => {
-                    setInterval(toggleBulb, 1200); // Slower toggle (1.2s)
-                }, blinkDelay * 1000);
+                // Store metadata for the animation loop
+                li.dataset.group = i % 6; 
+                li.dataset.index = i;
 
                 list.appendChild(li);
+                bulbs.push(li);
             };
 
-            // 1. Arch Lights (Top)
-            // Circumference of half ellipse (approx)
-            const archLength = Math.PI * Math.sqrt((rx * rx + ry * ry) / 2);
-            const numArch = Math.floor(archLength / spacing);
+            // --- 1. ARCH (Equidistant Distribution) ---
+            // Numerical integration to ensure constant spacing on the ellipse
+            
+            const getPoint = (t) => ({
+                x: rx + rx * Math.cos(t),
+                y: ry + ry * Math.sin(t)
+            });
 
-            for (let i = 0; i <= numArch; i++)
-            {
-                const t = Math.PI + (Math.PI * (i / numArch));
-                const x = rx + rx * Math.cos(t);
-                const y = ry + ry * Math.sin(t);
-                const deg = (t * 180 / Math.PI) + 90;
-                addBulb(x, y, deg, i);
+            // Calculate Total Arc Length
+            let totalArcLength = 0;
+            const segments = 300;
+            const dt = Math.PI / segments;
+            let prevP = getPoint(Math.PI);
+
+            for (let i = 1; i <= segments; i++) {
+                const t = Math.PI + (i * dt);
+                const p = getPoint(t);
+                totalArcLength += Math.sqrt(Math.pow(p.x - prevP.x, 2) + Math.pow(p.y - prevP.y, 2));
+                prevP = p;
             }
 
-            // 2. Side Lights (Straight Down)
+            // Determine Count & Actual Spacing
+            // We want a bulb at start and end, so intervals = count - 1
+            const numIntervals = Math.round(totalArcLength / spacing);
+            const actualSpacing = totalArcLength / numIntervals;
+            
+            // Place Bulbs
+            let currentLen = 0;
+            let bulbIdx = 0;
+            let nextTarget = 0;
+            
+            prevP = getPoint(Math.PI); // Reset
+            
+            // Place first bulb manually (Left Corner)
+            addBulb(prevP.x, prevP.y, 270, bulbIdx++);
+            nextTarget += actualSpacing;
+
+            for (let i = 1; i <= segments; i++) {
+                const t = Math.PI + (i * dt);
+                const p = getPoint(t);
+                const dist = Math.sqrt(Math.pow(p.x - prevP.x, 2) + Math.pow(p.y - prevP.y, 2));
+                
+                if (currentLen + dist >= nextTarget) {
+                    // Interpolate for precision
+                    const remaining = nextTarget - currentLen;
+                    const ratio = remaining / dist;
+                    const interpT = (Math.PI + ((i - 1) * dt)) + (ratio * dt);
+                    const finalP = getPoint(interpT);
+                    const deg = (interpT * 180 / Math.PI) + 90;
+                    
+                    addBulb(finalP.x, finalP.y, deg, bulbIdx++);
+                    nextTarget += actualSpacing;
+                }
+                currentLen += dist;
+                prevP = p;
+            }
+            
+            // --- 2. SIDE LIGHTS ---
             const sideStartY = ry;
             const sideEndY = h;
             const numSide = Math.floor((sideEndY - sideStartY) / spacing);
+            
+            // Capture the current bulb index to start the side sequences
+            const startSideIdx = bulbIdx;
 
-            for (let i = 1; i <= numSide; i++)
+            for (let i = 0; i < numSide; i++)
             {
-                const y = sideStartY + (i * spacing);
+                const y = sideStartY + ((i + 1) * spacing);
                 // Left Edge (x = 0)
-                addBulb(0, y, 0, i + numArch);
-                // Right Edge (x = w)
-                addBulb(w, y, 180, i + numArch + 5); // Slight offset for chase sync
+                addBulb(0, y, 0, startSideIdx + i);
+                // Right Edge (x = w) - Offset by 5 for visual chase sync
+                addBulb(w, y, 180, startSideIdx + i + 5); 
             }
+
+            // Single Animation Loop for High Performance
+            const animate = () =>
+            {
+                const now = Date.now();
+                // Logic: 1200ms ON, 1200ms OFF => 2400ms period.
+                // Stagger offset: group * 400ms.
+
+                for (let i = 0; i < bulbs.length; i++)
+                {
+                    const li = bulbs[i];
+                    const group = parseInt(li.dataset.group);
+                    const index = parseInt(li.dataset.index);
+
+                    const offset = group * 400;
+                    const tEff = now - offset;
+                    const phase = Math.floor(tEff / 1200);
+
+                    // Initial state logic from original: i % 2 === 0 starts OFF
+                    const initialIsOff = (index % 2 === 0);
+                    let isOff = initialIsOff;
+
+                    // Flip state every 1200ms phase
+                    if (phase % 2 !== 0)
+                    {
+                        isOff = !isOff;
+                    }
+
+                    // Efficient DOM update (classList checks internally)
+                    if (isOff)
+                    {
+                        li.classList.add('bulb-off');
+                    } else
+                    {
+                        li.classList.remove('bulb-off');
+                    }
+                }
+
+                lightAnimationId = requestAnimationFrame(animate);
+            };
+
+            // Start loop
+            animate();
         }
 
         // 1. Initialize Reels on Load
@@ -8345,11 +8540,22 @@
             // No delayed message for individual spins
         }
 
+        let sirenTimeout = null;
+
+        function resetSiren() {
+            const siren = document.getElementById('siren');
+            if (siren) siren.classList.remove('siren-active');
+            if (sirenTimeout) clearTimeout(sirenTimeout);
+        }
+
         // 2. The Spin Function (Lever)
         function spinTheTruth()
         {
             if (isSpinning) return;
             isSpinning = true;
+            
+            // Turn off siren immediately on new spin
+            resetSiren();
 
             // Flip State GLOBALLY for the lever pull
             isAtFront = !isAtFront;
@@ -8365,10 +8571,21 @@
                 performSpin(index, index * 200); // Staggered
             });
 
-            // Reveal
+            // Reveal & Siren Trigger
             setTimeout(() =>
             {
                 isSpinning = false;
+                
+                // Trigger Siren (All reds landed)
+                const siren = document.getElementById('siren');
+                if (siren) {
+                    siren.classList.add('siren-active');
+                    
+                    // Auto turn off after 5 seconds
+                    sirenTimeout = setTimeout(() => {
+                        siren.classList.remove('siren-active');
+                    }, 5000);
+                }
             }, 6500);
         }
 
