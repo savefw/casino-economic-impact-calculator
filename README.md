@@ -45,6 +45,8 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 
 ```text
 📁 SaveFW
+├── 📁 infra              # Infrastructure Configuration
+│   └── 📁 valhalla       # Valhalla Routing Engine Config & Tiles
 ├── 📁 SaveFW.Client      # Blazor WebAssembly Frontend
 │   ├── 📁 Pages          # Razor Components (Hero, Map, Calculator)
 │   └── 📁 wwwroot        # Static assets and modular JS files
@@ -53,9 +55,11 @@ Save Fort Wayne is an interactive open-source platform designed to educate citiz
 │   └── 📄 Program.cs     # API Routing and Blazor Hosting
 ├── 📁 SaveFW.Shared      # Shared C# Class Library
 │   └── 📄 Legislator.cs  # Shared Data Models
+├── 📁 SaveFW.Worker      # Background Service (Batch Scoring)
+│   └── 📄 Worker.cs      # Grid Generation & Valhalla Integration
 ├── 📁 docs               # Documentation Assets
 │   └── 📄 logo.svg       # Project Logo
-├── 📄 docker-compose.yml # Orchestration for App and PostgreSQL 18
+├── 📄 docker-compose.yml # Orchestration (App, DB, Valhalla, CloudBeaver)
 ├── 📄 Dockerfile         # Multi-stage build for .NET 10
 └── 📄 SaveFW.sln         # Visual Studio Solution
 ```
@@ -101,8 +105,11 @@ The platform integrates granular population data for all 92 Indiana counties, al
 This project is built using a modern .NET 10 distributed architecture:
 
 *   **Backend:** .NET 10 Web API utilizing Entity Framework Core.
+*   **Worker:** Background service for heavy geospatial processing (grid generation, scoring).
 *   **Frontend:** Blazor WebAssembly styled with Tailwind CSS.
-*   **Database:** PostgreSQL 18 (Dockerized) with automated data seeding.
+*   **Database:** PostgreSQL 18 + PostGIS (Dockerized) with automated data seeding.
+*   **Routing:** Self-hosted Valhalla engine for offline isochrone generation.
+*   **Management:** CloudBeaver for web-based database administration.
 *   **Maps:** Leaflet.js integrated via JavaScript Interop.
 *   **Deployment:** Fully containerized environment via Docker Compose.
 
@@ -171,7 +178,13 @@ cd casino-economic-impact-calculator/SaveFW
 docker compose up --build -d
 ```
 
-The application is now running! Visit: **http://localhost:8080**
+The application is now running! Access the services at:
+
+| Service | URL | Description |
+| :--- | :--- | :--- |
+| **Web Application** | **http://localhost** | Main user interface (Port 80) |
+| **CloudBeaver** | **http://localhost:8978** | Database GUI Management |
+| **Valhalla API** | **http://localhost:8002** | Isochrone & Routing API |
 
 ---
 
