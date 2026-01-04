@@ -1,6 +1,6 @@
 services:
   savefw-db:
-    image: postgres:18
+    image: postgis/postgis:18-3.5
     container_name: savefw-db
     network_mode: "host"
     environment:
@@ -9,6 +9,15 @@ services:
       POSTGRES_DB: savefw
     volumes:
       - postgres_data:/var/lib/postgresql
+
+  savefw-db-gui:
+    image: dbeaver/cloudbeaver:latest
+    container_name: savefw-db-gui
+    network_mode: "host"
+    volumes:
+      - cloudbeaver_data:/opt/cloudbeaver/workspace
+    depends_on:
+      - savefw-db
 
   savefw-app:
     build:
