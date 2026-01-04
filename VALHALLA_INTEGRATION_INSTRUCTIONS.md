@@ -347,10 +347,10 @@ If you want “annual updates”:
 
 Gemini instructions:
 
-- [ ] 1. In the map page/component (README says Leaflet via JS interop in `SaveFW.Client`). citeturn15view2
-- [ ] 2. Add a new API call:
+- [x] 1. In the map page/component (README says Leaflet via JS interop in `SaveFW.Client`). citeturn15view2
+- [x] 2. Add a new API call:
    - `GET /api/sitescores?countyId=..&minutes=15`
-- [ ] 3. Render results as:
+- [x] 3. Render results as:
    - heatmap layer, or
    - clustered markers, or
    - vector grid bins
@@ -391,7 +391,7 @@ Valhalla gives you the polygons; PostGIS makes the scoring pipeline scalable.
    - generates grid points (PostGIS `ST_SquareGrid`/`ST_HexagonGrid`) citeturn11search0turn11search2
    - calls Valhalla isochrone API citeturn12search0
    - stores/cache polygons + computes overlays
-- [ ] 9. Add API endpoint to query precomputed scores for the map
+- [x] 9. Add API endpoint to query precomputed scores for the map
 - [ ] 10. Run:
     - `docker compose up --build -d`
     - seed DB
