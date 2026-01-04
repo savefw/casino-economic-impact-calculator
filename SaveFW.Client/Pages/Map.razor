@@ -18,9 +18,17 @@
         <div class="mb-8 rounded-2xl p-6">
             <div class="mb-6 pb-4 relative z-[150]">
                 <button onclick="window.openMethodologyModal()"
-                    class="w-full mb-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all active:scale-95">
-                    <span class="material-symbols-outlined">science</span>
-                    View Methodology
+                    class="w-full mb-6 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-orange-500/20 border border-orange-400/30 flex items-center justify-between group transition-all transform active:scale-95">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-2 rounded-lg">
+                            <span class="material-symbols-outlined text-white">science</span>
+                        </div>
+                        <div class="text-left">
+                            <div class="uppercase tracking-wide text-xs font-bold text-orange-100 mb-0.5">Scientific Basis</div>
+                            <div class="text-lg leading-none">View Methodology</div>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
 
                 <label class="text-base font-bold text-slate-300 mb-2 block">Assessed County</label>

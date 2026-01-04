@@ -240,18 +240,74 @@ window.ImpactMap = (function ()
             const geocoder = L.Control.Geocoder.nominatim({
                 geocodingQueryParams: { countrycodes: 'us', viewbox: '-88.2,42.0,-84.6,37.5', bounded: 1 }
             });
-            // Custom implementation... simplified for now, assuming standard use
+
+            const geocoderControl = L.Control.geocoder({
+                geocoder: geocoder,
+                defaultMarkGeocode: false,
+                placeholder: 'Search for an address...',
+                collapsed: false,
+                showResultIcons: true
+            });
+
+            // We want to place it in our custom container
+            const searchContainer = document.getElementById('map-search-container');
+            if (searchContainer)
+            {
+                const div = geocoderControl.onAdd(map);
+                searchContainer.appendChild(div);
+
+                // Add custom styling class to the input if needed or rely on CSS
+            }
+
+            geocoderControl.on('markgeocode', function (e)
+            {
+                const bbox = e.geocode.bbox;
+                const center = e.geocode.center;
+
+                // Move Marker
+                if (marker)
+                {
+                    marker.setLatLng(center);
+                    circle10.setLatLng(center);
+                    circle20.setLatLng(center);
+                    map.setView(center, 10);
+
+                    // Trigger calc
+                    calculateImpact();
+
+                    // Check county
+                    if (stateData)
+                    {
+                        const pt = turf.point([center.lng, center.lat]);
+                        const matched = stateData.features.find(f => turf.booleanPointInPolygon(pt, f));
+                        if (matched && matched.properties.COUNTY !== currentCountyId)
+                        {
+                            loadCounty(matched.properties.COUNTY, true);
+                            updateDropdown(matched.properties.COUNTY);
+                        }
+                    }
+                }
+            });
         }
 
         // Fullscreen Toggle
-        const mapOverlayControls = L.control({ position: 'topright' });
-        mapOverlayControls.onAdd = function (map)
+        // const mapOverlayControls = L.control({ position: 'topright' });
+        // ... omitted as not critical/implemented in snippet
+
+        // Listener for Rate Change from Calculator
+        const rateInput = document.getElementById('input-rate');
+        if (rateInput)
         {
-            const container = L.DomUtil.create('div', 'flex flex-col items-end gap-2 mt-4 mr-2');
-            // Add controls here if needed, consistent with Razor design which has them outside map div usually
-            return container;
-        };
-        mapOverlayControls.addTo(map);
+            rateInput.addEventListener('input', () =>
+            {
+                calculateImpact();
+            });
+            // Also listen for 'change' just in case
+            rateInput.addEventListener('change', () =>
+            {
+                calculateImpact();
+            });
+        }
     }
 
     function initCountyDropdown()

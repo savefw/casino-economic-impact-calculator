@@ -215,89 +215,188 @@
             </div>
 
             <!-- RESULTS -->
-            <div class="bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl">
-                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2" id="deficit-title">
-                     <span class="material-symbols-outlined text-red-500 align-middle">calculate</span> @SelectedCountyName County Casino Net Economic Impact Analysis
+            <div class="bg-slate-800 rounded-3xl p-4 sm:p-8 border border-slate-700 shadow-2xl relative overflow-hidden flex flex-col justify-center">
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl"></div>
+
+                <h3 class="text-xl font-bold text-slate-300 dark:text-white mb-2" id="deficit-title">
+                    <span class="material-symbols-outlined text-blue-500">calculate</span>
+                    Deficit Calculation
                 </h3>
-                
-                <div class="space-y-4 font-mono text-sm">
-                    <div class="grid grid-cols-4 gap-2 text-slate-500 font-bold border-b border-slate-700 pb-2">
-                        <div>Group</div><div class="text-right">Rev</div><div class="text-right">Cost</div><div class="text-right">Net</div>
-                    </div>
-                    
-                    @{
-                        string RevClass(double v) => v > 0 ? "text-emerald-500" : "text-slate-500";
-                        string NetClass(double v) => v >= 0 ? "text-emerald-500" : "text-red-500";
-                        string Fmt(double v) => v == 0 ? "-" : "$" + Math.Abs(v).ToString("F1") + "M";
-                        string FmtNet(double v) => v == 0 ? "-" : (v>0?"+":"-") + "$" + Math.Abs(v).ToString("F1") + "M";
-                    }
 
-                    <!-- Health Human -->
-                    <div class="grid grid-cols-4 gap-2 text-purple-400">
-                        <div>Health (Hum)</div>
-                        <div class="text-right @RevClass(AllocHumanitarianPool)">@Fmt(AllocHumanitarianPool)</div>
-                        <div class="text-right text-red-400">@Fmt(TotalCostHealth)</div>
-                        <div class="text-right @NetClass(NetHealthHuman)">@FmtNet(NetHealthHuman)</div>
-                    </div>
-                     <!-- Health Tax -->
-                    <div class="grid grid-cols-4 gap-2 text-purple-400">
-                        <div>Health (Tax)</div>
-                        <div class="text-right">-</div>
-                        <div class="text-right text-red-400">@Fmt(Math.Max(0, TotalCostHealth - AllocHumanitarianPool))</div>
-                        <div class="text-right @NetClass(NetHealthTax)">@FmtNet(NetHealthTax)</div>
+                <!-- Split Balance Sheet -->
+                <div class="relative z-10 bg-slate-900/50 rounded-2xl p-6 border border-slate-600 mb-6 font-sans">
+                    <div class="text-sm text-slate-200 uppercase tracking-widest font-bold mb-2 text-center">
+                        Net Economic Impact
                     </div>
 
-                    <!-- Gen Fund Subgroups -->
-                    <div class="grid grid-cols-4 gap-2 text-blue-400 border-t border-slate-700 pt-2 mt-2">
-                        <div>Law Enf.</div>
-                        <div class="text-right">@Fmt(AllocGeneralPool * (TotalCostCrime / (TotalCostCrime+TotalCostSocial+TotalCostLegal+0.001)))</div> <!-- Approx display -->
-                        <div class="text-right text-red-400">@Fmt(TotalCostCrime)</div>
-                        <div class="text-right @NetClass(NetCrime)">@FmtNet(NetCrime)</div>
-                    </div>
-                    <div class="grid grid-cols-4 gap-2 text-blue-400">
-                        <div>Social Svc</div>
-                        <div class="text-right">-</div>
-                        <div class="text-right text-red-400">@Fmt(TotalCostSocial)</div>
-                        <div class="text-right @NetClass(NetSocial)">@FmtNet(NetSocial)</div>
-                    </div>
-                    <div class="grid grid-cols-4 gap-2 text-blue-400">
-                        <div>Civil Legal</div>
-                        <div class="text-right">-</div>
-                        <div class="text-right text-red-400">@Fmt(TotalCostLegal)</div>
-                        <div class="text-right @NetClass(NetLegal)">@FmtNet(NetLegal)</div>
+                    <p class="text-sm text-slate-400 leading-relaxed mb-6 px-4 text-left">
+                        Tax revenue is allocated based on a tiered prioritization model. The <span
+                            class="text-purple-400 font-bold">Humanitarian Fund</span> exclusively targets Public
+                        Health liabilities (addiction and mental health). The <span
+                            class="text-blue-400 font-bold">General Fund</span> is distributed pro-rata among Law
+                        Enforcement, Social Services, and Civil Legal based on their relative share of the total
+                        public sector burden. <span class="text-orange-400 font-bold">Private sector</span> economic
+                        losses (Abused Dollars and Lost Employment) receive zero direct tax revenue offset in this
+                        analysis.
+                    </p>
+
+                    <div class="grid grid-cols-4 gap-2 text-sm uppercase text-slate-500 font-bold mb-2 px-2 border-b border-slate-700 pb-2">
+                        <div class="col-span-1">Group</div>
+                        <div class="col-span-1 text-right">Revenue</div>
+                        <div class="col-span-1 text-right">Cost</div>
+                        <div class="col-span-1 text-right">Balance</div>
                     </div>
 
-                    <!-- Private -->
-                     <div class="grid grid-cols-4 gap-2 text-slate-400 border-t border-slate-700 pt-2 mt-2">
-                        <div>Private</div>
-                        <div class="text-right">-</div>
-                        <div class="text-right text-red-400">@Fmt(TotalCostPrivate)</div>
-                        <div class="text-right @NetClass(NetPrivateSub)">@FmtNet(NetPrivateSub)</div>
-                    </div>
+                    <div class="space-y-4">
+                        @{
+                            string FmtM(double v) => "$" + (v / 1_000_000.0).ToString("F1") + "MM";
+                            string FmtDiff(double v) => (v >= 0 ? "+$" : "-$") + Math.Abs(v / 1_000_000.0).ToString("F1") + "MM";
+                            string NetClass(double v) => "text-right font-bold font-mono " + (v >= 0 ? "text-emerald-400" : "text-red-500");
+                        }
 
-                    <!-- TOTAL -->
-                    <div class="grid grid-cols-4 gap-2 text-white font-black border-t-2 border-slate-500 pt-2 mt-4 text-base">
-                        <div>TOTAL NET</div>
-                        <div class="text-right text-emerald-500">@Fmt(CalcTaxRevenue)</div>
-                        <div class="text-right text-red-500">@Fmt(TotalCostCombined)</div>
-                        <div class="text-right @NetClass(NetTotalBalance)">@FmtNet(NetTotalBalance)</div>
+                        <!-- 1a. Public Health (Humanitarian) -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-purple-400">Public Health (Humanitarian)</span>
+                            </div>
+                            <div class="text-right text-emerald-400 font-mono">@FmtM(RevHealthHuman)</div>
+                            <div class="text-right text-red-400 font-mono">@FmtM(CostHealthHuman)</div>
+                            <div class="@NetClass(NetHealthHuman)">@FmtDiff(NetHealthHuman)</div>
+                        </div>
+
+                        <!-- 1b. Public Health (Taxpayer) -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-purple-400">Public Health (Taxpayer)</span>
+                            </div>
+                            <div class="text-right text-emerald-400 font-mono">@FmtM(RevHealthTax)</div>
+                            <div class="text-right text-red-400 font-mono">@FmtM(CostHealthTax)</div>
+                            <div class="@NetClass(NetHealthTax)">@FmtDiff(NetHealthTax)</div>
+                        </div>
+
+                        <!-- Subtotal: Public Health -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700 pt-2 bg-slate-800/30">
+                            <div class="flex items-center gap-1 text-purple-300 font-bold italic">
+                                <span>Subtotal: Health</span>
+                            </div>
+                            <div class="text-right text-emerald-400/80 font-mono italic">@FmtM(SubHealthRev)</div>
+                            <div class="text-right text-red-400/80 font-mono italic">@FmtM(SubHealthCost)</div>
+                            <div class="@NetClass(SubHealthNet) italic">@FmtDiff(SubHealthNet)</div>
+                        </div>
+
+
+                        <!-- Law Enforcement -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2 mt-4">
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-blue-400">Law Enforcement</span>
+                            </div>
+                            <div class="text-right text-emerald-400 font-mono">@FmtM(RevCrime)</div>
+                            <div class="text-right text-red-400 font-mono">@FmtM(TotalCostCrime)</div>
+                            <div class="@NetClass(NetCrime)">@FmtDiff(NetCrime)</div>
+                        </div>
+
+                        <!-- Social Services -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-blue-400">Social Services</span>
+                            </div>
+                            <div class="text-right text-emerald-400 font-mono">@FmtM(RevSocial)</div>
+                            <div class="text-right text-red-400 font-mono">@FmtM(TotalCostSocial)</div>
+                            <div class="@NetClass(NetSocial)">@FmtDiff(NetSocial)</div>
+                        </div>
+
+                        <!-- Civil Legal -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-blue-400">Civil Legal</span>
+                            </div>
+                            <div class="text-right text-emerald-400 font-mono">@FmtM(RevLegal)</div>
+                            <div class="text-right text-red-400 font-mono">@FmtM(TotalCostLegal)</div>
+                            <div class="@NetClass(NetLegal)">@FmtDiff(NetLegal)</div>
+                        </div>
+
+                        <!-- Subtotal: General Taxpayer -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700 pt-2 bg-slate-800/30">
+                             <div class="flex items-center gap-1 text-blue-300 font-bold italic">
+                                <span>Subtotal: General</span>
+                            </div>
+                            <div class="text-right text-emerald-400/80 font-mono italic">@FmtM(SubGenRev)</div>
+                            <div class="text-right text-red-400/80 font-mono italic">@FmtM(SubGenCost)</div>
+                            <div class="@NetClass(NetGenSub) italic">@FmtDiff(NetGenSub)</div>
+                        </div>
+
+                        <!-- Subtotal: Total Public Burden -->
+                         <div class="grid grid-cols-4 gap-2 items-center text-sm font-black border-t-2 border-slate-500 pt-2 mt-2">
+                             <div class="flex items-center gap-1 text-white">
+                                <span>Total Public Sector</span>
+                            </div>
+                            <div class="text-right text-emerald-400 font-mono">@FmtM(SubPublicRev)</div>
+                            <div class="text-right text-red-400 font-mono">@FmtM(SubPublicCost)</div>
+                            <div class="@NetClass(NetPublicSub)">@FmtDiff(NetPublicSub)</div>
+                        </div>
+
+                        <!-- Private Sector Breakout -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-4 mt-2">
+                             <div class="flex items-center gap-1">
+                                <span class="font-bold text-slate-400">Abused Dollars</span>
+                            </div>
+                             <div class="text-right text-emerald-400 font-mono">@FmtM(0)</div>
+                             <div class="text-right text-red-400 font-mono">@FmtM(TotalCostAbused)</div>
+                             <div class="text-right font-mono text-red-500">@FmtDiff(0 - TotalCostAbused)</div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700/50 pt-2">
+                             <div class="flex items-center gap-1">
+                                <span class="font-bold text-slate-400">Lost Employment</span>
+                            </div>
+                             <div class="text-right text-emerald-400 font-mono">@FmtM(0)</div>
+                             <div class="text-right text-red-400 font-mono">@FmtM(TotalCostEmployment)</div>
+                             <div class="text-right font-mono text-red-500">@FmtDiff(0 - TotalCostEmployment)</div>
+                        </div>
+
+                         <!-- Subtotal: Private Sector -->
+                         <div class="grid grid-cols-4 gap-2 items-center text-xs sm:text-sm border-t border-slate-700 pt-2 bg-slate-800/30">
+                             <div class="flex items-center gap-1 text-slate-300 font-bold italic">
+                                <span>Subtotal: Private</span>
+                            </div>
+                            <div class="text-right text-emerald-400/80 font-mono italic">@FmtM(0)</div>
+                            <div class="text-right text-red-400/80 font-mono italic">@FmtM(TotalCostPrivate)</div>
+                            <div class="text-right font-mono text-red-500 italic">@FmtDiff(0 - TotalCostPrivate)</div>
+                        </div>
+
+
+                        <!-- TOTAL NET IMPACT -->
+                        <div class="grid grid-cols-4 gap-2 items-center text-base sm:text-lg font-black border-t-2 border-white/20 pt-4 mt-6">
+                            <div class="flex items-center gap-1 text-white">
+                                <span>TOTAL NET IMPACT</span>
+                            </div>
+                             <div class="text-right text-emerald-400 font-mono">@FmtM(CalcTaxRevenue * 1_000_000)</div>
+                             <div class="text-right text-red-400 font-mono">@FmtM(TotalCostCombined)</div>
+                             <div class="@NetClass(NetTotalBalance) text-base">@FmtDiff(NetTotalBalance)</div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="mt-8">
-                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                     <div class="flex justify-between text-xs text-slate-400 mb-1">
                         <span>Revenue Covered</span>
                         <span>@Math.Round(PercentCovered)%</span>
                     </div>
                     <div class="w-full bg-slate-700 h-4 rounded-full overflow-hidden border border-slate-600">
                         <div id="res-bar" class="@(PercentCovered >= 100 ? "bg-emerald-500" : "bg-red-500") h-full transition-all duration-500" style="width: @PercentCovered%"></div>
                     </div>
-                    <p id="res-footer" class="text-center text-slate-400 text-sm mt-4 italic">
-                        @(PercentCovered >= 100 ? "Tax revenue covers all projected social costs." : "Social costs exceed tax revenue by " + "$" + Math.Abs(NetTotalBalance).ToString("F1") + "MM")
+                     <p id="res-footer" class="text-center text-slate-400 text-sm mt-4 italic">
+                        @if (PercentCovered >= 100)
+                        {
+                            <span>Revenue covers <strong class="text-white text-lg">100%</strong> of costs.</span>
+                        }
+                        else
+                        {
+                            <span>Tax Revenue covers only <strong class="text-white text-lg">@Math.Round(PercentCovered)%</strong> of costs.</span>
+                        }
                     </p>
                 </div>
 
-                <div class="mt-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                 <div class="mt-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
                     <p id="analysis-text" class="text-slate-300 text-xs leading-relaxed">
                         @AnalysisText
                     </p>
@@ -818,6 +917,109 @@
                     <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#f97316]"></div> Savings</div>
                     <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#ef4444]"></div> Casino Loss</div>
                 </div>
+
+                <!-- Mechanics & Context (Restored) -->
+                <div class="grid lg:grid-cols-2 gap-8 items-start mt-12 pt-8 border-t border-slate-700/50">
+                    <!-- Left Column: The Data -->
+                    <div>
+                        <!-- Substitution Effect Card -->
+                        <div class="bg-slate-800 shadow-lg rounded-3xl border border-slate-700 p-8 backdrop-blur-sm h-full">
+                            <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                <span class="material-symbols-outlined text-blue-500">sync_problem</span>
+                                Mechanics of the Substitution Effect
+                            </h3>
+                            <p class="text-slate-400 mb-6 leading-relaxed">
+                                For a casino to generate net growth, it must function as an "export" industry—bringing in
+                                outside dollars. If it merely recirculates local capital, the net impact is neutral or
+                                negative.
+                                <br><br>
+                                Research by the <strong>Federal Reserve Bank of St. Louis</strong> notes that in
+                                mid-sized urban areas, casinos often correlate with a <em>stagnation or decrease</em> in local retail
+                                sales. The casino acts as a gravitational well, absorbing liquidity that formerly supported small
+                                businesses.
+                            </p>
+
+                            <!-- Data Callout -->
+                            <div class="bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl mb-8">
+                                <h4 class="text-lg font-bold text-red-500 mb-2">"243" Coefficient</h4>
+                                <p class="text-slate-300 text-base">
+                                    For every <strong>$1,000 increase</strong> in casino revenue, businesses within a
+                                    10-30 mile radius experience a <strong>loss of approximately $243</strong> in sales.
+                                </p>
+                            </div>
+
+                            <!-- Displacement Table -->
+                            <div class="overflow-x-auto rounded-xl border border-slate-700">
+                                <table class="w-full text-left text-base text-slate-400">
+                                    <thead class="bg-slate-900 text-slate-300 uppercase font-bold text-sm">
+                                        <tr>
+                                            <th class="px-6 py-4">Metric</th>
+                                            <th class="px-6 py-4">Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-700 bg-slate-800">
+                                        <tr>
+                                            <td class="px-6 py-4 font-medium text-white">Projected Casino AGR</td>
+                                            <td class="px-6 py-4 text-emerald-400 font-bold">$204.3M</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 font-medium text-white">Displacement Coefficient</td>
+                                            <td class="px-6 py-4 text-orange-400 font-bold">24.3%</td>
+                                        </tr>
+                                        <tr class="bg-red-900/10">
+                                            <td class="px-6 py-4 font-bold text-white">Projected Local Loss</td>
+                                            <td class="px-6 py-4 text-red-500 font-black">($49.6M)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: The Context -->
+                    <div class="space-y-6">
+                        <!-- Factory vs Restaurant -->
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="bg-slate-800 shadow-sm p-6 rounded-3xl border-l-4 border-red-500">
+                                <div class="text-red-500 font-bold uppercase tracking-widest text-sm mb-2">Fallacy</div>
+                                <h3 class="text-lg font-bold text-white mb-2">"Economic Development"</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">
+                                    Proponents claim the casino expands the economic pie, ignoring the reality of
+                                    convenience gaming.
+                                </p>
+                            </div>
+                            <div class="bg-slate-800 shadow-sm p-6 rounded-3xl border-l-4 border-emerald-500">
+                                <div class="text-emerald-500 font-bold uppercase tracking-widest text-sm mb-2">The Reality</div>
+                                <h3 class="text-lg font-bold text-white mb-2">Factory vs. Restaurant</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">
+                                    A local casino merely competes for the <strong>existing pool</strong> of
+                                    entertainment dollars like a restaurant.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Recession Risk -->
+                        <div class="bg-slate-800 shadow-sm rounded-3xl p-8 border-l-4 border-yellow-500">
+                            <h3 class="text-xl font-bold text-white mb-2">Recessionary Vulnerability</h3>
+                            <p class="text-slate-400 text-base mb-4 leading-relaxed">
+                                During the 2007-2012 Recession, retail sales in casino-hosting economies <strong>grew 3x
+                                    slower</strong> (2.4%) than in non-casino economies (8.6%).
+                            </p>
+                            <p class="text-white italic font-medium text-base">
+                                "Introducing a casino introduces a structural weakness apparent during recession."
+                            </p>
+                        </div>
+
+                        <!-- Economic Monoculture -->
+                        <div class="bg-slate-800 shadow-sm rounded-3xl p-8 border-l-4 border-blue-500">
+                            <h3 class="text-xl font-bold text-white mb-2">Economic Monoculture</h3>
+                            <p class="text-slate-400 text-base leading-relaxed">
+                                The casino acts as an invasive species, displacing diverse local businesses and creating
+                                a <strong>single point of failure</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -916,6 +1118,27 @@
     private double NetEmployment { get; set; }
     private double NetPrivateSub { get; set; }
     private double NetTotalBalance { get; set; }
+
+    // Breakdown Props (Matches new HTML)
+    private double RevHealthHuman { get; set; }
+    private double CostHealthHuman { get; set; }
+    
+    private double RevHealthTax { get; set; }
+    private double CostHealthTax { get; set; }
+    
+    private double SubHealthRev { get; set; }
+    private double SubHealthCost { get; set; }
+    private double SubHealthNet { get; set; }
+
+    private double RevCrime { get; set; }
+    private double RevSocial { get; set; }
+    private double RevLegal { get; set; }
+
+    private double SubGenRev { get; set; }
+    private double SubGenCost { get; set; }
+    
+    private double SubPublicRev { get; set; }
+    private double SubPublicCost { get; set; }
 
     private MarkupString AnalysisText { get; set; }
     private double PercentCovered { get; set; }
@@ -1082,37 +1305,84 @@
         AllocHumanitarianPool = totalRev * (InputAllocation / 100.0);
         AllocGeneralPool = totalRev * ((100 - InputAllocation) / 100.0);
         
-        // Balances
+        // Cost Coverage Calculations
         double healthAllocated = 0, healthSurplus = 0, healthUncovered = 0;
         
-        if (AllocHumanitarianPool >= TotalCostHealth) { healthAllocated = TotalCostHealth; healthSurplus = AllocHumanitarianPool - TotalCostHealth; }
-        else { healthAllocated = AllocHumanitarianPool; healthUncovered = TotalCostHealth - AllocHumanitarianPool; }
+        if (AllocHumanitarianPool >= TotalCostHealth) 
+        { 
+            healthAllocated = TotalCostHealth; 
+            healthSurplus = AllocHumanitarianPool - TotalCostHealth; 
+            healthUncovered = 0;
+        }
+        else 
+        { 
+            healthAllocated = AllocHumanitarianPool; 
+            healthSurplus = 0;
+            healthUncovered = TotalCostHealth - AllocHumanitarianPool; 
+        }
         
+        // 1a. Humanitarian Row
+        RevHealthHuman = AllocHumanitarianPool;
+        CostHealthHuman = healthAllocated;
         NetHealthHuman = healthSurplus; 
         
-        double burdenHealth = 0; 
-        double burdenCrime = TotalCostCrime; double burdenSocial = TotalCostSocial; double burdenLegal = TotalCostLegal;
-        double totalGeneralBurden = burdenHealth + burdenCrime + burdenSocial + burdenLegal;
+        // Distribution of General Fund
+        double burdenHealth = 0; // Policy: General Fund does not cover Health gaps in this model
+        double totalGeneralBurden = TotalCostCrime + TotalCostSocial + TotalCostLegal;
         
         double revCrime = 0, revSocial = 0, revLegal = 0;
         if (totalGeneralBurden > 0)
         {
-            revCrime = AllocGeneralPool * (burdenCrime / totalGeneralBurden);
-            revSocial = AllocGeneralPool * (burdenSocial / totalGeneralBurden);
-            revLegal = AllocGeneralPool * (burdenLegal / totalGeneralBurden);
+            revCrime = AllocGeneralPool * (TotalCostCrime / totalGeneralBurden);
+            revSocial = AllocGeneralPool * (TotalCostSocial / totalGeneralBurden);
+            revLegal = AllocGeneralPool * (TotalCostLegal / totalGeneralBurden);
+        }
+        else if (AllocGeneralPool > 0)
+        {
+             // If no burden, unallocated surplus?
+             // For parity with JS, we don't assign it to specific departments if no cost.
+             // But for balance sheet correctness, it should appear somewhere?
+             // In JS logic, it just sits unallocated.
         }
         
-        NetHealthTax = 0 - healthUncovered; // No gen fund coverage for health
+        // 1b. Health (Taxpayer)
+        RevHealthTax = 0; // No allocation
+        CostHealthTax = healthUncovered;
+        NetHealthTax = 0 - healthUncovered;
+        
         NetHealthTotal = NetHealthHuman + NetHealthTax;
+        
+        // Subtotal Health
+        SubHealthRev = RevHealthHuman + RevHealthTax;
+        SubHealthCost = CostHealthHuman + CostHealthTax;
+        SubHealthNet = NetHealthHuman + NetHealthTax;
+
+        // General Fund Rows
+        RevCrime = revCrime;
         NetCrime = revCrime - TotalCostCrime;
-        NetSocial = revSocial - TotalCostSocial;
+        
+        RevSocial = revSocial;
+        NetSocial = revSocial - TotalCostSocial; 
+        
+        RevLegal = revLegal;
         NetLegal = revLegal - TotalCostLegal;
         
+        // Subtotal General
+        SubGenRev = RevCrime + RevSocial + RevLegal;
+        SubGenCost = TotalCostCrime + TotalCostSocial + TotalCostLegal;
         NetGenSub = NetCrime + NetSocial + NetLegal;
-        NetPublicSub = NetHealthTotal + NetGenSub;
+
+        // Total Public
+        SubPublicRev = SubHealthRev + SubGenRev;
+        SubPublicCost = SubHealthCost + SubGenCost;
+        NetPublicSub = SubHealthNet + NetGenSub;
+        
+        // Private
         NetAbused = 0 - TotalCostAbused;
         NetEmployment = 0 - TotalCostEmployment;
         NetPrivateSub = NetAbused + NetEmployment;
+        
+        // Total
         NetTotalBalance = totalRev - TotalCostCombined;
         
         if (TotalCostCombined > 0) PercentCovered = Math.Min(100, (totalRev / TotalCostCombined) * 100); else PercentCovered = 100;
