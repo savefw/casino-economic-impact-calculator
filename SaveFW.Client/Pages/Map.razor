@@ -69,31 +69,97 @@
                 <span class="text-white font-bold font-mono text-xl" id="val-rate">2.3%</span>
             </div>
 
-            <div class="relative w-full group flex items-center mb-20">
-                @{
-                    double GetLeft(double val) => ((val - 0.1) / 5.9) * 100.0;
-                }
-                <!-- Radio Presets -->
-                <input type="radio" name="gambling-rate-preset" value="2.3" class="absolute top-1/2 -translate-y-1/2 left-0 -ml-2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-orange-500 cursor-pointer" style="left: @GetLeft(2.3)%; transform: translate(-50%, -50%); margin: 0;">
-                <input type="radio" name="gambling-rate-preset" value="3.0" class="absolute top-1/2 -translate-y-1/2 left-0 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-orange-500 cursor-pointer" style="left: @GetLeft(3.0)%; transform: translate(-50%, -50%); margin: 0;">
-                <input type="radio" name="gambling-rate-preset" value="5.5" class="absolute top-1/2 -translate-y-1/2 left-0 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-orange-500 cursor-pointer" style="left: @GetLeft(5.5)%; transform: translate(-50%, -50%); margin: 0;">
+                    <div class="relative w-full group flex items-center mb-20">
+                        @{
+                            double GetLeft(double val) => ((val - 0.1) / 5.9) * 100.0;
+                        }
+                        <!-- Radio: 2.3% -->
+                        <input type="radio" name="gambling-rate-preset" value="2.3"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                            style="left: @GetLeft(2.3)%">
 
-                <input type="range" min="0.1" max="6.0" step="0.1" value="2.3" data-default="2.3" id="input-rate" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500 relative z-20">
-                
-                <!-- Labels -->
-                <div class="absolute top-1/2 flex flex-col items-center z-50 pointer-events-none" style="left: @GetLeft(2.3)%; transform: translateX(-50%);">
-                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold">Diagnosed</span>
-                </div>
-                <div class="absolute top-1/2 flex flex-col items-center z-50 pointer-events-none" style="left: @GetLeft(3.0)%; transform: translateX(-50%);">
-                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold">Problem</span>
-                </div>
-                <div class="absolute top-1/2 flex flex-col items-center z-50 pointer-events-none" style="left: @GetLeft(5.5)%; transform: translateX(-50%);">
-                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold">At-Risk</span>
-                </div>
-            </div>
+                        <!-- Radio: 3.0% -->
+                        <input type="radio" name="gambling-rate-preset" value="3.0"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                            style="left: @GetLeft(3.0)%">
+
+                        <!-- Radio: 5.5% -->
+                        <input type="radio" name="gambling-rate-preset" value="5.5"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                            style="left: @GetLeft(5.5)%">
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () =>
+                            {
+                                const slider = document.getElementById('input-rate');
+                                const radios = document.querySelectorAll('input[name="gambling-rate-preset"]');
+
+                                // Initial sync
+                                if (slider && radios.length) {
+                                  radios.forEach(r => r.checked = (r.value === slider.value));
+
+                                  slider.addEventListener('input', (e) =>
+                                  {
+                                      radios.forEach(r => r.checked = (r.value === e.target.value));
+                                  });
+                                }
+                            });
+                        </script>
+
+                        <input type="range" min="0.1" max="6.0" step="0.1" value="2.3" data-default="2.3"
+                            id="input-rate"
+                            class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500 relative z-20">
+                        <!-- Diagnosed Label -->
+                        <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
+                            style="left: @GetLeft(2.3)%">
+                            <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                            <div class="relative pointer-events-auto">
+                                <div
+                                    class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                                    <span>Diagnosed</span>
+                                    <span class="material-symbols-outlined text-[12px]">info</span>
+                                </div>
+                                <div
+                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                    Hoosiers meeting clinical criteria for Gambling Disorder (2023).
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Problem Label -->
+                        <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
+                            style="left: @GetLeft(3.0)%">
+                            <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                            <div class="relative pointer-events-auto">
+                                <div
+                                    class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                                    <span>Problem</span>
+                                    <span class="material-symbols-outlined text-[12px]">info</span>
+                                </div>
+                                <div
+                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                    Self-reported "problems with gambling" in state surveys.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- At-Risk Label -->
+                        <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
+                            style="left: @GetLeft(5.5)%">
+                            <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                            <div class="relative pointer-events-auto">
+                                <div
+                                    class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                                    <span>At-Risk</span>
+                                    <span class="material-symbols-outlined text-[12px]">info</span>
+                                </div>
+                                <div
+                                    class="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                                    Broader Combined At-Risk & Problem Rate (National Average).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
             <!-- END SLIDER SECTION -->
 
             <!-- Map Container -->

@@ -56,7 +56,8 @@ window.ImpactMap = (function ()
 
     function init(mapElementId)
     {
-        if (!document.getElementById(mapElementId)) return;
+        const mapEl = document.getElementById(mapElementId);
+        if (!mapEl) return;
 
         map = L.map(mapElementId, {
             scrollWheelZoom: false,
@@ -86,8 +87,12 @@ window.ImpactMap = (function ()
         // Initial load (Allen County default)
         loadCounty("003");
 
-        // Fix for rendering issues on load
-        setTimeout(() => map.invalidateSize(), 200);
+        // ROBUST RESIZE HANDLING (Fixes grey area issues)
+        const resizeObserver = new ResizeObserver(() =>
+        {
+            map.invalidateSize();
+        });
+        resizeObserver.observe(mapEl);
 
         // Interaction
         setupMapInteractions(mapElementId);

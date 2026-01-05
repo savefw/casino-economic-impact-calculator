@@ -31,7 +31,7 @@ builder.Services.AddHttpClient<SaveFW.Server.Services.Valhalla.ValhallaClient>(c
 });
 
 // Register Workers
-builder.Services.AddHostedService<SaveFW.Server.Workers.ScoringWorker>();
+// builder.Services.AddHostedService<SaveFW.Server.Workers.ScoringWorker>();
 
 var app = builder.Build();
 

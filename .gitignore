@@ -19,3 +19,4 @@ valhalla_tiles.tar
 ## OS Generated
 .DS_Store
 Thumbs.db
+*.log
