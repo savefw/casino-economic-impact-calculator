@@ -8,6 +8,65 @@
     </button>
 </div>
 
+<!-- Flipbook Modal -->
+<div id="flipbook-modal"
+    class="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-4 md:p-8">
+
+    <!-- Download Button -->
+    <a href="assets/Independent_Analysis_Allen_County_Casino.pdf" download target="_blank"
+        class="absolute top-4 right-16 z-50 p-3 text-white hover:text-emerald-400 transition-colors bg-black/40 hover:bg-black/60 backdrop-blur rounded-full flex items-center justify-center border border-white/10"
+        title="Download PDF">
+        <span class="material-symbols-outlined text-2xl">download</span>
+    </a>
+
+    <!-- Close Button -->
+    <button onclick="closeFlipbook()"
+        class="absolute top-4 right-4 z-50 p-3 text-white hover:text-red-400 transition-colors bg-black/40 hover:bg-black/60 backdrop-blur rounded-full border border-white/10">
+        <span class="material-symbols-outlined text-2xl">close</span>
+    </button>
+
+    <!-- Navigation Buttons -->
+    <button onclick="if(flipbookInstance) flipbookInstance.flipPrev()"
+        class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-50 p-4 text-white hover:text-emerald-400 transition-all bg-black/30 hover:bg-black/60 backdrop-blur-sm rounded-full hidden md:flex items-center justify-center group shadow-lg border border-white/5 hover:scale-110"
+        title="Previous Page">
+        <span class="material-symbols-outlined text-4xl group-hover:-translate-x-1 transition-transform shadow-sm">arrow_back_ios_new</span>
+    </button>
+    <button onclick="if(flipbookInstance) flipbookInstance.flipNext()"
+        class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 p-4 text-white hover:text-emerald-400 transition-all bg-black/30 hover:bg-black/60 backdrop-blur-sm rounded-full hidden md:flex items-center justify-center group shadow-lg border border-white/5 hover:scale-110"
+        title="Next Page">
+        <span class="material-symbols-outlined text-4xl group-hover:translate-x-1 transition-transform shadow-sm">arrow_forward_ios</span>
+    </button>
+
+    <!-- Book Container -->
+    <!-- Added max-w constraints and padding to prevent cutoff -->
+    <div class="relative w-full h-full max-w-[95vw] max-h-[85vh] flex items-center justify-center p-2">
+        <div id="flipbook" class="hidden shadow-2xl"></div>
+    </div>
+
+    <!-- Instruction Overlay -->
+    <div id="flipbook-instructions"
+        class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-1000 z-40">
+        <div class="bg-black/60 backdrop-blur-md p-8 rounded-3xl text-white text-center border border-white/10 shadow-2xl transform transition-transform duration-500 scale-95"
+            id="instruction-card">
+            <div class="mb-4 flex gap-4 justify-center text-white/80">
+                <span class="material-symbols-outlined text-4xl animate-bounce">touch_app</span>
+                <span class="material-symbols-outlined text-4xl">drag_pan</span>
+            </div>
+            <p class="font-bold text-xl mb-2">Interactive Report</p>
+            <p class="text-base text-slate-300">Drag corners or use arrow keys to flip pages.</p>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="flipbook-loading"
+        class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+        <div class="flex flex-col items-center gap-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+            <p class="text-sm font-medium animate-pulse">Loading Analysis...</p>
+        </div>
+    </div>
+</div>
+
 <!-- Modals moved to EconomicImpact.razor to ensure full content fidelity -->
 
 @code {

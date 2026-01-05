@@ -1024,6 +1024,115 @@ window.EconomicCalculator = (function ()
         }
     }
 
+    // Initialize sliders with tick marks - called during init()
+    function initSliders()
+    {
+        const sliderConfigs = [
+            { id: 'input-rate', stepMajor: 1.0, stepMinor: 0.5, format: v => v + '%' },
+            { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'MM' },
+            { id: 'input-revenue', stepMajor: 50, stepMinor: 10, format: v => '$' + v + 'MM' },
+            { id: 'input-cost-crime', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+            { id: 'input-cost-business', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+            { id: 'input-cost-bankruptcy', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+            { id: 'input-cost-illness', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+            { id: 'input-cost-services', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
+            { id: 'input-cost-abused', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() }
+        ];
+
+        sliderConfigs.forEach(cfg =>
+        {
+            const input = document.getElementById(cfg.id);
+            if (!input) return;
+
+            const container = input.parentElement;
+
+            // Clear existing ticks/tracks
+            const children = Array.from(container.children);
+            children.forEach(child =>
+            {
+                if (child.className && (child.className.includes('slider-tick') || child.className.includes('tick-label') || child.className.includes('slider-tooltip') || child.className.includes('slider-track')))
+                {
+                    child.remove();
+                }
+            });
+
+            // Bind Radio Buttons (for sliders with preset values)
+            const radios = container.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio =>
+            {
+                radio.addEventListener('change', () =>
+                {
+                    input.value = radio.value;
+                    input.dispatchEvent(new Event('input'));
+                    input.dispatchEvent(new Event('change'));
+                });
+
+                input.addEventListener('input', () =>
+                {
+                    if (Math.abs(parseFloat(input.value) - parseFloat(radio.value)) < 0.1)
+                    {
+                        radio.checked = true;
+                    } else
+                    {
+                        radio.checked = false;
+                    }
+                });
+            });
+
+            // Make input transparent so track shows through
+            input.classList.remove('bg-slate-700');
+            input.classList.add('bg-transparent');
+            input.style.backgroundColor = 'transparent';
+
+            // Add track
+            const track = document.createElement('div');
+            track.className = 'slider-track';
+            container.insertBefore(track, input);
+
+            const min = parseFloat(input.min);
+            const max = parseFloat(input.max);
+            const range = max - min;
+
+            function addTick(val, typeClass, labelText = null)
+            {
+                const tick = document.createElement('div');
+                tick.className = `slider-tick ${typeClass}`;
+                const pct = ((val - min) / range) * 100;
+                tick.style.left = `${pct}%`;
+                container.insertBefore(tick, input);
+
+                if (labelText)
+                {
+                    const label = document.createElement('div');
+                    label.className = 'tick-label';
+                    label.textContent = labelText;
+                    label.style.left = `${pct}%`;
+                    container.insertBefore(label, input);
+                }
+            }
+
+            if (range > 0)
+            {
+                // Add major ticks with labels
+                const startMajor = Math.ceil(min / cfg.stepMajor) * cfg.stepMajor;
+                for (let v = startMajor; v <= max; v += cfg.stepMajor)
+                {
+                    addTick(v, 'tick-major', cfg.format(v));
+                }
+
+                // Add minor ticks (no labels)
+                const startMinor = Math.ceil(min / cfg.stepMinor) * cfg.stepMinor;
+                for (let v = startMinor; v <= max; v += cfg.stepMinor)
+                {
+                    if (v % cfg.stepMajor !== 0)
+                    {
+                        addTick(v, 'tick-minor');
+                    }
+                }
+            }
+        });
+    }
+
     // Initialize all listeners - called during init()
     function initListeners()
     {
@@ -1063,6 +1172,9 @@ window.EconomicCalculator = (function ()
 
         // Initialize menu logic
         initMenuLogic();
+
+        // Initialize sliders with tick marks
+        initSliders();
 
         // Set up event listeners
         initListeners();

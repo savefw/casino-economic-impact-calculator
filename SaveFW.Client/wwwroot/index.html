@@ -74,9 +74,10 @@
     <!-- Turf.js & Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <!-- PDF.js & PageFlip (local) -->
+    <script src="js/lib/pdf.min.js"></script>
+    <script src="js/lib/page-flip.browser.js"></script>
 
     <!-- Custom Styles -->
     <link href="css/app.css" rel="stylesheet" />
@@ -177,7 +178,7 @@
     <div id="loading-screen"
         class="fixed inset-0 min-h-screen flex items-center justify-center p-4 bg-slate-900 z-[9999] transition-opacity duration-500">
         <div
-            class="bg-white p-10 rounded-2xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col items-center gap-6 max-w-sm w-full translate-y-0 hover:-translate-y-2 transition-transform duration-500 ease-in-out border border-slate-100">
+            class="bg-white p-10 rounded-2xl shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col items-center gap-6 max-w-sm w-full duration-500 ease-in-out border border-slate-100">
             <!-- Spinner -->
             <svg class="animate-spin h-12 w-12 text-accent drop-shadow-lg" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24">
@@ -199,27 +200,24 @@
                     <span class="opacity-0 animate-fade-in" style="animation-delay: 300ms">E</span>
                     <span class="opacity-0 animate-fade-in" style="animation-delay: 350ms">C</span>
                     <span class="opacity-0 animate-fade-in" style="animation-delay: 400ms">T</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 450ms">I</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 500ms">N</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 550ms">G</span>
 
                     <span class="w-2"></span>
 
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 650ms">O</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 700ms">U</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 750ms">R</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 450ms">O</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 500ms">U</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 550ms">R</span>
                 </div>
 
                 <div class="flex flex-wrap justify-center gap-[2px]">
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 850ms">C</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 900ms">O</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 950ms">M</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1000ms">M</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1050ms">U</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1100ms">N</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1150ms">I</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1200ms">T</span>
-                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1250ms">Y</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 600ms">C</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 650ms">O</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 700ms">M</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 750ms">M</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 800ms">U</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 850ms">N</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 900ms">I</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 950ms">T</span>
+                    <span class="opacity-0 animate-fade-in" style="animation-delay: 1000ms">Y</span>
                 </div>
             </div>
         </div>
@@ -266,13 +264,14 @@
     <!-- Custom Modules -->
     <script src="js/data/indiana-counties.js?v=20260105b"></script>
     <script src="js/components/slot-machine.js?v=20260105b"></script>
-    <script src="js/components/map.js?v=20260105b"></script>
+    <script src="js/components/map.js?v=20260105f"></script>
     <script src="js/components/legislators.js?v=20260105b"></script>
-    <script src="js/components/modals.js?v=20260105b"></script>
-    <script src="js/components/toc.js?v=20260105b"></script>
+    <script src="js/components/modals.js?v=20260105e"></script>
+    <script src="js/components/flipbook.js?v=20260105h"></script>
+    <script src="js/components/toc.js?v=20260105d"></script>
     <script src="js/components/reveal.js?v=20260105b"></script>
     <script src="js/components/charts.js?v=20260105b"></script>
-    <script src="js/economics/calculator.js?v=20260105b"></script>
+    <script src="js/economics/calculator.js?v=20260105d"></script>
     <script src="js/economics/substitution.js?v=20260105b"></script>
 </body>
 

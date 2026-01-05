@@ -232,6 +232,17 @@ window.ImpactMap = (function ()
             streetTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' });
             satelliteTileLayer.addTo(map);
 
+            // Fix for grey map tiles - invalidate size after container is fully rendered
+            setTimeout(() =>
+            {
+                map.invalidateSize();
+                map.setView([39.8, -86.15], 7);
+            }, 100);
+            setTimeout(() =>
+            {
+                map.invalidateSize();
+            }, 500);
+
             initStateMap();
 
             async function initStateMap()
@@ -288,7 +299,7 @@ window.ImpactMap = (function ()
                 popupAnchor: [0, -80],
                 className: 'marker-shadow-filter'
             });
-            const marker = L.marker(center, { draggable: true, autoPan: true, icon: casinoPin }).addTo(map);
+            const marker = L.marker(center, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
 
             const circle20 = L.circle(center, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
             const circle10 = L.circle(center, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
@@ -634,7 +645,7 @@ window.ImpactMap = (function ()
                 repGeocContainer.appendChild(repGeocNode);
             }
 
-            loadCounty("003");
+            loadCounty("003", true); // Skip zoom on initial load - keep Indiana-wide view
         }
     };
 })();

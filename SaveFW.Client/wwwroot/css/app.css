@@ -15,6 +15,17 @@ body {
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* Fix for blinking cursor in details/summary expand buttons */
+details summary {
+    caret-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+details summary:focus {
+    outline: none;
+}
+
 .map-tooltip {
     background: transparent !important;
     border: none !important;
@@ -29,6 +40,66 @@ body {
 /* Remove default focus outline on map features */
 .leaflet-interactive:focus {
     outline: none !important;
+}
+
+/* Flipbook / Simple Viewer Styles */
+#flipbook-container {
+    width: 100%;
+    max-width: 1400px;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.simple-viewer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-spread {
+    display: flex;
+    gap: 4px;
+    max-height: 100%;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.page-left,
+.page-right {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    max-height: 80vh;
+}
+
+.page-left {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.page-left.flipping,
+.page-right.flipping {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+.page-left img,
+.page-right img {
+    max-width: 100%;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .text-gradient {

@@ -1,22 +1,27 @@
-window.Modals = (function() {
-    
+window.Modals = (function ()
+{
+
     /* --- IMAGE MODAL --- */
-    function initImageModal() {
+    function initImageModal()
+    {
         const imageModal = document.getElementById('image-modal');
         const modalImage = document.getElementById('modal-image');
-        if(!imageModal || !modalImage) return;
+        if (!imageModal || !modalImage) return;
 
-        window.openImageModal = function(src) {
+        window.openImageModal = function (src)
+        {
             modalImage.src = src;
             imageModal.classList.remove('opacity-0', 'pointer-events-none');
             document.body.classList.add('overflow-hidden');
-            setTimeout(() => {
+            setTimeout(() =>
+            {
                 modalImage.classList.remove('scale-95');
                 modalImage.classList.add('scale-100');
             }, 10);
         };
 
-        window.closeImageModal = function() {
+        window.closeImageModal = function ()
+        {
             imageModal.classList.add('opacity-0', 'pointer-events-none');
             modalImage.classList.remove('scale-100');
             modalImage.classList.add('scale-95');
@@ -25,7 +30,8 @@ window.Modals = (function() {
     }
 
     /* --- SOURCES & WORD DETAIL MODAL --- */
-    function initSourcesModal() {
+    function initSourcesModal()
+    {
         const WORD_DATA = {
             "LOW WAGE JOBS": {
                 desc: "Data regarding Rising Star Casino shows essential service roles pay significantly less than market rate for fast food workers in Fort Wayne. <br><br><strong>The Wage Gap:</strong><br>• Line Cook: $13.25-$17.75/hr (Casino) vs $20.27/hr (FW Fast Food Avg).<br>You could earn ~35% more at a local Wendy's or Chick-fil-A.",
@@ -58,11 +64,12 @@ window.Modals = (function() {
         let currentWordIndex = 0;
         const TARGET_KEYS = Object.keys(WORD_DATA);
 
-        window.openSourcesModal = function() {
+        window.openSourcesModal = function ()
+        {
             const m = document.getElementById('sources-modal');
             const baitList = document.getElementById('bait-list');
             const hookList = document.getElementById('hook-list');
-            if(!m || !baitList || !hookList) return;
+            if (!m || !baitList || !hookList) return;
 
             baitList.innerHTML = BAIT_WORDS.map(word => `
                 <li class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800">
@@ -81,15 +88,18 @@ window.Modals = (function() {
             document.body.classList.add('overflow-hidden');
         };
 
-        window.closeSourcesModal = function() {
+        window.closeSourcesModal = function ()
+        {
             const m = document.getElementById('sources-modal');
-            if (m) {
+            if (m)
+            {
                 m.classList.add('opacity-0', 'pointer-events-none');
                 document.body.classList.remove('overflow-hidden');
             }
         };
 
-        window.openWordModal = function(word) {
+        window.openWordModal = function (word)
+        {
             currentWordIndex = TARGET_KEYS.indexOf(word);
             updateWordModalContent();
             const wm = document.getElementById('word-detail-modal');
@@ -98,7 +108,8 @@ window.Modals = (function() {
             setTimeout(() => content.classList.remove('scale-95'), 10);
         };
 
-        function updateWordModalContent() {
+        function updateWordModalContent()
+        {
             const word = TARGET_KEYS[currentWordIndex];
             const data = WORD_DATA[word];
             document.getElementById('word-modal-title').textContent = word;
@@ -106,88 +117,88 @@ window.Modals = (function() {
             document.getElementById('word-modal-link').href = data.url;
         }
 
-        window.nextWord = function() { currentWordIndex = (currentWordIndex + 1) % TARGET_KEYS.length; updateWordModalContent(); };
-        window.prevWord = function() { currentWordIndex = (currentWordIndex - 1 + TARGET_KEYS.length) % TARGET_KEYS.length; updateWordModalContent(); };
-        window.closeWordModal = function() {
+        window.nextWord = function () { currentWordIndex = (currentWordIndex + 1) % TARGET_KEYS.length; updateWordModalContent(); };
+        window.prevWord = function () { currentWordIndex = (currentWordIndex - 1 + TARGET_KEYS.length) % TARGET_KEYS.length; updateWordModalContent(); };
+        window.closeWordModal = function ()
+        {
             const wm = document.getElementById('word-detail-modal');
             wm.classList.add('opacity-0', 'pointer-events-none');
         };
     }
 
     /* --- FLIPBOOK MODAL --- */
-    function initFlipbook() {
-        window.openFlipbook = function(e) {
-            if(e) e.preventDefault();
-            const m = document.getElementById('flipbook-modal');
-            if(m) {
-                m.classList.remove('opacity-0', 'pointer-events-none');
-                document.body.classList.add('overflow-hidden');
-            }
-        };
-        window.closeFlipbook = function() {
-            const m = document.getElementById('flipbook-modal');
-            if(m) {
-                m.classList.add('opacity-0', 'pointer-events-none');
-                document.body.classList.remove('overflow-hidden');
-            }
-        };
+    // Flipbook is now handled by flipbook.js which uses PDF.js + StPageFlip
+    function initFlipbook()
+    {
+        // No-op - flipbook.js handles this
     }
 
     /* --- SIMULATOR MODAL --- */
-    function initSimulator() {
+    function initSimulator()
+    {
         let currentSimStep = 1;
-        window.openSimulatorModal = function() {
+        window.openSimulatorModal = function ()
+        {
             const m = document.getElementById('simulator-modal');
             m.classList.remove('hidden');
             setTimeout(() => m.classList.remove('opacity-0'), 10);
             currentSimStep = 1;
             updateSimStep();
         };
-        window.closeSimulatorModal = function() {
+        window.closeSimulatorModal = function ()
+        {
             const m = document.getElementById('simulator-modal');
             m.classList.add('opacity-0');
             setTimeout(() => m.classList.add('hidden'), 300);
         };
-        window.nextSimStep = function() { if(currentSimStep < 3) { currentSimStep++; updateSimStep(); } };
-        window.prevSimStep = function() { if(currentSimStep > 1) { currentSimStep--; updateSimStep(); } };
+        window.nextSimStep = function () { if (currentSimStep < 3) { currentSimStep++; updateSimStep(); } };
+        window.prevSimStep = function () { if (currentSimStep > 1) { currentSimStep--; updateSimStep(); } };
 
-        function updateSimStep() {
-            for(let i=1; i<=3; i++) {
+        function updateSimStep()
+        {
+            for (let i = 1; i <= 3; i++)
+            {
                 const step = document.getElementById(`sim-step-${i}`);
-                if(step) step.classList.toggle('hidden', i !== currentSimStep);
+                if (step) step.classList.toggle('hidden', i !== currentSimStep);
             }
             document.getElementById('sim-btn-back').classList.toggle('hidden', currentSimStep === 1);
             document.getElementById('sim-btn-next').classList.toggle('hidden', currentSimStep === 3);
             document.getElementById('sim-btn-run').classList.toggle('hidden', currentSimStep !== 3);
         }
 
-        window.runSimulation = function() {
+        window.runSimulation = function ()
+        {
             const agr = document.querySelector('input[name="sim-agr"]:checked').value;
             const alloc = document.querySelector('input[name="sim-alloc"]:checked').value;
             const cost = document.querySelector('input[name="sim-cost"]:checked').value;
 
             const agrInput = document.getElementById('input-agr');
             const allocInput = document.getElementById('input-allocation');
-            
-            if(agrInput) { agrInput.value = agr; agrInput.dispatchEvent(new Event('input')); }
-            if(allocInput) { allocInput.value = alloc; allocInput.dispatchEvent(new Event('input')); }
-            
+
+            if (agrInput) { agrInput.value = agr; agrInput.dispatchEvent(new Event('input')); }
+            if (allocInput) { allocInput.value = alloc; allocInput.dispatchEvent(new Event('input')); }
+
             closeSimulatorModal();
         };
     }
 
     /* --- METHODOLOGY MODAL --- */
-    function initMethodologyModal() {
-        window.openMethodologyModal = function() {
+    function initMethodologyModal()
+    {
+        window.openMethodologyModal = function ()
+        {
             const m = document.getElementById('methodology-modal');
-            if(m) {
+            if (m)
+            {
                 m.classList.remove('opacity-0', 'pointer-events-none');
                 document.body.classList.add('overflow-hidden');
             }
         };
-        window.closeMethodologyModal = function() {
+        window.closeMethodologyModal = function ()
+        {
             const m = document.getElementById('methodology-modal');
-            if(m) {
+            if (m)
+            {
                 m.classList.add('opacity-0', 'pointer-events-none');
                 document.body.classList.remove('overflow-hidden');
             }
@@ -195,7 +206,8 @@ window.Modals = (function() {
     }
 
     return {
-        init: function() {
+        init: function ()
+        {
             initImageModal();
             initMethodologyModal();
             initSourcesModal();
