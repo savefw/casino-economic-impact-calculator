@@ -488,58 +488,80 @@ window.ImpactMap = (function ()
                 let t1Pop = 0; let t2Pop = 0; let t3Pop = 0;
                 const countyInfo = getCountyReference().find(c => c.id === currentCountyId);
                 const totalCountyPop = countyInfo ? countyInfo.pop : 0;
-                turf.featureEach(currentGeoJSON, (feature) =>
-                {
-                    const pop = feature.properties.POPULATION || feature.properties.POP || feature.properties._estPop || 0;
-                    let centroid = null;
-                    try { centroid = turf.centroid(feature); } catch (e) { return; }
-                    const distance = turf.distance(centerPoint, centroid, { units: 'miles' });
-                    if (distance <= 10) t1Pop += pop; else if (distance <= 20) t2Pop += pop;
-                });
-                t3Pop = Math.max(0, totalCountyPop - t1Pop - t2Pop);
-                const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
-                const v1 = t1Pop * (r1 / 100); const v2 = t2Pop * (r2 / 100); const v3 = t3Pop * (r3 / 100);
-                const totalVictims = v1 + v2 + v3;
-                animateValue(els.t1, t1Pop); animateValue(els.t2, t2Pop);
-                const labelT3 = document.getElementById('label-t3');
-                if (t3Pop === 0 && totalCountyPop > 0)
-                {
-                    els.t3.textContent = "Fully Captured";
-                    els.t3.classList.remove('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.add('text-xs', 'font-bold', 'text-white', 'uppercase');
-                    if (labelT3) labelT3.textContent = "by Preceding Impact Zones";
-                } else
-                {
-                    animateValue(els.t3, t3Pop);
-                    els.t3.classList.add('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.remove('text-xs', 'font-bold', 'uppercase');
-                    if (labelT3) labelT3.textContent = "Population";
-                }
-                if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
-                if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
-                if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
-                if (els.vicT1) els.vicT1.textContent = Math.round(v1).toLocaleString();
-                if (els.vicT2) els.vicT2.textContent = Math.round(v2).toLocaleString();
-                if (els.vicT3) els.vicT3.textContent = Math.round(v3).toLocaleString();
-                if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictims).toLocaleString();
-                const lblHigh = document.getElementById('label-high');
-                const lblElevated = document.getElementById('label-elevated');
-                const lblBaseline = document.getElementById('label-baseline');
-                if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1Pop).toLocaleString()}`;
-                if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2Pop).toLocaleString()}`;
-                if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3Pop).toLocaleString()}`;
-                const calcRes = document.getElementById('calc-result');
-                const calcGamblers = document.getElementById('calc-gamblers');
-                if (calcRes) calcRes.textContent = Math.round(totalVictims).toLocaleString();
-                if (calcGamblers) calcGamblers.textContent = Math.round(totalVictims).toLocaleString();
-                const dispPop = document.getElementById('disp-pop-impact-zones');
-                const dispRate = document.getElementById('disp-effective-rate');
-                if (dispPop) dispPop.textContent = totalCountyPop.toLocaleString();
-                if (dispRate)
-                {
-                    const effectiveRate = totalCountyPop > 0 ? (totalVictims / totalCountyPop) * 100 : 0;
-                    dispRate.textContent = effectiveRate.toFixed(2) + '%';
-                }
-                const triggerInput = document.getElementById('input-revenue');
-                if (triggerInput) triggerInput.dispatchEvent(new Event('input'));
+
+                // Server-side calculation using PostGIS and Census Data
+                fetch(`/api/Impact/calculate?lat=${markerLatLng.lat}&lon=${markerLatLng.lng}`)
+                    .then(r => r.json())
+                    .then(data =>
+                    {
+                        const t1Pop = data.t1 || 0;
+                        const t2Pop = data.t2 || 0;
+                        const countyTotal = data.county_total || totalCountyPop; // Fallback to JS if 0
+                        const countyAdults = data.county_adults || 0;
+
+                        // Baseline Adults: Total County Adults - Adults in Zone 1 - Adults in Zone 2
+                        // Clamp to 0
+                        let t3Pop = Math.max(0, countyAdults - t1Pop - t2Pop);
+
+                        const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
+                        const v1 = t1Pop * (r1 / 100); const v2 = t2Pop * (r2 / 100); const v3 = t3Pop * (r3 / 100);
+                        const totalVictims = v1 + v2 + v3;
+
+                        animateValue(els.t1, t1Pop); animateValue(els.t2, t2Pop);
+                        const labelT3 = document.getElementById('label-t3');
+                        if (t3Pop === 0 && countyAdults > 0)
+                        {
+                            els.t3.textContent = "Fully Captured";
+                            els.t3.classList.remove('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.add('text-xs', 'font-bold', 'text-white', 'uppercase');
+                            if (labelT3) labelT3.textContent = "by Preceding Impact Zones";
+                        } else
+                        {
+                            animateValue(els.t3, t3Pop);
+                            els.t3.classList.add('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.remove('text-xs', 'font-bold', 'uppercase');
+                            if (labelT3) labelT3.textContent = "Adult Population"; // More specific label
+                        }
+
+                        if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
+                        if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
+                        if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
+                        if (els.vicT1) els.vicT1.textContent = Math.round(v1).toLocaleString();
+                        if (els.vicT2) els.vicT2.textContent = Math.round(v2).toLocaleString();
+                        if (els.vicT3) els.vicT3.textContent = Math.round(v3).toLocaleString();
+                        if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictims).toLocaleString();
+
+                        const lblHigh = document.getElementById('label-high');
+                        const lblElevated = document.getElementById('label-elevated');
+                        const lblBaseline = document.getElementById('label-baseline');
+                        if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1Pop).toLocaleString()}`;
+                        if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2Pop).toLocaleString()}`;
+                        if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3Pop).toLocaleString()}`;
+
+                        const calcRes = document.getElementById('calc-result');
+                        const calcGamblers = document.getElementById('calc-gamblers');
+                        if (calcRes) calcRes.textContent = Math.round(totalVictims).toLocaleString();
+                        if (calcGamblers) calcGamblers.textContent = Math.round(totalVictims).toLocaleString();
+
+                        const dispPop = document.getElementById('disp-pop-impact-zones');
+                        const dispRate = document.getElementById('disp-effective-rate');
+
+                        // DISPLAY TOTAL POPULATION (ALL AGES) AS REQUESTED
+                        if (dispPop) dispPop.textContent = countyTotal.toLocaleString();
+
+                        if (dispRate)
+                        {
+                            // "Effective Rate" is usually Victims / Total Population (or Total Adults?)
+                            // Standard convention is usually per capita (Total), but strictly speaking
+                            // betting prevalence is usually cited for adults.
+                            // If the user wants "Total Population" shown, let's divide by Total to be consistent with the "displayed divisor".
+                            const effectiveRate = countyTotal > 0 ? (totalVictims / countyTotal) * 100 : 0;
+                            dispRate.textContent = effectiveRate.toFixed(2) + '%';
+                        }
+
+                        const triggerInput = document.getElementById('input-revenue');
+                        if (triggerInput) triggerInput.dispatchEvent(new Event('input'));
+                    })
+                    .catch(console.error);
+
             }
 
             function animateValue(el, val) { if (!el) return; el.textContent = Math.round(val).toLocaleString(); }

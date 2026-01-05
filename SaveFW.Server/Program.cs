@@ -30,6 +30,9 @@ builder.Services.AddHttpClient<SaveFW.Server.Services.Valhalla.ValhallaClient>(c
     client.BaseAddress = new Uri(baseUrl);
 });
 
+// Register Census Ingestion Service
+builder.Services.AddHttpClient<SaveFW.Server.Services.CensusIngestionService>();
+
 // Register Workers
 // builder.Services.AddHostedService<SaveFW.Server.Workers.ScoringWorker>();
 
