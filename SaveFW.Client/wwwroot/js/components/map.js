@@ -565,7 +565,7 @@ window.ImpactMap = (function ()
             animateValue(tvEl, totalVictims);
 
             // Trigger Calculator Update
-            if (rateEl) rateEl.dispatchEvent(new Event('input'));
+            // REMOVED to prevent infinite loop: if (rateEl) rateEl.dispatchEvent(new Event('input'));
         }
 
         // Logic for T3 label

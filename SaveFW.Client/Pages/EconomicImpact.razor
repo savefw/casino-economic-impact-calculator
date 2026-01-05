@@ -2719,6 +2719,2064 @@ window.initSubstitutionCharts = function() {
         </div>
     </section>
 
+    <div id="methodology-modal"
+        class="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4"
+        onclick="if(event.target === this) closeMethodologyModal()">
+        <div
+            class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+            <!-- Header -->
+            <div
+                class="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-10">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-500">science</span>
+                    Research Methodology
+                </h3>
+                <button onclick="closeMethodologyModal()"
+                    class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-500">close</span>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 space-y-8 text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+
+                <!-- Section 1: Methodology -->
+                <div class="space-y-6">
+                    <div>
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500 text-[18px]">travel_explore</span>
+                            Distance-Based Risk Modeling
+                        </h4>
+                        <p class="mb-3">
+                            Populations living closer to a casino experience significantly higher rates of gambling
+                            addiction.
+                            Our model applies distance-decay multipliers based on peer-reviewed research:
+                        </p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>&lt; 10 Miles:</strong> 2.0x Risk Multiplier</li>
+                            <li><strong>10 - 20 Miles:</strong> 1.5x Risk Multiplier</li>
+                            <li><strong>&gt; 20 Miles:</strong> 1.0x (Baseline State Average)</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500 text-[18px]">calculate</span>
+                            Problem Gambler Estimation
+                        </h4>
+                        <div
+                            class="bg-slate-100 dark:bg-slate-800 p-3 rounded font-mono text-xs border border-slate-200 dark:border-slate-700 mb-2">
+                            New Addicts = Σ (Pop × Base_Rate × Multiplier)
+                        </div>
+                        <p class="text-xs italic text-slate-500 mb-2">
+                            *Population data sourced from <strong>US Census Bureau (2020 Decennial)</strong> at
+                            Block
+                            Group level.
+                        </p>
+                        <p class="text-xs italic text-slate-500">
+                            *Baseline rate derived from National Council on Problem Gambling (NCPG) surveys.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500 text-[18px]">attach_money</span>
+                            Social Cost Valuation
+                        </h4>
+                        <p>
+                            We calculate the economic impact (bankruptcy, crime, divorce, job loss) per addict using
+                            inflation-adjusted values.
+                        </p>
+                        <div
+                            class="mt-2 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-3 rounded-lg inline-block">
+                            <span class="font-semibold text-slate-900 dark:text-white">~$13,203 per
+                                addict/year</span>
+                            <span class="text-slate-500 text-xs block mt-1">(Adjusted from ~$9,393 in 2011)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-slate-200 dark:border-slate-700"></div>
+
+                <!-- Section 2: Citations -->
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider">
+                        Citations
+                        & Sources</h4>
+                    <div class="space-y-4 text-xs">
+                        <!-- Welte -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded border border-slate-100 dark:border-slate-800">
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/26615561/" target="_blank"
+                                class="font-bold text-blue-600 hover:underline mb-1 block">
+                                Welte JW, Barnes GM, Tidwell MO, Hoffman JH, Wieczorek WF.
+                            </a>
+                            <p class="text-slate-500 mb-1">
+                                The Relationship Between Distance from Gambling Venues and Gambling Participation
+                                and
+                                Problem Gambling Among U.S. Adults. J Gambl Stud. 2016 Dec;32(4):1055-1063.
+                            </p>
+                            <span class="text-slate-400">doi: 10.1007/s10899-015-9583-5. PMID: 26615561.</span>
+                        </div>
+
+                        <!-- Grimsley -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded border border-slate-100 dark:border-slate-800">
+                            <a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf"
+                                target="_blank" class="font-bold text-blue-600 hover:underline mb-1 block">
+                                Grimsley (2011) / Grinols
+                            </a>
+                            <p class="text-slate-500">
+                                Inflation-adjusted valuation of social costs per problem gambler (bankruptcy, crime,
+                                divorce, job loss).
+                            </p>
+                        </div>
+
+                        <!-- Data Sources -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded border border-slate-100 dark:border-slate-800">
+                            <span class="font-bold text-slate-700 dark:text-slate-200 mb-1 block">Geospatial Data
+                                Sources</span>
+                            <p class="text-slate-500">
+                                Population and boundary data aggregated via <a href="https://censusreporter.org"
+                                    target="_blank"
+                                    class="font-bold text-blue-600 hover:underline">CensusReporter.org</a> (Source:
+                                U.S.
+                                Census Bureau, 2020 Decennial Block Groups). Data files were processed, merged, and
+                                simplified using <a href="https://mapshaper.org" target="_blank"
+                                    class="font-bold text-blue-600 hover:underline">Mapshaper.org</a>. Map
+                                visualization
+                                © OpenStreetMap contributors.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sources-modal"
+        class="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4"
+        onclick="if(event.target === this) closeSourcesModal()">
+        <div
+            class="bg-white dark:bg-slate-900 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+
+            <!-- Header -->
+            <div
+                class="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-10">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-orange-500">campaign</span>
+                    Decoding the Spin
+                </h3>
+                <button onclick="closeSourcesModal()"
+                    class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-500">close</span>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8 space-y-10 text-black dark:text-white text-lg leading-relaxed">
+
+                <div class="border-l-8 border-blue-600 dark:border-blue-500 pl-6 bg-transparent">
+                    <p class="font-bold italic text-black dark:text-white text-xl leading-tight">
+                        "The words you see on these reels aren't random. They are a direct comparison between the
+                        marketing promises being sold to Fort Wayne and the documented reality of casino impacts."
+                    </p>
+                </div>
+
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 border-l-8 border-yellow-500">
+                    <h4 class="font-bold text-black dark:text-white mb-4 text-xl uppercase tracking-wider">Why This
+                        Matters</h4>
+                    <p class="text-lg font-medium leading-relaxed text-black dark:text-white">
+                        The "Near Miss" effect on this machine—where you see "JOBS" just one click away from
+                        "ADDICTION"—mirrors the deceptive nature of FWFirst's marketing campaign. We are being sold the
+                        <em>possibility</em> of prosperity while the <em>probability</em> points to social cost.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-x-12 gap-y-6 items-start">
+                    <!-- Row 1: Headers -->
+                    <h4
+                        class="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-widest text-xl flex items-center gap-2">
+                        <span class="material-symbols-outlined text-2xl">verified</span>
+                        The Pitch (Bait)
+                    </h4>
+                    <h4
+                        class="text-red-700 dark:text-red-400 font-bold uppercase tracking-widest text-xl flex items-center gap-2">
+                        <span class="material-symbols-outlined text-2xl">warning</span>
+                        The Reality (Hook)
+                    </h4>
+
+                    <!-- Row 2: Descriptions -->
+                    <div class="space-y-2">
+                        <p class="text-lg">
+                            Phrases taken directly from <strong><a href="https://fwfirst.com/" target="_blank"
+                                    class="underline hover:text-emerald-600 transition-colors">FWFirst's</a></strong>
+                            marketing materials and Mayor Tucker's press releases.
+                        </p>
+                        <span class="block text-sm text-slate-500 dark:text-slate-400">
+                            Note: Since the website's content may change, SaveFW has <a
+                                href="https://web.archive.org/web/20251224153405/https://fwfirst.com/" target="_blank"
+                                class="underline hover:text-blue-500 transition-colors">archived a copy of FWFirst's
+                                website</a> as of December 24, 2025.
+                        </span>
+                    </div>
+                    <p class="text-lg">
+                        Outcomes cited in independent studies, opposition testimony, and crime statistics from similar
+                        markets.
+                    </p>
+
+                    <!-- Row 3: Lists -->
+                    <ul id="bait-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </ul>
+                    <ul id="hook-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+
+
+            <div id="word-detail-modal"
+                class="absolute inset-0 z-[150] opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4 md:p-8"
+                onclick="if(event.target === this) closeWordModal()">
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 relative transform transition-transform scale-95 z-10 overflow-hidden"
+                    id="word-modal-content">
+
+                    <!-- Close Button -->
+                    <button onclick="closeWordModal()"
+                        class="absolute top-4 right-4 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors z-30">
+                        <span class="material-symbols-outlined text-slate-500">close</span>
+                    </button>
+
+                    <div class="flex items-stretch min-h-[300px]">
+                        <!-- Left Arrow -->
+                        <button onclick="prevWord()"
+                            class="group px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-r border-slate-100 dark:border-slate-800">
+                            <span
+                                class="material-symbols-outlined text-slate-400 group-hover:text-red-500 transition-colors text-3xl">arrow_back_ios_new</span>
+                        </button>
+
+                        <!-- Main Content -->
+                        <div class="flex-1 p-8 flex flex-col justify-center">
+                            <h3 id="word-modal-title"
+                                class="text-2xl font-black text-red-600 dark:text-red-500 mb-4 uppercase tracking-wide">
+                            </h3>
+                            <p id="word-modal-desc"
+                                class="text-base text-slate-600 dark:text-slate-300 mb-6 leading-relaxed"></p>
+                            <div>
+                                <a id="word-modal-link" href="#" target="_blank"
+                                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-500 font-bold uppercase text-sm tracking-wider">
+                                    <span>View Source</span>
+                                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Arrow -->
+                        <button onclick="nextWord()"
+                            class="group px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-l border-slate-100 dark:border-slate-800">
+                            <span
+                                class="material-symbols-outlined text-slate-400 group-hover:text-red-500 transition-colors text-3xl">arrow_forward_ios</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const WORD_DATA = {
+                    "LOW WAGE JOBS": {
+                        desc: "The data specifically regarding Full House Resorts' 'Rising Star Casino' (the license proposed for transfer to Fort Wayne) shows that essential service roles pay significantly less than the current market rate for fast food workers in Fort Wayne. <br><br><strong>The Wage Gap:</strong><br>• Line Cook: $13.25-$17.75/hr (Casino) vs $20.27/hr (FW Fast Food Avg)<br>• Security: $14.00/hr (Casino) vs $15.00-$18.00/hr (FW Entry)<br>• Dealer: $11.00-$12.00/hr + tips (Unstable income).<br><br>While the casino promises 'good paying jobs,' the reality is that a cook at their current property starts at $13.25/hour. You could earn ~35% more at a local Wendy's or Chick-fil-A than cooking meals at their 'world-class destination.'",
+                        url: "https://www.ziprecruiter.com/Salaries/Fast-Food-Salary-in-Fort-Wayne,IN"
+                    },
+                    "ADDICTION": { desc: "Research indicates that 96% of individuals with gambling disorder have a co-occurring psychiatric disorder. The American Psychiatric Association defines it as a disorder leading to clinically significant impairment, where sufferers exhaust savings and damage family relationships.", url: "https://www.addiction.rutgers.edu/about-addiction/facts-and-figures/gambling/" },
+                    "HUMAN TRAFFICKING": { desc: "The American Gaming Association admits that casinos are used by traffickers to \"facilitate criminal activity\" and \"seek out potential buyers.\" Survivors report that traffickers use the anonymity of casino environments to mask the movement and exploitation of victims.", url: "https://www.americangaming.org/wp-content/uploads/2022/06/AGA-Preventing-and-Combating-Human-Trafficking-in-the-Gaming-Industry.pdf" },
+                    "EMBEZZLEMENT": { desc: "A Dept. of Justice study found that arrestees identified as pathological gamblers were 3 to 5 times more likely to be arrested than the general population, often committing robbery, assault, or theft to finance their addiction.", url: "https://www.ojp.gov/pdffiles1/nij/203197.pdf" },
+                    "POVERTY": { desc: "Despite casinos generating revenue, poverty rates for Native American communities with casinos remain higher than the national average (19.6% vs 12.1%). The \"economic engine\" argument often fails to account for the lack of wealth distribution to the poorest residents.", url: "https://www.actionnetwork.com/news/new-research-highlights-economic-changes-driven-by-tribal-casinos" },
+                    "CHILD NEGLECT": { desc: "A systematic review found a significant association between problem gambling and multiple forms of child maltreatment, including physical abuse and neglect. The financial strain and time consumption of gambling directly erode parental capacity.", url: "https://aifs.gov.au/resources/short-articles/child-maltreatment-and-problem-gambling" },
+                    "DOMESTIC VIOLENCE": { desc: "Women whose partners have a gambling problem are 10.5 times more likely to experience intimate partner violence. Nearly 25% of pathological gamblers report engaging in spousal abuse.", url: "https://dbhdd.georgia.gov/document/document/trauma0911pdf/download" },
+                    "BANKRUPTCIES": { desc: "Counties that legalize casino gambling experience a 2.3% higher annual growth rate in personal bankruptcies compared to non-casino counties. Bankruptcy rates eventually exceed those of non-casino counties after nine years of operations.", url: "https://researchworks.creighton.edu/esploro/outputs/other/The-impact-of-casino-gambling-on/991005931167902656" },
+                    "DIVORCES": { desc: "The National Gambling Impact Study Commission reports a lifetime divorce rate of 39.5% for problem gamblers, compared to 18.2% for the general population. 80% of divorced problem gamblers cite gambling as a significant factor in the split.", url: "https://www.mccaberussell.com/blog/divorcing-a-gambling-addict-what-you-should-know/" },
+                    "SUBSTANCE ABUSE": { desc: "There is a high comorbidity between gambling and substance abuse. Pathological gamblers have a 5.5 times higher risk for substance use disorders compared to non-gamblers, often using drugs or alcohol to cope with losses.", url: "https://www.tandfonline.com/doi/full/10.1080/19585969.2025.2484288" },
+                    "HOMELESSNESS": { desc: "A University of Cambridge study found that homeless individuals are 10 times more likely to be problem gamblers than the non-homeless population, establishing a \"bi-directional\" link where gambling leads to homelessness and vice versa.", url: "https://www.stoppredatorygambling.org/study-examines-the-link-between-homelessness-and-problem-gambling/" },
+                    "FORECLOSURE": { desc: "While foreclosure specific data varies, the sharp rise in personal bankruptcies and \"bad debt\" in casino counties directly correlates to housing instability and loss of assets.", url: "https://k-12talk.com/gambling-debt-understanding-the-average-contributing-factors-and-recovery/" },
+                    "CORRUPTION": { desc: "Empirical models indicate a \"Granger causality\" where casino revenues can \"cause\" political corruption. The large cash flows attract rent-seeking behavior from politicians and can lead to the erosion of public sector integrity.", url: "https://www.researchgate.net/publication/267883543_The_Casino_Industry_and_the_Corruption_of_US_Public_Officials" },
+                    "BAD DEBT": { desc: "Gambling debt is often hidden due to shame, but studies show significant financial harm to families. \"Affected others\" (family/friends) report severe stress, ill health, and relationship breakdown due to the gambler's debt.", url: "https://www.researchgate.net/publication/305495934_Breaking_Bad_Comparing_Gambling_Harms_Among_Gamblers_and_Affected_Others" },
+                    "FATAL ACCIDENTS": { desc: "A study in the Journal of Health Economics estimates that alcohol-related fatal traffic accidents increase by approximately 9.2% in counties that open casinos.", url: "https://www.stoppredatorygambling.org/wp-content/uploads/2012/12/Journal-of-Health-Economics-Impact-of-Casinos-on-Fatal-Alcohol-related-Traffic-Accidents.pdf" },
+                    "LOCAL BUSINESSES LOST": { desc: "The primary economic argument for the Fort Wayne casino is that it will generate \"new\" money. This assumes it functions as a tourist destination. However, the Spectrum Study (2025) confirms that nearly 95% of visitors live within 60–90 minutes, defining it as a \"convenience\" venue. This triggers the <strong>Substitution Effect</strong>: money is not imported; it is simply diverted from local restaurants, theaters, and retail to the casino, creating a net loss for the existing economy.", url: "https://www.stlouisfed.org/community-development/publications/bridges/casinos-and-economic-development-a-look-at-the-issues" },
+                    "MENTAL HEALTH ISSUES": { desc: "Gambling disorder has the highest suicide attempt rate of any addiction. In one state study, 23.2% of those meeting criteria for gambling disorder had attempted suicide.", url: "https://www.oapgg.org/newsletters-and-updates/blog-post-title-three-9faw2" },
+                    "THE SATURATION BARRIER": { desc: "For a casino to be a destination, it must offer something people can’t get closer to home. However, Fort Wayne is surrounded by established competitors: South Bend (Four Winds), Toledo (Hollywood), Battle Creek (FireKeepers), and Shelbyville (Horseshoe).<br><br><strong>The Conclusion:</strong> Without a world-class, unique hook (which a standard $500M regional casino lacks), it will struggle to \"pull\" tourists past the casinos they already drive past. If only 5% of your customers are \"true tourists\" (Spectrum 2025), the \"Destination\" label is mathematically false.", url: "#" }
+                };
+
+                const BAIT_WORDS_MODAL = [
+                    "WORLD-CLASS DESTINATION", "INCREDIBLE OPPORTUNITY", "ECONOMIC ENGINE",
+                    "REVITALIZED INFRASTRUCTURE", "NEIGHBORHOOD IMPROVEMENTS", "HUMANITARIAN FUND",
+                    "RESPONSIBLE GAMING", "RETAIN TALENT", "COMMUNITY WELL-BEING", "PREMIER DESTINATION", "GOOD PAYING JOBS"
+                ];
+
+                // Sorted Keys for Navigation
+                let TARGET_KEYS = [];
+                let currentWordIndex = 0;
+
+                function initSourcesModal()
+                {
+                    const baitList = document.getElementById('bait-list');
+                    const hookList = document.getElementById('hook-list');
+
+                    if (!baitList || !hookList) return;
+
+                    // Populate Bait
+                    baitList.innerHTML = BAIT_WORDS_MODAL.map(word => `
+                        <li class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <span class="font-semibold text-emerald-900 dark:text-emerald-100 text-sm md:text-base">${word}</span>
+                        </li>
+                    `).join('');
+
+                    // Prepare Sorted Keys
+                    const words = Object.keys(WORD_DATA);
+                    const priorityWord = "LOW WAGE JOBS";
+                    const otherWords = words.filter(w => w !== priorityWord);
+                    TARGET_KEYS = [priorityWord, ...otherWords];
+
+    <div id="flipbook-modal"
+        class="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+
+        <!-- Download Button -->
+        <a href="./Independent_Analysis_Allen_County_Casino.pdf" download target="_blank"
+            class="absolute top-4 right-16 z-50 p-2 text-white/50 hover:text-white transition-colors bg-black/20 rounded-full flex items-center justify-center"
+            title="Download PDF">
+            <span class="material-symbols-outlined text-3xl">download</span>
+        </a>
+
+        <!-- Close Button -->
+        <button onclick="closeFlipbook()"
+            class="absolute top-4 right-4 z-50 p-2 text-white/50 hover:text-white transition-colors bg-black/20 rounded-full">
+            <span class="material-symbols-outlined text-3xl">close</span>
+        </button>
+
+        <!-- Navigation Buttons -->
+        <!-- Only visible on md screens, mobile users swipe -->
+        <button onclick="if(flipbookInstance) flipbookInstance.flipPrev()"
+            class="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors hover:bg-white/10 rounded-full hidden md:flex items-center justify-center group"
+            title="Previous Page">
+            <span
+                class="material-symbols-outlined text-4xl group-hover:-translate-x-1 transition-transform">arrow_back_ios_new</span>
+        </button>
+        <button onclick="if(flipbookInstance) flipbookInstance.flipNext()"
+            class="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors hover:bg-white/10 rounded-full hidden md:flex items-center justify-center group"
+            title="Next Page">
+            <span
+                class="material-symbols-outlined text-4xl group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+        </button>
+
+        <!-- Book Container -->
+        <div class="relative w-full h-full flex items-center justify-center">
+            <div id="flipbook" class="hidden shadow-2xl"></div>
+        </div>
+
+        <!-- Instruction Overlay -->
+        <div id="flipbook-instructions"
+            class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-1000 z-40">
+            <div class="bg-black/60 backdrop-blur-md p-8 rounded-3xl text-white text-center border border-white/10 shadow-2xl transform transition-transform duration-500 scale-95"
+                id="instruction-card">
+                <div class="mb-4 flex gap-4 justify-center text-white/80">
+                    <span class="material-symbols-outlined text-4xl animate-bounce">touch_app</span>
+                    <span class="material-symbols-outlined text-4xl">drag_pan</span>
+                </div>
+                <p class="font-bold text-xl mb-2">Interactive Report</p>
+                <p class="text-base text-slate-300">Drag corners or use arrow keys to flip pages.</p>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="flipbook-loading"
+            class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+            <div class="flex flex-col items-center gap-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+                <p class="text-sm font-medium animate-pulse">Loading Analysis...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts for Flipbook -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <script>
+        // Flipbook Logic
+        let flipbookInstance = null;
+        const flipbookModal = document.getElementById('flipbook-modal');
+        const bookEl = document.getElementById('flipbook');
+        const loadingEl = document.getElementById('flipbook-loading');
+
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        async function openFlipbook(e)
+        {
+            if (e) e.preventDefault();
+            const pdfUrl = './Independent_Analysis_Allen_County_Casino.pdf';
+
+            // Show Modal
+            flipbookModal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('overflow-hidden');
+            loadingEl.style.display = 'flex';
+            bookEl.classList.add('hidden');
+
+            // If already loaded, just show? No, creating fresh is safer for resizing/state reset
+            if (flipbookInstance)
+            {
+                // If we want to persist state, we could just show it.
+                // But let's rebuild to be safe initially.
+                // Actually, if it's already built, just show it!
+                if (bookEl.children.length > 0)
+                {
+                    loadingEl.style.display = 'none';
+                    bookEl.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            try
+            {
+                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                const pdf = await loadingTask.promise;
+                const numPages = pdf.numPages;
+
+                // Render pages
+                // Determine scale based on screen
+                const isMobile = window.innerWidth < 768;
+                const scale = window.devicePixelRatio || 1.5;
+
+                bookEl.innerHTML = '';
+
+                // We need to measure page 1 to set aspect ratio
+                const page1 = await pdf.getPage(1);
+                const viewport1 = page1.getViewport({ scale: 1 });
+                const aspectRatio = viewport1.width / viewport1.height;
+
+                // Desired display width per page (single page view on mobile, double on desktop usually?)
+                // PageFlip decides single/double based on size.
+
+                for (let i = 1; i <= numPages; i++)
+                {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: scale * 1.5 }); // High res render
+
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = "page relative"; // Generic class with relative positioning
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    canvas.style.width = "100%";
+                    canvas.style.height = "100%";
+                    canvas.style.objectFit = "contain";
+
+                    pageContainer.appendChild(canvas);
+
+                    // --- Annotation Layer (Links) ---
+                    try
+                    {
+                        const annotations = await page.getAnnotations();
+                        if (annotations && annotations.length > 0)
+                        {
+                            const annotationLayer = document.createElement('div');
+                            annotationLayer.className = 'absolute inset-0 pointer-events-none'; // Container
+
+                            annotations.forEach(annotation =>
+                            {
+                                if (annotation.subtype === 'Link' && annotation.dest)
+                                {
+                                    const rect = viewport.convertToViewportRectangle(annotation.rect);
+                                    // rect is [xMin, yMin, xMax, yMax]
+                                    // Normalize to percentages to be scaling-invariant
+                                    const x = rect[0];
+                                    const y = rect[1];
+                                    const w = rect[2] - rect[0];
+                                    const h = rect[3] - rect[1];
+
+                                    const linkDiv = document.createElement('div');
+                                    linkDiv.className = 'absolute cursor-pointer hover:bg-yellow-500/20 transition-colors pointer-events-auto z-50';
+
+                                    // Use percentages for responsiveness
+                                    linkDiv.style.left = `${(x / viewport.width) * 100}%`;
+                                    linkDiv.style.top = `${((viewport.height - y - h) / viewport.height) * 100}%`; // PDF Y is often inverted?
+                                    // WAIT. `convertToViewportRectangle` handles coordinate system.
+                                    // Usually it outputs Top-Left oriented coords [x, y, x+w, y+h]
+                                    // But let's verify if standard render works.
+                                    // If this is standard PDF coords, Y=0 is bottom.
+                                    // But viewport transform should fix it.
+
+                                    // Let's assume standard [x, y, w, h] from viewport transform
+                                    linkDiv.style.left = `${(rect[0] / viewport.width) * 100}%`;
+                                    linkDiv.style.top = `${(rect[1] / viewport.height) * 100}%`;
+                                    linkDiv.style.width = `${((rect[2] - rect[0]) / viewport.width) * 100}%`;
+                                    linkDiv.style.height = `${((rect[3] - rect[1]) / viewport.height) * 100}%`;
+
+                                    // Stop propagation on all potential flip triggers
+                                    const stopProp = (e) => { e.stopPropagation(); };
+                                    linkDiv.addEventListener('mousedown', stopProp);
+                                    linkDiv.addEventListener('touchstart', stopProp);
+                                    linkDiv.addEventListener('mouseup', stopProp);
+                                    linkDiv.addEventListener('touchend', stopProp);
+
+                                    linkDiv.onclick = async (e) =>
+                                    {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+
+                                        let dest = annotation.dest;
+                                        if (typeof dest === 'string')
+                                        {
+                                            dest = await pdf.getDestination(dest);
+                                        }
+                                        if (Array.isArray(dest))
+                                        {
+                                            const ref = dest[0];
+                                            const pageIndex = await pdf.getPageIndex(ref);
+                                            // pdf.js returns 0-based index
+                                            // PageFlip.flip() takes index
+                                            if (flipbookInstance)
+                                            {
+                                                flipbookInstance.flip(pageIndex);
+                                            }
+                                        }
+                                    };
+                                    annotationLayer.appendChild(linkDiv);
+                                }
+                            });
+                            pageContainer.appendChild(annotationLayer);
+                        }
+                    } catch (err)
+                    {
+                        console.warn('Error loading annotations:', err);
+                    }
+                    // --------------------------------
+
+                    bookEl.appendChild(pageContainer);
+
+                    const renderContext = {
+                        canvasContext: canvas.getContext('2d'),
+                        viewport: viewport
+                    };
+                    page.render(renderContext); // Async render, don't await all to show UI faster? 
+                    // Better to await to ensure book structure is ready for PageFlip?
+                    // PageFlip needs elements in DOM. Content can paint later.
+                }
+
+                // Initialize PageFlip
+                // Mobile: 350x500 approx ratio?
+                // Desktop: 500x700 per page?
+
+                const baseWidth = isMobile ? window.innerWidth * 0.9 : 550;
+                const baseHeight = baseWidth / aspectRatio;
+
+                flipbookInstance = new St.PageFlip(bookEl, {
+                    width: baseWidth,
+                    height: baseHeight,
+
+                    // Logic:
+                    // size: fixed -> dimensions are strictly width/height
+                    // size: stretch -> stretches to parent
+                    size: 'stretch',
+
+                    minWidth: 300,
+                    maxWidth: 1000,
+                    minHeight: 400,
+                    maxHeight: 1400,
+
+                    maxShadowOpacity: 0.5,
+                    showCover: true,
+                    mobileScrollSupport: true
+                });
+
+                flipbookInstance.loadFromHTML(document.querySelectorAll('#flipbook .page'));
+
+
+                loadingEl.style.display = 'none';
+                bookEl.classList.remove('hidden');
+
+                // Show Instructions
+                const instructionEl = document.getElementById('flipbook-instructions');
+                const instructionCard = document.getElementById('instruction-card');
+
+                // Reset state
+                instructionEl.classList.remove('opacity-0');
+                instructionCard.classList.remove('scale-95');
+                instructionCard.classList.add('scale-100');
+
+                // Hide after delay
+                setTimeout(() =>
+                {
+                    instructionEl.classList.add('opacity-0');
+                    instructionCard.classList.remove('scale-100');
+                    instructionCard.classList.add('scale-95');
+                }, 3500);
+
+
+            } catch (err)
+            {
+                console.error(err);
+                loadingEl.innerHTML = '<p class="text-white bg-red-500/20 p-4 rounded">Error loading PDF. Please try refreshing.</p>';
+            }
+        }
+
+        function closeFlipbook()
+        {
+            flipbookModal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('overflow-hidden');
+        }
+    </script>
+
+
+
+    <div id="simulator-modal" class="fixed inset-0 z-[1000] hidden opacity-0 transition-opacity duration-300"
+        aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity"
+            onclick="closeSimulatorModal()"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-2xl bg-slate-800 border border-slate-700 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
+
+                    <!-- Header -->
+                    <div class="bg-slate-900/50 px-6 py-4 border-b border-slate-700">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2" id="modal-title">
+                                <span class="material-symbols-outlined text-blue-500">science</span>
+                                Economic Impact Simulator
+                            </h3>
+                            <button onclick="closeSimulatorModal()"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <!-- Segmented Progress Bar -->
+                        <div class="grid grid-cols-3 gap-4 w-full mt-6">
+                            <!-- Step 1 Indicator -->
+                            <div class="flex flex-col gap-2 group cursor-pointer" onclick="goToSimStep(1)">
+                                <div id="sim-bar-1"
+                                    class="h-1.5 w-full bg-emerald-500 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                                </div>
+                                <span id="sim-label-1"
+                                    class="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest transition-colors duration-300">Revenue</span>
+                            </div>
+                            <!-- Step 2 Indicator -->
+                            <div class="flex flex-col gap-2 group cursor-pointer" onclick="goToSimStep(2)">
+                                <div id="sim-bar-2"
+                                    class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
+                                <span id="sim-label-2"
+                                    class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-widest transition-colors duration-300">Allocation</span>
+                            </div>
+                            <!-- Step 3 Indicator -->
+                            <div class="flex flex-col gap-2 group cursor-pointer" onclick="goToSimStep(3)">
+                                <div id="sim-bar-3"
+                                    class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
+                                <span id="sim-label-3"
+                                    class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-widest transition-colors duration-300">Social
+                                    Costs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-6 py-6 h-[500px] flex flex-col overflow-y-auto custom-scrollbar">
+
+                        <!-- Step 1: Revenue Scenario -->
+                        <div id="sim-step-1"
+                            class="sim-step w-full h-full flex flex-col justify-start transition-all duration-300">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-3">1.
+                                Select Adjusted Gross Revenue (AGR) Scenario</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <!-- $43M -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="43" class="peer sr-only">
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$43 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Spectrum Gaming (With Tribal
+                                            Competition)</div>
+                                    </div>
+                                    <div
+                                        class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                    </div>
+                                </label>
+
+                                <!-- $112M (Default) -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="112" class="peer sr-only" checked>
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$112 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Spectrum Gaming (Primary
+                                            Projection)</div>
+                                    </div>
+                                    <div
+                                        class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                    </div>
+                                </label>
+
+                                <!-- $204M -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="204" class="peer sr-only">
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$204 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Spectrum Gaming (No Tribal
+                                            Competition)</div>
+                                    </div>
+                                    <div
+                                        class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                    </div>
+                                </label>
+
+                                <!-- $330M -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="330" class="peer sr-only">
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$330 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Union Gaming (FWFirst Sales
+                                            Pitch)</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Custom Option -->
+                            <div class="relative flex py-10 items-center">
+                                <div class="flex-grow border-t border-slate-700"></div>
+                                <span
+                                    class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or
+                                    Enter Custom</span>
+                                <div class="flex-grow border-t border-slate-700"></div>
+                            </div>
+
+                            <label
+                                class="cursor-pointer group relative flex items-center p-4 rounded-xl bg-slate-700/30 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700/50">
+                                <input type="radio" name="sim-agr" value="custom" class="peer sr-only"
+                                    onchange="document.getElementById('sim-custom-agr').focus()">
+
+                                <!-- Visible Radio (Icon Swap) -->
+                                <span
+                                    class="material-symbols-outlined text-slate-500 text-2xl mr-4 peer-checked:hidden transition-colors">radio_button_unchecked</span>
+                                <span
+                                    class="material-symbols-outlined text-emerald-500 text-2xl mr-4 hidden peer-checked:block transition-colors">check_circle</span>
+
+                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold text-white mb-1">Custom AGR Projection</div>
+                                        <div class="text-xs text-slate-400">Enter a specific Adjusted Gross Revenue
+                                            figure ($MM).</div>
+                                    </div>
+                                    <div class="relative w-full sm:w-48">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-slate-400 font-bold">$</span>
+                                        </div>
+                                        <input type="number" id="sim-custom-agr" min="0" max="1000" placeholder="112"
+                                            class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg py-2 pl-8 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono font-bold text-right"
+                                            oninput="document.querySelector('input[name=sim-agr][value=custom]').checked = true">
+                                        <div
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-slate-500 font-bold text-xs">MM</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Step 2: Allocation Strategy -->
+                        <div id="sim-step-2"
+                            class="sim-step w-full h-full flex flex-col justify-start hidden transition-all duration-300">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-3">2. Tax
+                                Allocation Strategy</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="10"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">General Fund Focus</span>
+                                        <span class="block text-xs text-slate-400">10% Humanitarian / 90% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border-2 border-purple-500/50 bg-purple-900/10 cursor-pointer hover:bg-purple-900/20 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="40"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2"
+                                        checked>
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">SaveFW Default</span>
+                                        <span class="block text-xs text-slate-400">40% Humanitarian / 60% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="50"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Balanced Approach</span>
+                                        <span class="block text-xs text-slate-400">50% Humanitarian / 50% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="60"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Humanitarian Focus</span>
+                                        <span class="block text-xs text-slate-400">60% Humanitarian / 40% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="75"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Maximum Support</span>
+                                        <span class="block text-xs text-slate-400">75% Humanitarian / 25% General</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Custom Option -->
+                            <div class="relative flex py-10 items-center">
+                                <div class="flex-grow border-t border-slate-700"></div>
+                                <span
+                                    class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or
+                                    Enter Custom</span>
+                                <div class="flex-grow border-t border-slate-700"></div>
+                            </div>
+
+                            <label
+                                class="cursor-pointer group relative flex items-center p-4 rounded-xl bg-slate-700/30 border-2 border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-700/50">
+                                <input type="radio" name="sim-alloc" value="custom" class="peer sr-only"
+                                    onchange="document.getElementById('sim-custom-alloc').focus()">
+
+                                <!-- Visible Radio (Icon Swap) -->
+                                <span
+                                    class="material-symbols-outlined text-slate-500 text-2xl mr-4 peer-checked:hidden transition-colors">radio_button_unchecked</span>
+                                <span
+                                    class="material-symbols-outlined text-purple-500 text-2xl mr-4 hidden peer-checked:block transition-colors">check_circle</span>
+
+                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold text-white mb-1">Custom Allocation</div>
+                                        <div class="text-xs text-slate-400">Enter the percentage allocated to the
+                                            Humanitarian Fund (0-100%).</div>
+                                    </div>
+                                    <div class="relative w-full sm:w-32">
+                                        <input type="number" id="sim-custom-alloc" min="0" max="100" placeholder="40"
+                                            class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg py-2 pl-4 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono font-bold text-right"
+                                            oninput="document.querySelector('input[name=sim-alloc][value=custom]').checked = true">
+                                        <div
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-slate-500 font-bold text-xs">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Step 3: Social Cost Sensitivity -->
+                        <div id="sim-step-3"
+                            class="sim-step w-full h-full flex flex-col justify-start hidden transition-all duration-300">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-3">3.
+                                Social Cost Sensitivity</label>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-cost" value="0.8"
+                                        class="w-4 h-4 text-red-500 bg-slate-800 border-slate-500 focus:ring-red-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Conservative</span>
+                                        <span class="block text-xs text-slate-400">-20% to Baseline</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border-2 border-red-500/50 bg-red-900/10 cursor-pointer hover:bg-red-900/20 transition-colors">
+                                    <input type="radio" name="sim-cost" value="1.0"
+                                        class="w-4 h-4 text-red-500 bg-slate-800 border-slate-500 focus:ring-red-500 focus:ring-2"
+                                        checked>
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Standard Baseline</span>
+                                        <span class="block text-xs text-slate-400">Inflation-Adjusted Grinols</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-cost" value="1.2"
+                                        class="w-4 h-4 text-red-500 bg-slate-800 border-slate-500 focus:ring-red-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Aggressive</span>
+                                        <span class="block text-xs text-slate-400">+20% to Baseline</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Custom Option -->
+                            <div class="relative flex py-10 items-center">
+                                <div class="flex-grow border-t border-slate-700"></div>
+                                <span
+                                    class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or
+                                    Enter Custom</span>
+                                <div class="flex-grow border-t border-slate-700"></div>
+                            </div>
+
+                            <label
+                                class="cursor-pointer group relative flex flex-col p-4 rounded-xl bg-slate-700/30 border-2 border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-700/50">
+
+                                <div class="flex items-center gap-4 mb-4">
+                                    <input type="radio" name="sim-cost" value="custom" class="peer sr-only"
+                                        id="sim-cost-custom-radio">
+
+                                    <!-- Visible Radio (Icon Swap) -->
+                                    <span
+                                        class="material-symbols-outlined text-slate-500 text-2xl shrink-0 peer-checked:hidden transition-colors">radio_button_unchecked</span>
+                                    <span
+                                        class="material-symbols-outlined text-red-500 text-2xl shrink-0 hidden peer-checked:block transition-colors">check_circle</span>
+
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold text-white mb-1">Custom Adjustment</div>
+                                        <div class="text-xs text-slate-400">Apply a percentage increase or decrease to
+                                            the baseline costs.</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-600/50">
+                                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+
+                                        <!-- Direction Toggle -->
+                                        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="sim-cost-dir" value="-1" class="peer sr-only"
+                                                    onchange="updateCustomCostDisplay()">
+                                                <div
+                                                    class="px-4 py-2 rounded-md text-sm font-bold text-slate-400 bg-transparent peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-inner transition-all">
+                                                    Decrease</div>
+                                            </label>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="sim-cost-dir" value="1" class="peer sr-only"
+                                                    checked onchange="updateCustomCostDisplay()">
+                                                <div
+                                                    class="px-4 py-2 rounded-md text-sm font-bold text-slate-400 bg-transparent peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:shadow-inner transition-all">
+                                                    Increase</div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Percentage Input -->
+                                        <div class="relative w-32">
+                                            <input type="number" id="sim-custom-pct" min="0" max="500" placeholder="20"
+                                                class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg py-2 pl-4 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono font-bold text-right"
+                                                oninput="document.getElementById('sim-cost-custom-radio').checked = true; updateCustomCostDisplay()">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-slate-500 font-bold text-xs">%</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Result Display -->
+                                        <div
+                                            class="flex-1 text-right sm:text-left sm:pl-4 border-t sm:border-t-0 sm:border-l border-slate-700 pt-4 sm:pt-0">
+                                            <div
+                                                class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">
+                                                Resulting Multiplier</div>
+                                            <div class="text-xl font-mono font-black text-white" id="sim-custom-result">
+                                                1.00x</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-slate-900/50 px-6 py-4 border-t border-slate-700 flex justify-between items-center">
+                        <button id="sim-btn-back" onclick="prevSimStep()"
+                            class="hidden px-6 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">arrow_back</span> Back
+                        </button>
+                        <button id="sim-btn-cancel" onclick="closeSimulatorModal()"
+                            class="px-6 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20">
+                            Cancel
+                        </button>
+
+                        <div class="flex gap-3">
+                            <button id="sim-btn-next" onclick="nextSimStep()"
+                                class="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                                Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </button>
+                            <button id="sim-btn-run" onclick="runSimulation()"
+                                class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:from-blue-500 hover:to-cyan-400 transition-colors shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">play_arrow</span> Run Simulation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+window.toggleManualControls = function() {
+    const controls = document.getElementById('manual-controls');
+    const btn = document.getElementById('btn-manual-toggle');
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (controls.classList.contains('max-h-0')) {
+        controls.classList.remove('max-h-0', 'opacity-0');
+        controls.classList.add('max-h-[8000px]', 'opacity-100');
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        controls.classList.add('max-h-0', 'opacity-0');
+        controls.classList.remove('max-h-[8000px]', 'opacity-100');
+        icon.style.transform = 'rotate(0deg)';
+    }
+};
+</script>
+    <div id="methodology-modal"
+        class="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4"
+        onclick="if(event.target === this) closeMethodologyModal()">
+        <div
+            class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+            <!-- Header -->
+            <div
+                class="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-10">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-500">science</span>
+                    Research Methodology
+                </h3>
+                <button onclick="closeMethodologyModal()"
+                    class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-500">close</span>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 space-y-8 text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+
+                <!-- Section 1: Methodology -->
+                <div class="space-y-6">
+                    <div>
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500 text-[18px]">travel_explore</span>
+                            Distance-Based Risk Modeling
+                        </h4>
+                        <p class="mb-3">
+                            Populations living closer to a casino experience significantly higher rates of gambling
+                            addiction.
+                            Our model applies distance-decay multipliers based on peer-reviewed research:
+                        </p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><strong>&lt; 10 Miles:</strong> 2.0x Risk Multiplier</li>
+                            <li><strong>10 - 20 Miles:</strong> 1.5x Risk Multiplier</li>
+                            <li><strong>&gt; 20 Miles:</strong> 1.0x (Baseline State Average)</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500 text-[18px]">calculate</span>
+                            Problem Gambler Estimation
+                        </h4>
+                        <div
+                            class="bg-slate-100 dark:bg-slate-800 p-3 rounded font-mono text-xs border border-slate-200 dark:border-slate-700 mb-2">
+                            New Addicts = Σ (Pop × Base_Rate × Multiplier)
+                        </div>
+                        <p class="text-xs italic text-slate-500 mb-2">
+                            *Population data sourced from <strong>US Census Bureau (2020 Decennial)</strong> at
+                            Block
+                            Group level.
+                        </p>
+                        <p class="text-xs italic text-slate-500">
+                            *Baseline rate derived from National Council on Problem Gambling (NCPG) surveys.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500 text-[18px]">attach_money</span>
+                            Social Cost Valuation
+                        </h4>
+                        <p>
+                            We calculate the economic impact (bankruptcy, crime, divorce, job loss) per addict using
+                            inflation-adjusted values.
+                        </p>
+                        <div
+                            class="mt-2 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-3 rounded-lg inline-block">
+                            <span class="font-semibold text-slate-900 dark:text-white">~$13,203 per
+                                addict/year</span>
+                            <span class="text-slate-500 text-xs block mt-1">(Adjusted from ~$9,393 in 2011)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-slate-200 dark:border-slate-700"></div>
+
+                <!-- Section 2: Citations -->
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider">
+                        Citations
+                        & Sources</h4>
+                    <div class="space-y-4 text-xs">
+                        <!-- Welte -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded border border-slate-100 dark:border-slate-800">
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/26615561/" target="_blank"
+                                class="font-bold text-blue-600 hover:underline mb-1 block">
+                                Welte JW, Barnes GM, Tidwell MO, Hoffman JH, Wieczorek WF.
+                            </a>
+                            <p class="text-slate-500 mb-1">
+                                The Relationship Between Distance from Gambling Venues and Gambling Participation
+                                and
+                                Problem Gambling Among U.S. Adults. J Gambl Stud. 2016 Dec;32(4):1055-1063.
+                            </p>
+                            <span class="text-slate-400">doi: 10.1007/s10899-015-9583-5. PMID: 26615561.</span>
+                        </div>
+
+                        <!-- Grimsley -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded border border-slate-100 dark:border-slate-800">
+                            <a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf"
+                                target="_blank" class="font-bold text-blue-600 hover:underline mb-1 block">
+                                Grimsley (2011) / Grinols
+                            </a>
+                            <p class="text-slate-500">
+                                Inflation-adjusted valuation of social costs per problem gambler (bankruptcy, crime,
+                                divorce, job loss).
+                            </p>
+                        </div>
+
+                        <!-- Data Sources -->
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded border border-slate-100 dark:border-slate-800">
+                            <span class="font-bold text-slate-700 dark:text-slate-200 mb-1 block">Geospatial Data
+                                Sources</span>
+                            <p class="text-slate-500">
+                                Population and boundary data aggregated via <a href="https://censusreporter.org"
+                                    target="_blank"
+                                    class="font-bold text-blue-600 hover:underline">CensusReporter.org</a> (Source:
+                                U.S.
+                                Census Bureau, 2020 Decennial Block Groups). Data files were processed, merged, and
+                                simplified using <a href="https://mapshaper.org" target="_blank"
+                                    class="font-bold text-blue-600 hover:underline">Mapshaper.org</a>. Map
+                                visualization
+                                © OpenStreetMap contributors.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sources-modal"
+        class="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4"
+        onclick="if(event.target === this) closeSourcesModal()">
+        <div
+            class="bg-white dark:bg-slate-900 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto overscroll-contain shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+
+            <!-- Header -->
+            <div
+                class="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-10">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-orange-500">campaign</span>
+                    Decoding the Spin
+                </h3>
+                <button onclick="closeSourcesModal()"
+                    class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-500">close</span>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8 space-y-10 text-black dark:text-white text-lg leading-relaxed">
+
+                <div class="border-l-8 border-blue-600 dark:border-blue-500 pl-6 bg-transparent">
+                    <p class="font-bold italic text-black dark:text-white text-xl leading-tight">
+                        "The words you see on these reels aren't random. They are a direct comparison between the
+                        marketing promises being sold to Fort Wayne and the documented reality of casino impacts."
+                    </p>
+                </div>
+
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 border-l-8 border-yellow-500">
+                    <h4 class="font-bold text-black dark:text-white mb-4 text-xl uppercase tracking-wider">Why This
+                        Matters</h4>
+                    <p class="text-lg font-medium leading-relaxed text-black dark:text-white">
+                        The "Near Miss" effect on this machine—where you see "JOBS" just one click away from
+                        "ADDICTION"—mirrors the deceptive nature of FWFirst's marketing campaign. We are being sold the
+                        <em>possibility</em> of prosperity while the <em>probability</em> points to social cost.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-x-12 gap-y-6 items-start">
+                    <!-- Row 1: Headers -->
+                    <h4
+                        class="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-widest text-xl flex items-center gap-2">
+                        <span class="material-symbols-outlined text-2xl">verified</span>
+                        The Pitch (Bait)
+                    </h4>
+                    <h4
+                        class="text-red-700 dark:text-red-400 font-bold uppercase tracking-widest text-xl flex items-center gap-2">
+                        <span class="material-symbols-outlined text-2xl">warning</span>
+                        The Reality (Hook)
+                    </h4>
+
+                    <!-- Row 2: Descriptions -->
+                    <div class="space-y-2">
+                        <p class="text-lg">
+                            Phrases taken directly from <strong><a href="https://fwfirst.com/" target="_blank"
+                                    class="underline hover:text-emerald-600 transition-colors">FWFirst's</a></strong>
+                            marketing materials and Mayor Tucker's press releases.
+                        </p>
+                        <span class="block text-sm text-slate-500 dark:text-slate-400">
+                            Note: Since the website's content may change, SaveFW has <a
+                                href="https://web.archive.org/web/20251224153405/https://fwfirst.com/" target="_blank"
+                                class="underline hover:text-blue-500 transition-colors">archived a copy of FWFirst's
+                                website</a> as of December 24, 2025.
+                        </span>
+                    </div>
+                    <p class="text-lg">
+                        Outcomes cited in independent studies, opposition testimony, and crime statistics from similar
+                        markets.
+                    </p>
+
+                    <!-- Row 3: Lists -->
+                    <ul id="bait-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </ul>
+                    <ul id="hook-list" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+
+
+            <div id="word-detail-modal"
+                class="absolute inset-0 z-[150] opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4 md:p-8"
+                onclick="if(event.target === this) closeWordModal()">
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-700 relative transform transition-transform scale-95 z-10 overflow-hidden"
+                    id="word-modal-content">
+
+                    <!-- Close Button -->
+                    <button onclick="closeWordModal()"
+                        class="absolute top-4 right-4 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors z-30">
+                        <span class="material-symbols-outlined text-slate-500">close</span>
+                    </button>
+
+                    <div class="flex items-stretch min-h-[300px]">
+                        <!-- Left Arrow -->
+                        <button onclick="prevWord()"
+                            class="group px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-r border-slate-100 dark:border-slate-800">
+                            <span
+                                class="material-symbols-outlined text-slate-400 group-hover:text-red-500 transition-colors text-3xl">arrow_back_ios_new</span>
+                        </button>
+
+                        <!-- Main Content -->
+                        <div class="flex-1 p-8 flex flex-col justify-center">
+                            <h3 id="word-modal-title"
+                                class="text-2xl font-black text-red-600 dark:text-red-500 mb-4 uppercase tracking-wide">
+                            </h3>
+                            <p id="word-modal-desc"
+                                class="text-base text-slate-600 dark:text-slate-300 mb-6 leading-relaxed"></p>
+                            <div>
+                                <a id="word-modal-link" href="#" target="_blank"
+                                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-500 font-bold uppercase text-sm tracking-wider">
+                                    <span>View Source</span>
+                                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Arrow -->
+                        <button onclick="nextWord()"
+                            class="group px-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-l border-slate-100 dark:border-slate-800">
+                            <span
+                                class="material-symbols-outlined text-slate-400 group-hover:text-red-500 transition-colors text-3xl">arrow_forward_ios</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const WORD_DATA = {
+                    "LOW WAGE JOBS": {
+                        desc: "The data specifically regarding Full House Resorts' 'Rising Star Casino' (the license proposed for transfer to Fort Wayne) shows that essential service roles pay significantly less than the current market rate for fast food workers in Fort Wayne. <br><br><strong>The Wage Gap:</strong><br>• Line Cook: $13.25-$17.75/hr (Casino) vs $20.27/hr (FW Fast Food Avg)<br>• Security: $14.00/hr (Casino) vs $15.00-$18.00/hr (FW Entry)<br>• Dealer: $11.00-$12.00/hr + tips (Unstable income).<br><br>While the casino promises 'good paying jobs,' the reality is that a cook at their current property starts at $13.25/hour. You could earn ~35% more at a local Wendy's or Chick-fil-A than cooking meals at their 'world-class destination.'",
+                        url: "https://www.ziprecruiter.com/Salaries/Fast-Food-Salary-in-Fort-Wayne,IN"
+                    },
+                    "ADDICTION": { desc: "Research indicates that 96% of individuals with gambling disorder have a co-occurring psychiatric disorder. The American Psychiatric Association defines it as a disorder leading to clinically significant impairment, where sufferers exhaust savings and damage family relationships.", url: "https://www.addiction.rutgers.edu/about-addiction/facts-and-figures/gambling/" },
+                    "HUMAN TRAFFICKING": { desc: "The American Gaming Association admits that casinos are used by traffickers to \"facilitate criminal activity\" and \"seek out potential buyers.\" Survivors report that traffickers use the anonymity of casino environments to mask the movement and exploitation of victims.", url: "https://www.americangaming.org/wp-content/uploads/2022/06/AGA-Preventing-and-Combating-Human-Trafficking-in-the-Gaming-Industry.pdf" },
+                    "EMBEZZLEMENT": { desc: "A Dept. of Justice study found that arrestees identified as pathological gamblers were 3 to 5 times more likely to be arrested than the general population, often committing robbery, assault, or theft to finance their addiction.", url: "https://www.ojp.gov/pdffiles1/nij/203197.pdf" },
+                    "POVERTY": { desc: "Despite casinos generating revenue, poverty rates for Native American communities with casinos remain higher than the national average (19.6% vs 12.1%). The \"economic engine\" argument often fails to account for the lack of wealth distribution to the poorest residents.", url: "https://www.actionnetwork.com/news/new-research-highlights-economic-changes-driven-by-tribal-casinos" },
+                    "CHILD NEGLECT": { desc: "A systematic review found a significant association between problem gambling and multiple forms of child maltreatment, including physical abuse and neglect. The financial strain and time consumption of gambling directly erode parental capacity.", url: "https://aifs.gov.au/resources/short-articles/child-maltreatment-and-problem-gambling" },
+                    "DOMESTIC VIOLENCE": { desc: "Women whose partners have a gambling problem are 10.5 times more likely to experience intimate partner violence. Nearly 25% of pathological gamblers report engaging in spousal abuse.", url: "https://dbhdd.georgia.gov/document/document/trauma0911pdf/download" },
+                    "BANKRUPTCIES": { desc: "Counties that legalize casino gambling experience a 2.3% higher annual growth rate in personal bankruptcies compared to non-casino counties. Bankruptcy rates eventually exceed those of non-casino counties after nine years of operations.", url: "https://researchworks.creighton.edu/esploro/outputs/other/The-impact-of-casino-gambling-on/991005931167902656" },
+                    "DIVORCES": { desc: "The National Gambling Impact Study Commission reports a lifetime divorce rate of 39.5% for problem gamblers, compared to 18.2% for the general population. 80% of divorced problem gamblers cite gambling as a significant factor in the split.", url: "https://www.mccaberussell.com/blog/divorcing-a-gambling-addict-what-you-should-know/" },
+                    "SUBSTANCE ABUSE": { desc: "There is a high comorbidity between gambling and substance abuse. Pathological gamblers have a 5.5 times higher risk for substance use disorders compared to non-gamblers, often using drugs or alcohol to cope with losses.", url: "https://www.tandfonline.com/doi/full/10.1080/19585969.2025.2484288" },
+                    "HOMELESSNESS": { desc: "A University of Cambridge study found that homeless individuals are 10 times more likely to be problem gamblers than the non-homeless population, establishing a \"bi-directional\" link where gambling leads to homelessness and vice versa.", url: "https://www.stoppredatorygambling.org/study-examines-the-link-between-homelessness-and-problem-gambling/" },
+                    "FORECLOSURE": { desc: "While foreclosure specific data varies, the sharp rise in personal bankruptcies and \"bad debt\" in casino counties directly correlates to housing instability and loss of assets.", url: "https://k-12talk.com/gambling-debt-understanding-the-average-contributing-factors-and-recovery/" },
+                    "CORRUPTION": { desc: "Empirical models indicate a \"Granger causality\" where casino revenues can \"cause\" political corruption. The large cash flows attract rent-seeking behavior from politicians and can lead to the erosion of public sector integrity.", url: "https://www.researchgate.net/publication/267883543_The_Casino_Industry_and_the_Corruption_of_US_Public_Officials" },
+                    "BAD DEBT": { desc: "Gambling debt is often hidden due to shame, but studies show significant financial harm to families. \"Affected others\" (family/friends) report severe stress, ill health, and relationship breakdown due to the gambler's debt.", url: "https://www.researchgate.net/publication/305495934_Breaking_Bad_Comparing_Gambling_Harms_Among_Gamblers_and_Affected_Others" },
+                    "FATAL ACCIDENTS": { desc: "A study in the Journal of Health Economics estimates that alcohol-related fatal traffic accidents increase by approximately 9.2% in counties that open casinos.", url: "https://www.stoppredatorygambling.org/wp-content/uploads/2012/12/Journal-of-Health-Economics-Impact-of-Casinos-on-Fatal-Alcohol-related-Traffic-Accidents.pdf" },
+                    "LOCAL BUSINESSES LOST": { desc: "The primary economic argument for the Fort Wayne casino is that it will generate \"new\" money. This assumes it functions as a tourist destination. However, the Spectrum Study (2025) confirms that nearly 95% of visitors live within 60–90 minutes, defining it as a \"convenience\" venue. This triggers the <strong>Substitution Effect</strong>: money is not imported; it is simply diverted from local restaurants, theaters, and retail to the casino, creating a net loss for the existing economy.", url: "https://www.stlouisfed.org/community-development/publications/bridges/casinos-and-economic-development-a-look-at-the-issues" },
+                    "MENTAL HEALTH ISSUES": { desc: "Gambling disorder has the highest suicide attempt rate of any addiction. In one state study, 23.2% of those meeting criteria for gambling disorder had attempted suicide.", url: "https://www.oapgg.org/newsletters-and-updates/blog-post-title-three-9faw2" },
+                    "THE SATURATION BARRIER": { desc: "For a casino to be a destination, it must offer something people can’t get closer to home. However, Fort Wayne is surrounded by established competitors: South Bend (Four Winds), Toledo (Hollywood), Battle Creek (FireKeepers), and Shelbyville (Horseshoe).<br><br><strong>The Conclusion:</strong> Without a world-class, unique hook (which a standard $500M regional casino lacks), it will struggle to \"pull\" tourists past the casinos they already drive past. If only 5% of your customers are \"true tourists\" (Spectrum 2025), the \"Destination\" label is mathematically false.", url: "#" }
+                };
+
+                const BAIT_WORDS_MODAL = [
+                    "WORLD-CLASS DESTINATION", "INCREDIBLE OPPORTUNITY", "ECONOMIC ENGINE",
+                    "REVITALIZED INFRASTRUCTURE", "NEIGHBORHOOD IMPROVEMENTS", "HUMANITARIAN FUND",
+                    "RESPONSIBLE GAMING", "RETAIN TALENT", "COMMUNITY WELL-BEING", "PREMIER DESTINATION", "GOOD PAYING JOBS"
+                ];
+
+                // Sorted Keys for Navigation
+                let TARGET_KEYS = [];
+                let currentWordIndex = 0;
+
+                function initSourcesModal()
+                {
+                    const baitList = document.getElementById('bait-list');
+                    const hookList = document.getElementById('hook-list');
+
+                    if (!baitList || !hookList) return;
+
+                    // Populate Bait
+                    baitList.innerHTML = BAIT_WORDS_MODAL.map(word => `
+                        <li class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                            <span class="font-semibold text-emerald-900 dark:text-emerald-100 text-sm md:text-base">${word}</span>
+                        </li>
+                    `).join('');
+
+                    // Prepare Sorted Keys
+                    const words = Object.keys(WORD_DATA);
+                    const priorityWord = "LOW WAGE JOBS";
+                    const otherWords = words.filter(w => w !== priorityWord);
+                    TARGET_KEYS = [priorityWord, ...otherWords];
+
+    <div id="flipbook-modal"
+        class="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+
+        <!-- Download Button -->
+        <a href="./Independent_Analysis_Allen_County_Casino.pdf" download target="_blank"
+            class="absolute top-4 right-16 z-50 p-2 text-white/50 hover:text-white transition-colors bg-black/20 rounded-full flex items-center justify-center"
+            title="Download PDF">
+            <span class="material-symbols-outlined text-3xl">download</span>
+        </a>
+
+        <!-- Close Button -->
+        <button onclick="closeFlipbook()"
+            class="absolute top-4 right-4 z-50 p-2 text-white/50 hover:text-white transition-colors bg-black/20 rounded-full">
+            <span class="material-symbols-outlined text-3xl">close</span>
+        </button>
+
+        <!-- Navigation Buttons -->
+        <!-- Only visible on md screens, mobile users swipe -->
+        <button onclick="if(flipbookInstance) flipbookInstance.flipPrev()"
+            class="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors hover:bg-white/10 rounded-full hidden md:flex items-center justify-center group"
+            title="Previous Page">
+            <span
+                class="material-symbols-outlined text-4xl group-hover:-translate-x-1 transition-transform">arrow_back_ios_new</span>
+        </button>
+        <button onclick="if(flipbookInstance) flipbookInstance.flipNext()"
+            class="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors hover:bg-white/10 rounded-full hidden md:flex items-center justify-center group"
+            title="Next Page">
+            <span
+                class="material-symbols-outlined text-4xl group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+        </button>
+
+        <!-- Book Container -->
+        <div class="relative w-full h-full flex items-center justify-center">
+            <div id="flipbook" class="hidden shadow-2xl"></div>
+        </div>
+
+        <!-- Instruction Overlay -->
+        <div id="flipbook-instructions"
+            class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-1000 z-40">
+            <div class="bg-black/60 backdrop-blur-md p-8 rounded-3xl text-white text-center border border-white/10 shadow-2xl transform transition-transform duration-500 scale-95"
+                id="instruction-card">
+                <div class="mb-4 flex gap-4 justify-center text-white/80">
+                    <span class="material-symbols-outlined text-4xl animate-bounce">touch_app</span>
+                    <span class="material-symbols-outlined text-4xl">drag_pan</span>
+                </div>
+                <p class="font-bold text-xl mb-2">Interactive Report</p>
+                <p class="text-base text-slate-300">Drag corners or use arrow keys to flip pages.</p>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="flipbook-loading"
+            class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+            <div class="flex flex-col items-center gap-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+                <p class="text-sm font-medium animate-pulse">Loading Analysis...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts for Flipbook -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <script>
+        // Flipbook Logic
+        let flipbookInstance = null;
+        const flipbookModal = document.getElementById('flipbook-modal');
+        const bookEl = document.getElementById('flipbook');
+        const loadingEl = document.getElementById('flipbook-loading');
+
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        async function openFlipbook(e)
+        {
+            if (e) e.preventDefault();
+            const pdfUrl = './Independent_Analysis_Allen_County_Casino.pdf';
+
+            // Show Modal
+            flipbookModal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('overflow-hidden');
+            loadingEl.style.display = 'flex';
+            bookEl.classList.add('hidden');
+
+            // If already loaded, just show? No, creating fresh is safer for resizing/state reset
+            if (flipbookInstance)
+            {
+                // If we want to persist state, we could just show it.
+                // But let's rebuild to be safe initially.
+                // Actually, if it's already built, just show it!
+                if (bookEl.children.length > 0)
+                {
+                    loadingEl.style.display = 'none';
+                    bookEl.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            try
+            {
+                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                const pdf = await loadingTask.promise;
+                const numPages = pdf.numPages;
+
+                // Render pages
+                // Determine scale based on screen
+                const isMobile = window.innerWidth < 768;
+                const scale = window.devicePixelRatio || 1.5;
+
+                bookEl.innerHTML = '';
+
+                // We need to measure page 1 to set aspect ratio
+                const page1 = await pdf.getPage(1);
+                const viewport1 = page1.getViewport({ scale: 1 });
+                const aspectRatio = viewport1.width / viewport1.height;
+
+                // Desired display width per page (single page view on mobile, double on desktop usually?)
+                // PageFlip decides single/double based on size.
+
+                for (let i = 1; i <= numPages; i++)
+                {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: scale * 1.5 }); // High res render
+
+                    const pageContainer = document.createElement('div');
+                    pageContainer.className = "page relative"; // Generic class with relative positioning
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    canvas.style.width = "100%";
+                    canvas.style.height = "100%";
+                    canvas.style.objectFit = "contain";
+
+                    pageContainer.appendChild(canvas);
+
+                    // --- Annotation Layer (Links) ---
+                    try
+                    {
+                        const annotations = await page.getAnnotations();
+                        if (annotations && annotations.length > 0)
+                        {
+                            const annotationLayer = document.createElement('div');
+                            annotationLayer.className = 'absolute inset-0 pointer-events-none'; // Container
+
+                            annotations.forEach(annotation =>
+                            {
+                                if (annotation.subtype === 'Link' && annotation.dest)
+                                {
+                                    const rect = viewport.convertToViewportRectangle(annotation.rect);
+                                    // rect is [xMin, yMin, xMax, yMax]
+                                    // Normalize to percentages to be scaling-invariant
+                                    const x = rect[0];
+                                    const y = rect[1];
+                                    const w = rect[2] - rect[0];
+                                    const h = rect[3] - rect[1];
+
+                                    const linkDiv = document.createElement('div');
+                                    linkDiv.className = 'absolute cursor-pointer hover:bg-yellow-500/20 transition-colors pointer-events-auto z-50';
+
+                                    // Use percentages for responsiveness
+                                    linkDiv.style.left = `${(x / viewport.width) * 100}%`;
+                                    linkDiv.style.top = `${((viewport.height - y - h) / viewport.height) * 100}%`; // PDF Y is often inverted?
+                                    // WAIT. `convertToViewportRectangle` handles coordinate system.
+                                    // Usually it outputs Top-Left oriented coords [x, y, x+w, y+h]
+                                    // But let's verify if standard render works.
+                                    // If this is standard PDF coords, Y=0 is bottom.
+                                    // But viewport transform should fix it.
+
+                                    // Let's assume standard [x, y, w, h] from viewport transform
+                                    linkDiv.style.left = `${(rect[0] / viewport.width) * 100}%`;
+                                    linkDiv.style.top = `${(rect[1] / viewport.height) * 100}%`;
+                                    linkDiv.style.width = `${((rect[2] - rect[0]) / viewport.width) * 100}%`;
+                                    linkDiv.style.height = `${((rect[3] - rect[1]) / viewport.height) * 100}%`;
+
+                                    // Stop propagation on all potential flip triggers
+                                    const stopProp = (e) => { e.stopPropagation(); };
+                                    linkDiv.addEventListener('mousedown', stopProp);
+                                    linkDiv.addEventListener('touchstart', stopProp);
+                                    linkDiv.addEventListener('mouseup', stopProp);
+                                    linkDiv.addEventListener('touchend', stopProp);
+
+                                    linkDiv.onclick = async (e) =>
+                                    {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+
+                                        let dest = annotation.dest;
+                                        if (typeof dest === 'string')
+                                        {
+                                            dest = await pdf.getDestination(dest);
+                                        }
+                                        if (Array.isArray(dest))
+                                        {
+                                            const ref = dest[0];
+                                            const pageIndex = await pdf.getPageIndex(ref);
+                                            // pdf.js returns 0-based index
+                                            // PageFlip.flip() takes index
+                                            if (flipbookInstance)
+                                            {
+                                                flipbookInstance.flip(pageIndex);
+                                            }
+                                        }
+                                    };
+                                    annotationLayer.appendChild(linkDiv);
+                                }
+                            });
+                            pageContainer.appendChild(annotationLayer);
+                        }
+                    } catch (err)
+                    {
+                        console.warn('Error loading annotations:', err);
+                    }
+                    // --------------------------------
+
+                    bookEl.appendChild(pageContainer);
+
+                    const renderContext = {
+                        canvasContext: canvas.getContext('2d'),
+                        viewport: viewport
+                    };
+                    page.render(renderContext); // Async render, don't await all to show UI faster? 
+                    // Better to await to ensure book structure is ready for PageFlip?
+                    // PageFlip needs elements in DOM. Content can paint later.
+                }
+
+                // Initialize PageFlip
+                // Mobile: 350x500 approx ratio?
+                // Desktop: 500x700 per page?
+
+                const baseWidth = isMobile ? window.innerWidth * 0.9 : 550;
+                const baseHeight = baseWidth / aspectRatio;
+
+                flipbookInstance = new St.PageFlip(bookEl, {
+                    width: baseWidth,
+                    height: baseHeight,
+
+                    // Logic:
+                    // size: fixed -> dimensions are strictly width/height
+                    // size: stretch -> stretches to parent
+                    size: 'stretch',
+
+                    minWidth: 300,
+                    maxWidth: 1000,
+                    minHeight: 400,
+                    maxHeight: 1400,
+
+                    maxShadowOpacity: 0.5,
+                    showCover: true,
+                    mobileScrollSupport: true
+                });
+
+                flipbookInstance.loadFromHTML(document.querySelectorAll('#flipbook .page'));
+
+
+                loadingEl.style.display = 'none';
+                bookEl.classList.remove('hidden');
+
+                // Show Instructions
+                const instructionEl = document.getElementById('flipbook-instructions');
+                const instructionCard = document.getElementById('instruction-card');
+
+                // Reset state
+                instructionEl.classList.remove('opacity-0');
+                instructionCard.classList.remove('scale-95');
+                instructionCard.classList.add('scale-100');
+
+                // Hide after delay
+                setTimeout(() =>
+                {
+                    instructionEl.classList.add('opacity-0');
+                    instructionCard.classList.remove('scale-100');
+                    instructionCard.classList.add('scale-95');
+                }, 3500);
+
+
+            } catch (err)
+            {
+                console.error(err);
+                loadingEl.innerHTML = '<p class="text-white bg-red-500/20 p-4 rounded">Error loading PDF. Please try refreshing.</p>';
+            }
+        }
+
+        function closeFlipbook()
+        {
+            flipbookModal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('overflow-hidden');
+        }
+    </script>
+
+
+
+    <div id="simulator-modal" class="fixed inset-0 z-[1000] hidden opacity-0 transition-opacity duration-300"
+        aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity"
+            onclick="closeSimulatorModal()"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-2xl bg-slate-800 border border-slate-700 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
+
+                    <!-- Header -->
+                    <div class="bg-slate-900/50 px-6 py-4 border-b border-slate-700">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2" id="modal-title">
+                                <span class="material-symbols-outlined text-blue-500">science</span>
+                                Economic Impact Simulator
+                            </h3>
+                            <button onclick="closeSimulatorModal()"
+                                class="text-slate-400 hover:text-white transition-colors">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+
+                        <!-- Segmented Progress Bar -->
+                        <div class="grid grid-cols-3 gap-4 w-full mt-6">
+                            <!-- Step 1 Indicator -->
+                            <div class="flex flex-col gap-2 group cursor-pointer" onclick="goToSimStep(1)">
+                                <div id="sim-bar-1"
+                                    class="h-1.5 w-full bg-emerald-500 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                                </div>
+                                <span id="sim-label-1"
+                                    class="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest transition-colors duration-300">Revenue</span>
+                            </div>
+                            <!-- Step 2 Indicator -->
+                            <div class="flex flex-col gap-2 group cursor-pointer" onclick="goToSimStep(2)">
+                                <div id="sim-bar-2"
+                                    class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
+                                <span id="sim-label-2"
+                                    class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-widest transition-colors duration-300">Allocation</span>
+                            </div>
+                            <!-- Step 3 Indicator -->
+                            <div class="flex flex-col gap-2 group cursor-pointer" onclick="goToSimStep(3)">
+                                <div id="sim-bar-3"
+                                    class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
+                                <span id="sim-label-3"
+                                    class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-widest transition-colors duration-300">Social
+                                    Costs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-6 py-6 h-[500px] flex flex-col overflow-y-auto custom-scrollbar">
+
+                        <!-- Step 1: Revenue Scenario -->
+                        <div id="sim-step-1"
+                            class="sim-step w-full h-full flex flex-col justify-start transition-all duration-300">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-3">1.
+                                Select Adjusted Gross Revenue (AGR) Scenario</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <!-- $43M -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="43" class="peer sr-only">
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$43 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Spectrum Gaming (With Tribal
+                                            Competition)</div>
+                                    </div>
+                                    <div
+                                        class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                    </div>
+                                </label>
+
+                                <!-- $112M (Default) -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="112" class="peer sr-only" checked>
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$112 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Spectrum Gaming (Primary
+                                            Projection)</div>
+                                    </div>
+                                    <div
+                                        class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                    </div>
+                                </label>
+
+                                <!-- $204M -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="204" class="peer sr-only">
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$204 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Spectrum Gaming (No Tribal
+                                            Competition)</div>
+                                    </div>
+                                    <div
+                                        class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span
+                                            class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                                    </div>
+                                </label>
+
+                                <!-- $330M -->
+                                <label class="cursor-pointer group relative">
+                                    <input type="radio" name="sim-agr" value="330" class="peer sr-only">
+                                    <div
+                                        class="p-4 rounded-xl bg-slate-700/50 border-2 border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-700 h-full flex flex-col">
+                                        <div class="text-lg font-black text-white mb-1">$330 MM</div>
+                                        <div class="text-xs text-slate-400 leading-tight">Union Gaming (FWFirst Sales
+                                            Pitch)</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Custom Option -->
+                            <div class="relative flex py-10 items-center">
+                                <div class="flex-grow border-t border-slate-700"></div>
+                                <span
+                                    class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or
+                                    Enter Custom</span>
+                                <div class="flex-grow border-t border-slate-700"></div>
+                            </div>
+
+                            <label
+                                class="cursor-pointer group relative flex items-center p-4 rounded-xl bg-slate-700/30 border-2 border-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all hover:bg-slate-700/50">
+                                <input type="radio" name="sim-agr" value="custom" class="peer sr-only"
+                                    onchange="document.getElementById('sim-custom-agr').focus()">
+
+                                <!-- Visible Radio (Icon Swap) -->
+                                <span
+                                    class="material-symbols-outlined text-slate-500 text-2xl mr-4 peer-checked:hidden transition-colors">radio_button_unchecked</span>
+                                <span
+                                    class="material-symbols-outlined text-emerald-500 text-2xl mr-4 hidden peer-checked:block transition-colors">check_circle</span>
+
+                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold text-white mb-1">Custom AGR Projection</div>
+                                        <div class="text-xs text-slate-400">Enter a specific Adjusted Gross Revenue
+                                            figure ($MM).</div>
+                                    </div>
+                                    <div class="relative w-full sm:w-48">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-slate-400 font-bold">$</span>
+                                        </div>
+                                        <input type="number" id="sim-custom-agr" min="0" max="1000" placeholder="112"
+                                            class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg py-2 pl-8 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono font-bold text-right"
+                                            oninput="document.querySelector('input[name=sim-agr][value=custom]').checked = true">
+                                        <div
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-slate-500 font-bold text-xs">MM</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Step 2: Allocation Strategy -->
+                        <div id="sim-step-2"
+                            class="sim-step w-full h-full flex flex-col justify-start hidden transition-all duration-300">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-3">2. Tax
+                                Allocation Strategy</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="10"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">General Fund Focus</span>
+                                        <span class="block text-xs text-slate-400">10% Humanitarian / 90% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border-2 border-purple-500/50 bg-purple-900/10 cursor-pointer hover:bg-purple-900/20 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="40"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2"
+                                        checked>
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">SaveFW Default</span>
+                                        <span class="block text-xs text-slate-400">40% Humanitarian / 60% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="50"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Balanced Approach</span>
+                                        <span class="block text-xs text-slate-400">50% Humanitarian / 50% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="60"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Humanitarian Focus</span>
+                                        <span class="block text-xs text-slate-400">60% Humanitarian / 40% General</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-alloc" value="75"
+                                        class="w-4 h-4 text-purple-500 bg-slate-800 border-slate-500 focus:ring-purple-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Maximum Support</span>
+                                        <span class="block text-xs text-slate-400">75% Humanitarian / 25% General</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Custom Option -->
+                            <div class="relative flex py-10 items-center">
+                                <div class="flex-grow border-t border-slate-700"></div>
+                                <span
+                                    class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or
+                                    Enter Custom</span>
+                                <div class="flex-grow border-t border-slate-700"></div>
+                            </div>
+
+                            <label
+                                class="cursor-pointer group relative flex items-center p-4 rounded-xl bg-slate-700/30 border-2 border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-700/50">
+                                <input type="radio" name="sim-alloc" value="custom" class="peer sr-only"
+                                    onchange="document.getElementById('sim-custom-alloc').focus()">
+
+                                <!-- Visible Radio (Icon Swap) -->
+                                <span
+                                    class="material-symbols-outlined text-slate-500 text-2xl mr-4 peer-checked:hidden transition-colors">radio_button_unchecked</span>
+                                <span
+                                    class="material-symbols-outlined text-purple-500 text-2xl mr-4 hidden peer-checked:block transition-colors">check_circle</span>
+
+                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold text-white mb-1">Custom Allocation</div>
+                                        <div class="text-xs text-slate-400">Enter the percentage allocated to the
+                                            Humanitarian Fund (0-100%).</div>
+                                    </div>
+                                    <div class="relative w-full sm:w-32">
+                                        <input type="number" id="sim-custom-alloc" min="0" max="100" placeholder="40"
+                                            class="w-full bg-slate-800 border border-slate-600 text-white rounded-lg py-2 pl-4 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono font-bold text-right"
+                                            oninput="document.querySelector('input[name=sim-alloc][value=custom]').checked = true">
+                                        <div
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-slate-500 font-bold text-xs">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Step 3: Social Cost Sensitivity -->
+                        <div id="sim-step-3"
+                            class="sim-step w-full h-full flex flex-col justify-start hidden transition-all duration-300">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-3">3.
+                                Social Cost Sensitivity</label>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-cost" value="0.8"
+                                        class="w-4 h-4 text-red-500 bg-slate-800 border-slate-500 focus:ring-red-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Conservative</span>
+                                        <span class="block text-xs text-slate-400">-20% to Baseline</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border-2 border-red-500/50 bg-red-900/10 cursor-pointer hover:bg-red-900/20 transition-colors">
+                                    <input type="radio" name="sim-cost" value="1.0"
+                                        class="w-4 h-4 text-red-500 bg-slate-800 border-slate-500 focus:ring-red-500 focus:ring-2"
+                                        checked>
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Standard Baseline</span>
+                                        <span class="block text-xs text-slate-400">Inflation-Adjusted Grinols</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center p-3 rounded-lg border border-slate-600 bg-slate-700/30 cursor-pointer hover:bg-slate-700/50 transition-colors">
+                                    <input type="radio" name="sim-cost" value="1.2"
+                                        class="w-4 h-4 text-red-500 bg-slate-800 border-slate-500 focus:ring-red-500 focus:ring-2">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-bold text-white">Aggressive</span>
+                                        <span class="block text-xs text-slate-400">+20% to Baseline</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Custom Option -->
+                            <div class="relative flex py-10 items-center">
+                                <div class="flex-grow border-t border-slate-700"></div>
+                                <span
+                                    class="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or
+                                    Enter Custom</span>
+                                <div class="flex-grow border-t border-slate-700"></div>
+                            </div>
+
+                            <label
+                                class="cursor-pointer group relative flex flex-col p-4 rounded-xl bg-slate-700/30 border-2 border-slate-600 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-700/50">
+
+                                <div class="flex items-center gap-4 mb-4">
+                                    <input type="radio" name="sim-cost" value="custom" class="peer sr-only"
+                                        id="sim-cost-custom-radio">
+
+                                    <!-- Visible Radio (Icon Swap) -->
+                                    <span
+                                        class="material-symbols-outlined text-slate-500 text-2xl shrink-0 peer-checked:hidden transition-colors">radio_button_unchecked</span>
+                                    <span
+                                        class="material-symbols-outlined text-red-500 text-2xl shrink-0 hidden peer-checked:block transition-colors">check_circle</span>
+
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold text-white mb-1">Custom Adjustment</div>
+                                        <div class="text-xs text-slate-400">Apply a percentage increase or decrease to
+                                            the baseline costs.</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-600/50">
+                                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+
+                                        <!-- Direction Toggle -->
+                                        <div class="flex bg-slate-900 rounded-lg p-1 border border-slate-700">
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="sim-cost-dir" value="-1" class="peer sr-only"
+                                                    onchange="updateCustomCostDisplay()">
+                                                <div
+                                                    class="px-4 py-2 rounded-md text-sm font-bold text-slate-400 bg-transparent peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-inner transition-all">
+                                                    Decrease</div>
+                                            </label>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="sim-cost-dir" value="1" class="peer sr-only"
+                                                    checked onchange="updateCustomCostDisplay()">
+                                                <div
+                                                    class="px-4 py-2 rounded-md text-sm font-bold text-slate-400 bg-transparent peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:shadow-inner transition-all">
+                                                    Increase</div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Percentage Input -->
+                                        <div class="relative w-32">
+                                            <input type="number" id="sim-custom-pct" min="0" max="500" placeholder="20"
+                                                class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg py-2 pl-4 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono font-bold text-right"
+                                                oninput="document.getElementById('sim-cost-custom-radio').checked = true; updateCustomCostDisplay()">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-slate-500 font-bold text-xs">%</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Result Display -->
+                                        <div
+                                            class="flex-1 text-right sm:text-left sm:pl-4 border-t sm:border-t-0 sm:border-l border-slate-700 pt-4 sm:pt-0">
+                                            <div
+                                                class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">
+                                                Resulting Multiplier</div>
+                                            <div class="text-xl font-mono font-black text-white" id="sim-custom-result">
+                                                1.00x</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-slate-900/50 px-6 py-4 border-t border-slate-700 flex justify-between items-center">
+                        <button id="sim-btn-back" onclick="prevSimStep()"
+                            class="hidden px-6 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">arrow_back</span> Back
+                        </button>
+                        <button id="sim-btn-cancel" onclick="closeSimulatorModal()"
+                            class="px-6 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-500 transition-colors shadow-lg shadow-red-500/20">
+                            Cancel
+                        </button>
+
+                        <div class="flex gap-3">
+                            <button id="sim-btn-next" onclick="nextSimStep()"
+                                class="px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                                Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </button>
+                            <button id="sim-btn-run" onclick="runSimulation()"
+                                class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:from-blue-500 hover:to-cyan-400 transition-colors shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">play_arrow</span> Run Simulation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+window.toggleManualControls = function() {
+    const controls = document.getElementById('manual-controls');
+    const btn = document.getElementById('btn-manual-toggle');
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (controls.classList.contains('max-h-0')) {
+        controls.classList.remove('max-h-0', 'opacity-0');
+        controls.classList.add('max-h-[8000px]', 'opacity-100');
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        controls.classList.add('max-h-0', 'opacity-0');
+        controls.classList.remove('max-h-[8000px]', 'opacity-100');
+        icon.style.transform = 'rotate(0deg)';
+    }
+};
+</script>
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
