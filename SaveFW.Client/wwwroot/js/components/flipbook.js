@@ -146,10 +146,6 @@ window.openFlipbook = async function (e)
             page.render(renderContext);
         }
 
-        // Determine scale based on screen
-        const isMobile = window.innerWidth < 768;
-        const pxRatio = window.devicePixelRatio || 1.5;
-
         // Initialize PageFlip with Dynamic Scalable Sizing
         // Instead of hardcoded pixels, we calculate the optimal dimensions to fit the viewport
 
