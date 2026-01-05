@@ -176,6 +176,24 @@ window.Modals = (function() {
         };
     }
 
+    /* --- METHODOLOGY MODAL --- */
+    function initMethodologyModal() {
+        window.openMethodologyModal = function() {
+            const m = document.getElementById('methodology-modal');
+            if(m) {
+                m.classList.remove('opacity-0', 'pointer-events-none');
+                document.body.classList.add('overflow-hidden');
+            }
+        };
+        window.closeMethodologyModal = function() {
+            const m = document.getElementById('methodology-modal');
+            if(m) {
+                m.classList.add('opacity-0', 'pointer-events-none');
+                document.body.classList.remove('overflow-hidden');
+            }
+        };
+    }
+
     return {
         init: function() {
             initImageModal();

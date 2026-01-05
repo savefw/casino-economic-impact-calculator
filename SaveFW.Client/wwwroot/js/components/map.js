@@ -449,7 +449,7 @@ window.ImpactMap = (function ()
         }
     }
 
-    function highlightCountyVisuals(countyId, skipMarkerMove)
+    function preprocessPopulation(geoJSON, countyId)
     {
         const countyInfo = countyReference.find(c => c.id === countyId);
         const totalPop = countyInfo ? countyInfo.pop : 0;

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SaveFW.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ef25278b1a4440b2b9b152b3c02aafb6e1dc709")]
 [assembly: System.Reflection.AssemblyProductAttribute("SaveFW.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SaveFW.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

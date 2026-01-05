@@ -1,3 +1,5 @@
+@inject IJSRuntime JSRuntime
+
 <section class="bg-slate-50 dark:bg-[#0B1221] py-24 relative overflow-hidden" id="tribal-analysis">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -398,3 +400,13 @@
         </h2>
     </div>
 </section>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("window.initScrollReveal");
+        }
+    }
+}
