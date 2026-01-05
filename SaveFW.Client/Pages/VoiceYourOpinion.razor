@@ -1,115 +1,193 @@
-@inject IJSRuntime JSRuntime
-
-<section class="bg-slate-50 dark:bg-[#0B1221] py-24 relative" id="voice-your-opinion">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="mb-16 text-center max-w-3xl mx-auto">
-            <span class="text-emerald-600 font-bold tracking-wider uppercase text-sm">Take Action</span>
-            <h2 class="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-                MAKE YOUR VOICE <span class="text-emerald-600">HEARD</span>
-            </h2>
-            <p class="mt-4 text-xl italic text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">
-                Politicians respond to pressure. Find your representative and tell them to put Fort Wayne families
-                first.
-            </p>
-        </div>
-
-        <div
-            class="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl max-w-3xl mx-auto relative z-[100]">
-            <!-- Address Search (Geocoder) -->
-            <div class="mb-8">
-                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Enter your address to
-                    find your representatives</label>
-                <!-- Custom container for the Leaflet Geocoder -->
-                <div id="rep-geocoder-container" class="relative z-[110] w-full"></div>
-                <p id="rep-search-status" class="text-sm mt-2 text-slate-500 italic"></p>
+<!-- VOICE YOUR OPINION SECTION -->
+    <section class="bg-slate-50 dark:bg-[#0B1221] py-24 relative" id="voice-your-opinion">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mb-16 text-center max-w-3xl mx-auto">
+                <span class="text-emerald-600 font-bold tracking-wider uppercase text-sm">Take Action</span>
+                <h2 class="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+                    MAKE YOUR VOICE <span class="text-emerald-600">HEARD</span>
+                </h2>
+                <p class="mt-4 text-xl italic text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">
+                    Politicians respond to pressure. Find your representative and tell them to put Fort Wayne families
+                    first.
+                </p>
             </div>
-        </div>
 
-        <!-- Results Area (Moved Outside) -->
-        <div id="rep-results" class="hidden w-full max-w-3xl mx-auto mt-8 space-y-8">
-
-            <!-- Rep Cards -->
-            <div class="flex flex-col md:flex-row gap-4">
-                <!-- Senator Card -->
-                <div id="senator-card"
-                    class="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
-                    <div
-                        class="absolute top-0 right-0 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
-                        Senate</div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1" id="senator-name">Senator
-                        Name</h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="senator-district">District XX
-                    </p>
-                    <a href="#" id="senator-email-btn"
-                        class="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
-                        <span class="material-symbols-outlined text-lg">mail</span>
-                        Email Senator
-                    </a>
-                </div>
-
-                <!-- House Rep Card -->
-                <div id="house-card"
-                    class="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
-                    <div
-                        class="absolute top-0 right-0 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
-                        House</div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1" id="house-name">Rep Name
-                    </h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="house-district">District XX
-                    </p>
-                    <a href="#" id="house-email-btn"
-                        class="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
-                        <span class="material-symbols-outlined text-lg">mail</span>
-                        Email Representative
-                    </a>
+            <div
+                class="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl max-w-3xl mx-auto relative z-[100]">
+                <!-- Address Search (Geocoder) -->
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Enter your address to
+                        find your representatives</label>
+                    <!-- Custom container for the Leaflet Geocoder -->
+                    <div id="rep-geocoder-container" class="relative z-[110] w-full"></div>
+                    <p id="rep-search-status" class="text-sm mt-2 text-slate-500 italic"></p>
                 </div>
             </div>
 
-            <!-- Email Templates -->
-            <div>
-                <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4">
-                    Select a Message Template</h4>
-                <div class="grid gap-3">
-                    <button onclick="selectTemplate('economic')"
-                        class="text-left w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all group">
-                        <span
-                            class="font-bold text-slate-900 dark:text-white block mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">💰
-                            Economic Reality</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">"The projected
-                            revenue ignores the substitution effect and social costs. We cannot afford to
-                            bankrupt our own community..."</span>
-                    </button>
-                    <button onclick="selectTemplate('crime')"
-                        class="text-left w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all group">
-                        <span
-                            class="font-bold text-slate-900 dark:text-white block mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">🚓
-                            Crime & Safety</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">"Casinos bring
-                            increased crime, trafficking, and addiction. Do not sacrifice our safety for
-                            short-term tax revenue..."</span>
-                    </button>
-                    <button onclick="selectTemplate('referendum')"
-                        class="text-left w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all group">
-                        <span
-                            class="font-bold text-slate-900 dark:text-white block mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">🗳️
-                            Let Us Vote</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">"A decision this
-                            permanent demands a public referendum. Stop bypassing the will of the
-                            people..."</span>
-                    </button>
+            <!-- Results Area (Moved Outside) -->
+            <div id="rep-results" class="hidden w-full max-w-3xl mx-auto mt-8 space-y-8">
+
+                <!-- Rep Cards -->
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Senator Card -->
+                    <div id="senator-card"
+                        class="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
+                            Senate</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1" id="senator-name">Senator
+                            Name</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="senator-district">District XX
+                        </p>
+                        <a href="#" id="senator-email-btn"
+                            class="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
+                            <span class="material-symbols-outlined text-lg">mail</span>
+                            Email Senator
+                        </a>
+                    </div>
+
+                    <!-- House Rep Card -->
+                    <div id="house-card"
+                        class="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
+                            House</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1" id="house-name">Rep Name
+                        </h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="house-district">District XX
+                        </p>
+                        <a href="#" id="house-email-btn"
+                            class="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-500 transition-colors">
+                            <span class="material-symbols-outlined text-lg">mail</span>
+                            Email Representative
+                        </a>
+                    </div>
                 </div>
+
+                <!-- Email Templates -->
+                <div>
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4">
+                        Select a Message Template</h4>
+                    <div class="grid gap-3">
+                        <button onclick="selectTemplate('economic')"
+                            class="text-left w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all group">
+                            <span
+                                class="font-bold text-slate-900 dark:text-white block mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">💰
+                                Economic Reality</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">"The projected
+                                revenue ignores the substitution effect and social costs. We cannot afford to
+                                bankrupt our own community..."</span>
+                        </button>
+                        <button onclick="selectTemplate('crime')"
+                            class="text-left w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all group">
+                            <span
+                                class="font-bold text-slate-900 dark:text-white block mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">🚓
+                                Crime & Safety</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">"Casinos bring
+                                increased crime, trafficking, and addiction. Do not sacrifice our safety for
+                                short-term tax revenue..."</span>
+                        </button>
+                        <button onclick="selectTemplate('referendum')"
+                            class="text-left w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all group">
+                            <span
+                                class="font-bold text-slate-900 dark:text-white block mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">🗳️
+                                Let Us Vote</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">"A decision this
+                                permanent demands a public referendum. Stop bypassing the will of the
+                                people..."</span>
+                        </button>
+                    </div>
+                </div>
+
             </div>
-
         </div>
-    </div>
-</section>
+    </section>
 
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+<script>
+        let currentLegislators = { senate: null, house: null };
+        let legislatorData = null;
+
+        async function loadLegislatorData()
         {
-            await JSRuntime.InvokeVoidAsync("window.Legislators.init");
+            try
+            {
+                const response = await fetch('./data/legislators.json');
+                legislatorData = await response.json();
+            } catch (e)
+            {
+                console.error("Could not load legislator data", e);
+                legislatorData = { senate: {}, house: {} }; // Fallback
+            }
         }
-    }
-}
+
+        // Load data on init
+        loadLegislatorData();
+
+        window.updateRepCard = function (type, district)
+        {
+            // Clean district number (remove leading zeros if needed)
+            const distNum = parseInt(district).toString();
+            
+            // Map type to JSON keys
+            const dataKey = type === 'senate' ? 'state_senate' : 'state_house';
+            
+            // Map type to DOM ID prefix (senate -> senator, house -> house)
+            const domPrefix = type === 'senate' ? 'senator' : type;
+
+            // Look up name
+            let name = "Unknown";
+            let email = "";
+
+            if (legislatorData && legislatorData[dataKey] && legislatorData[dataKey][distNum])
+            {
+                const rep = legislatorData[dataKey][distNum];
+                name = rep.name + " (" + rep.party + ")";
+                email = rep.email;
+            } else
+            {
+                // Construct default
+                name = `District ${distNum} Representative`;
+                email = `${type === 'senate' ? 's' : 'h'}${distNum}@@iga.in.gov`;
+            }
+
+            // Store for template use
+            currentLegislators[type] = { name, email, district: distNum };
+
+            // Update DOM
+            const nameEl = document.getElementById(`${domPrefix}-name`);
+            const distEl = document.getElementById(`${domPrefix}-district`);
+            const emailBtn = document.getElementById(`${domPrefix}-email-btn`);
+
+            if (nameEl) nameEl.textContent = name;
+            if (distEl) distEl.textContent = `District ${distNum}`;
+            if (emailBtn) emailBtn.href = `mailto:${email}`;
+        };
+
+        function selectTemplate(topic)
+        {
+            if (!currentLegislators.senate && !currentLegislators.house)
+            {
+                alert("Please find your representatives first.");
+                return;
+            }
+
+            const subject = "Vote NO on the Casino - Protect Our Community";
+            let body = "";
+
+            if (topic === 'economic')
+            {
+                body = `Dear Representative,\n\nI am writing to urge you to OPPOSE the proposed casino expansion in Fort Wayne. The economic promises ignore the 'Substitution Effect'—money spent at the casino is money diverted from existing local businesses. We cannot afford a project that extracts wealth from our community and leaves us with the social costs of bankruptcy and addiction.\n\nPlease protect our local economy and vote NO.`;
+            } else if (topic === 'crime')
+            {
+                body = `Dear Representative,\n\nI am deeply concerned about the public safety risks associated with the proposed casino. Statistics show that casinos bring increased crime, human trafficking, and domestic violence to host communities. Fort Wayne families deserve safe neighborhoods, not a hub for predatory gambling.\n\nPlease prioritize our safety and vote NO.`;
+            } else if (topic === 'referendum')
+            {
+                body = `Dear Representative,\n\nI believe that a decision with such permanent consequences for Fort Wayne requires a public referendum. Bypassing the voters on an issue that fundamentally changes our city's character is unacceptable.\n\nPlease demand a public vote or vote NO on the casino measure.`;
+            }
+
+            // Construct mailto for both (or let user pick - simple version opens one mailto with both in BCC or To)
+            const emails = [currentLegislators.senate?.email, currentLegislators.house?.email].filter(Boolean).join(',');
+
+            window.location.href = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+    </script>

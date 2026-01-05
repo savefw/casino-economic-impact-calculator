@@ -13,204 +13,301 @@
             distribution across the three impact tiers (High, Elevated, and Baseline Risk) shown in the
             cards below, which in turn updates the Net Impact Analysis.
         </p>
+        <p class="text-slate-400 dark:text-slate-400 leading-relaxed border-t border-slate-700 pt-4 mb-8">
+            Furthermore, in an effort to encourage community involvement and transparency, the entirety of
+            this Economic Impact Calculator has been published on <a
+                href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank"
+                class="underline hover:text-blue-500 font-bold transition-colors">Github</a>.
+            We specifically invite developers, data scientists, and researchers to improve the economic
+            impact calculator, enhance data visualizations, as well as assist in the auditing and updating
+            of latest research sources.
+        </p>
 
         <!-- Tiered Risk Controls -->
         <div class="mb-8 rounded-2xl p-6">
+            <!-- Impacted County Display -->
             <div class="mb-6 pb-4 relative z-[150]">
-                <button onclick="window.openMethodologyModal()"
-                    class="w-full mb-6 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-orange-500/20 border border-orange-400/30 flex items-center justify-between group transition-all transform active:scale-95">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white/20 p-2 rounded-lg">
-                            <span class="material-symbols-outlined text-white">science</span>
-                        </div>
-                        <div class="text-left">
-                            <div class="uppercase tracking-wide text-xs font-bold text-orange-100 mb-0.5">Scientific Basis</div>
-                            <div class="text-lg leading-none">View Methodology</div>
-                        </div>
-                    </div>
-                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                <!-- Methodology Button -->
+                <button onclick="openMethodologyModal()"
+                    class="w-full mb-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all active:scale-95">
+                    <span class="material-symbols-outlined">science</span>
+                    View Methodology
                 </button>
 
-                <label class="text-base font-bold text-slate-300 mb-2 block">Assessed County</label>
+                <label class="text-base font-bold text-slate-300 mb-2 block">Assessed
+                    County</label>
 
+                <!-- Relocated County Selector -->
                 <div class="relative">
-                    <select id="input-county" class="hidden"></select>
+                    <select id="input-county" class="hidden">
+                        <!-- Options populated by JS -->
+                    </select>
+
                     <button id="county-trigger"
                         class="w-full bg-slate-700 border border-slate-500 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group">
                         <span class="font-medium flex items-center gap-2">
-                            <span class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors">location_on</span>
+                            <span
+                                class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors">location_on</span>
                             <span id="county-display">Allen (385,410)</span>
                         </span>
-                        <span class="material-symbols-outlined text-slate-400 group-focus:rotate-180 transition-transform duration-300">expand_more</span>
+                        <span
+                            class="material-symbols-outlined text-slate-400 group-focus:rotate-180 transition-transform duration-300">expand_more</span>
                     </button>
-                    <div id="county-menu" class="hidden absolute top-full left-0 w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden transform origin-top transition-all duration-200 opacity-0 scale-95 z-[200]">
-                        <div class="p-3 border-b border-slate-700">
+
+                    <div id="county-menu"
+                        class="hidden absolute top-full left-0 w-full mt-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden transform origin-top transition-all duration-200 opacity-0 scale-95 z-[200]">
+                        <div class="p-3 border-b border-slate-200 dark:border-slate-700">
                             <div class="relative">
-                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-                                <input type="text" id="county-search" placeholder="Search counties..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+                                <input type="text" id="county-search" placeholder="Search counties..."
+                                    class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400 dark:placeholder-slate-500">
                             </div>
                         </div>
-                        <div id="county-options" class="max-h-60 overflow-y-auto"></div>
+                        <div id="county-options"
+                            class="max-h-60 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent">
+                            <!-- Populated by JS -->
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- THE MISSING SLIDER SECTION -->
+            <!-- Problem Gambling Slider -->
             <div class="flex justify-between items-end mb-4">
                 <div class="flex items-center gap-1.5">
-                    <label class="text-base font-bold text-slate-300">Baseline Problem Gambling Increase</label>
+                    <label class="text-base font-bold text-slate-300">Baseline Problem Gambling
+                        Increase</label>
                     <div class="group relative flex items-center">
-                        <span class="material-symbols-outlined text-slate-400 text-[16px] cursor-help hover:text-blue-500 transition-colors">info</span>
-                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                            The baseline increase in problem gambling prevalence for the general population (>20 miles).
+                        <span
+                            class="material-symbols-outlined text-slate-400 text-[16px] cursor-help hover:text-blue-500 transition-colors">info</span>
+                        <div
+                            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            The baseline increase in problem gambling prevalence for the general population (>20
+                            miles).
                         </div>
                     </div>
                 </div>
                 <span class="text-white font-bold font-mono text-xl" id="val-rate">2.3%</span>
             </div>
 
-                    <div class="relative w-full group flex items-center mb-20">
-                        @{
-                            double GetLeft(double val) => ((val - 0.1) / 5.9) * 100.0;
+            <div class="relative w-full group flex items-center mb-20">
+                @{
+                    double GetLeft(double val) => ((val - 0.1) / 5.9) * 100.0;
+                }
+                <!-- Radio: 2.3% -->
+                <input type="radio" name="gambling-rate-preset" value="2.3"
+                    class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                    style="left: @GetLeft(2.3)%">
+
+                <!-- Radio: 3.0% -->
+                <input type="radio" name="gambling-rate-preset" value="3.0"
+                    class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                    style="left: @GetLeft(3.0)%">
+
+                <!-- Radio: 5.5% -->
+                <input type="radio" name="gambling-rate-preset" value="5.5"
+                    class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
+                    style="left: @GetLeft(5.5)%">
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', () =>
+                    {
+                        const slider = document.getElementById('input-rate');
+                        const radios = document.querySelectorAll('input[name="gambling-rate-preset"]');
+
+                        // Initial sync
+                        if (slider && radios.length) {
+                          radios.forEach(r => r.checked = (r.value === slider.value));
+
+                          slider.addEventListener('input', (e) =>
+                          {
+                              radios.forEach(r => r.checked = (r.value === e.target.value));
+                          });
                         }
-                        <!-- Radio: 2.3% -->
-                        <input type="radio" name="gambling-rate-preset" value="2.3"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
-                            style="left: @GetLeft(2.3)%">
+                    });
+                </script>
 
-                        <!-- Radio: 3.0% -->
-                        <input type="radio" name="gambling-rate-preset" value="3.0"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
-                            style="left: @GetLeft(3.0)%">
-
-                        <!-- Radio: 5.5% -->
-                        <input type="radio" name="gambling-rate-preset" value="5.5"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 w-4 h-4 appearance-none rounded-full border-2 border-slate-400 bg-slate-900 checked:bg-[radial-gradient(circle,_#fff_35%,_#f97316_40%)] checked:border-orange-500 pointer-events-none transition-all group-hover:scale-110"
-                            style="left: @GetLeft(5.5)%">
-
-                        <script>
-                            document.addEventListener('DOMContentLoaded', () =>
-                            {
-                                const slider = document.getElementById('input-rate');
-                                const radios = document.querySelectorAll('input[name="gambling-rate-preset"]');
-
-                                // Initial sync
-                                if (slider && radios.length) {
-                                  radios.forEach(r => r.checked = (r.value === slider.value));
-
-                                  slider.addEventListener('input', (e) =>
-                                  {
-                                      radios.forEach(r => r.checked = (r.value === e.target.value));
-                                  });
-                                }
-                            });
-                        </script>
-
-                        <input type="range" min="0.1" max="6.0" step="0.1" value="2.3" data-default="2.3"
-                            id="input-rate"
-                            class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500 relative z-20">
-                        <!-- Diagnosed Label -->
-                        <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
-                            style="left: @GetLeft(2.3)%">
-                            <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                            <div class="relative pointer-events-auto">
-                                <div
-                                    class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                                    <span>Diagnosed</span>
-                                    <span class="material-symbols-outlined text-[12px]">info</span>
-                                </div>
-                                <div
-                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
-                                    Hoosiers meeting clinical criteria for Gambling Disorder (2023).
-                                </div>
-                            </div>
+                <input type="range" min="0.1" max="6.0" step="0.1" value="2.3" data-default="2.3"
+                    id="input-rate"
+                    class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500 relative z-20">
+                <!-- Diagnosed Label -->
+                <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
+                    style="left: @GetLeft(2.3)%">
+                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                    <div class="relative pointer-events-auto">
+                        <div
+                            class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                            <span>Diagnosed</span>
+                            <span class="material-symbols-outlined text-[12px]">info</span>
                         </div>
-
-                        <!-- Problem Label -->
-                        <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
-                            style="left: @GetLeft(3.0)%">
-                            <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                            <div class="relative pointer-events-auto">
-                                <div
-                                    class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                                    <span>Problem</span>
-                                    <span class="material-symbols-outlined text-[12px]">info</span>
-                                </div>
-                                <div
-                                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
-                                    Self-reported "problems with gambling" in state surveys.
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- At-Risk Label -->
-                        <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
-                            style="left: @GetLeft(5.5)%">
-                            <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
-                            <div class="relative pointer-events-auto">
-                                <div
-                                    class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                                    <span>At-Risk</span>
-                                    <span class="material-symbols-outlined text-[12px]">info</span>
-                                </div>
-                                <div
-                                    class="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
-                                    Broader Combined At-Risk & Problem Rate (National Average).
-                                </div>
-                            </div>
+                        <div
+                            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            Hoosiers meeting clinical criteria for Gambling Disorder (2023).
                         </div>
                     </div>
+                </div>
+
+                <!-- Problem Label -->
+                <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
+                    style="left: @GetLeft(3.0)%">
+                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                    <div class="relative pointer-events-auto">
+                        <div
+                            class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                            <span>Problem</span>
+                            <span class="material-symbols-outlined text-[12px]">info</span>
+                        </div>
+                        <div
+                            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-800 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            Self-reported "problems with gambling" in state surveys.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- At-Risk Label -->
+                <div class="absolute top-1/2 -translate-x-1/2 flex flex-col items-center group/lbl z-50 pointer-events-none"
+                    style="left: @GetLeft(5.5)%">
+                    <div class="h-10 w-px bg-slate-500/50 mb-1"></div>
+                    <div class="relative pointer-events-auto">
+                        <div
+                            class="flex items-center gap-1 cursor-help hover:text-orange-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                            <span>At-Risk</span>
+                            <span class="material-symbols-outlined text-[12px]">info</span>
+                        </div>
+                        <div
+                            class="absolute bottom-full right-0 mb-2 w-48 p-2 bg-slate-800 text-white text-[9px] leading-tight rounded border border-slate-600 opacity-0 group-hover/lbl:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            Broader Combined At-Risk & Problem Rate (National Average).
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- END SLIDER SECTION -->
 
             <!-- Map Container -->
             <div class="relative w-full h-[600px] mb-6 rounded-2xl overflow-hidden group">
-                <div id="map-search-container" class="absolute top-4 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4"></div>
+                <div id="map-search-container"
+                    class="absolute top-4 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4"></div>
+                <!-- Map Zoom Hint Overlay -->
+                <div id="map-zoom-hint"
+                    class="absolute inset-0 z-[100] bg-black/50 flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none backdrop-blur-sm">
+                    <div class="bg-black/80 text-white px-4 py-2 rounded-lg font-bold shadow-xl">
+                        Use CTRL + Scroll to Zoom
+                    </div>
+                </div>
+
                 <div id="impact-map" class="w-full h-full z-0 transition-all duration-500"></div>
+
+                <!-- Map Overlay Panel (Layers) -->
+                <div id="map-overlay-panel"
+                    class="absolute top-4 left-4 z-[80] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-4 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-64 transform transition-transform duration-300 -translate-x-[120%]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-wide">Map
+                            Layers</h4>
+                        <button onclick="toggleMapOverlay()"
+                            class="text-slate-500 hover:text-slate-700 dark:hover:text-white">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="layer-zones" checked onchange="toggleLayer('zones')"
+                                class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                            <span
+                                class="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Impact
+                                Zones</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="layer-heatmap" onchange="toggleLayer('heatmap')"
+                                class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                            <span
+                                class="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Population
+                                Heatmap</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="layer-streets" onchange="toggleLayer('streets')"
+                                class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                            <span
+                                class="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Street
+                                View</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Toggle Overlay Button -->
+                <button onclick="toggleMapOverlay()"
+                    class="absolute top-4 left-4 z-[70] bg-white dark:bg-slate-800 p-2 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">layers</span>
+                </button>
             </div>
 
             <!-- Impact Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-4">
-                <div class="p-4 bg-blue-900/20 rounded-xl border border-blue-800 relative overflow-hidden group flex flex-col">
-                    <div class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">2.0x Risk</div>
+                <div
+                    class="p-4 bg-blue-900/20 rounded-xl border border-blue-800 relative overflow-hidden group flex flex-col">
+                    <div
+                        class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                        2.0x Risk</div>
                     <div class="flex-1">
-                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles (High Risk)</div>
+                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles
+                            (High Risk)</div>
                         <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
                         <div class="text-xs text-slate-500 mb-3">Population</div>
                     </div>
                     <div class="bg-black/20 rounded-lg p-2 border border-blue-900/30">
-                        <div class="flex justify-between items-center text-xs mb-1"><span class="text-white">Rate:</span><span class="font-mono font-bold text-white" id="rate-t1">-</span></div>
-                        <div class="flex justify-between items-center border-t border-blue-800 pt-1"><span class="text-white font-bold uppercase text-[10px]">New Addicts</span><span class="font-mono font-black text-white text-sm" id="victims-t1">-</span></div>
+                        <div class="flex justify-between items-center text-xs mb-1"><span
+                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
+                                id="rate-t1">-</span></div>
+                        <div class="flex justify-between items-center border-t border-blue-800 pt-1"><span
+                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
+                                class="font-mono font-black text-white text-sm" id="victims-t1">-</span></div>
                     </div>
                 </div>
-                <div class="p-4 bg-red-900/20 rounded-xl border border-red-800 relative overflow-hidden group flex flex-col">
-                    <div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">1.5x Risk</div>
+                <div
+                    class="p-4 bg-red-900/20 rounded-xl border border-red-800 relative overflow-hidden group flex flex-col">
+                    <div
+                        class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                        1.5x Risk</div>
                     <div class="flex-1">
-                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles (Elevated)</div>
+                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
+                            (Elevated)</div>
                         <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
                         <div class="text-xs text-slate-500 mb-3">Population</div>
                     </div>
                     <div class="bg-black/20 rounded-lg p-2 border border-red-900/30">
-                        <div class="flex justify-between items-center text-xs mb-1"><span class="text-white">Rate:</span><span class="font-mono font-bold text-white" id="rate-t2">-</span></div>
-                        <div class="flex justify-between items-center border-t border-red-800 pt-1"><span class="text-white font-bold uppercase text-[10px]">New Addicts</span><span class="font-mono font-black text-white text-sm" id="victims-t2">-</span></div>
+                        <div class="flex justify-between items-center text-xs mb-1"><span
+                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
+                                id="rate-t2">-</span></div>
+                        <div class="flex justify-between items-center border-t border-red-800 pt-1"><span
+                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
+                                class="font-mono font-black text-white text-sm" id="victims-t2">-</span></div>
                     </div>
                 </div>
-                <div class="p-4 bg-orange-900/20 rounded-xl border border-orange-800 relative overflow-hidden group flex flex-col">
-                    <div class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">1.0x Risk</div>
+                <div
+                    class="p-4 bg-orange-900/20 rounded-xl border border-orange-800 relative overflow-hidden group flex flex-col">
+                    <div
+                        class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                        1.0x Risk</div>
                     <div class="flex-1">
-                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">>20 Miles (Baseline)</div>
+                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">>20 Miles
+                            (Baseline)</div>
                         <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
                         <div class="text-xs text-slate-500 mb-3" id="label-t3">Population</div>
                     </div>
                     <div class="bg-black/20 rounded-lg p-2 border border-orange-800">
-                        <div class="flex justify-between items-center text-xs mb-1"><span class="text-white">Rate:</span><span class="font-mono font-bold text-white" id="rate-t3">-</span></div>
-                        <div class="flex justify-between items-center border-t border-orange-600 pt-1"><span class="text-white font-bold uppercase text-[10px]">New Addicts</span><span class="font-mono font-black text-white text-sm" id="victims-t3">-</span></div>
+                        <div class="flex justify-between items-center text-xs mb-1"><span
+                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
+                                id="rate-t3">-</span></div>
+                        <div class="flex justify-between items-center border-t border-orange-600 pt-1"><span
+                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
+                                class="font-mono font-black text-white text-sm" id="victims-t3">-</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- Total Summary -->
             <!-- Total Impact Summary -->
-            <div class="bg-slate-900/50 text-white rounded-xl p-4 shadow-lg border border-slate-600 flex flex-col gap-0">
+            <div
+                class="bg-slate-900/50 text-white rounded-xl p-4 shadow-lg border border-slate-600 flex flex-col gap-0">
 
                 <!-- 1. County Population -->
                 <div class="flex flex-col sm:flex-row items-center justify-between py-1">
@@ -260,7 +357,8 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <div class="text-2xl font-black font-mono text-white leading-none mb-1" id="total-gamblers">
+                        <div class="text-2xl font-black font-mono text-white leading-none mb-1"
+                            id="total-gamblers">
                             -
                         </div>
                     </div>
