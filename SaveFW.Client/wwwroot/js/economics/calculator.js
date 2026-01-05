@@ -1,111 +1,99 @@
 window.EconomicCalculator = (function ()
 {
-    const countyData = [
-        { id: "001", name: "Adams", pop: 35809 },
-        { id: "003", name: "Allen", pop: 385410 },
-        { id: "005", name: "Bartholomew", pop: 82208 },
-        { id: "007", name: "Benton", pop: 8719 },
-        { id: "009", name: "Blackford", pop: 12112 },
-        { id: "011", name: "Boone", pop: 70812 },
-        { id: "013", name: "Brown", pop: 15475 },
-        { id: "015", name: "Carroll", pop: 20306 },
-        { id: "017", name: "Cass", pop: 37870 },
-        { id: "019", name: "Clark", pop: 121093 },
-        { id: "021", name: "Clay", pop: 26466 },
-        { id: "023", name: "Clinton", pop: 33190 },
-        { id: "025", name: "Crawford", pop: 10526 },
-        { id: "027", name: "Daviess", pop: 33381 },
-        { id: "029", name: "Dearborn", pop: 50679 },
-        { id: "031", name: "Decatur", pop: 26472 },
-        { id: "033", name: "DeKalb", pop: 43265 },
-        { id: "035", name: "Delaware", pop: 111903 },
-        { id: "037", name: "Dubois", pop: 43637 },
-        { id: "039", name: "Elkhart", pop: 207047 },
-        { id: "041", name: "Fayette", pop: 23398 },
-        { id: "043", name: "Floyd", pop: 80484 },
-        { id: "045", name: "Fountain", pop: 16479 },
-        { id: "047", name: "Franklin", pop: 22785 },
-        { id: "049", name: "Fulton", pop: 20480 },
-        { id: "051", name: "Gibson", pop: 33011 },
-        { id: "053", name: "Grant", pop: 66674 },
-        { id: "055", name: "Greene", pop: 30803 },
-        { id: "057", name: "Hamilton", pop: 347467 },
-        { id: "059", name: "Hancock", pop: 79840 },
-        { id: "061", name: "Harrison", pop: 39654 },
-        { id: "063", name: "Hendricks", pop: 174788 },
-        { id: "065", name: "Henry", pop: 48914 },
-        { id: "067", name: "Howard", pop: 82544 },
-        { id: "069", name: "Huntington", pop: 36662 },
-        { id: "071", name: "Jackson", pop: 46428 },
-        { id: "073", name: "Jasper", pop: 32918 },
-        { id: "075", name: "Jay", pop: 20478 },
-        { id: "077", name: "Jefferson", pop: 33147 },
-        { id: "079", name: "Jennings", pop: 27613 },
-        { id: "081", name: "Johnson", pop: 161765 },
-        { id: "083", name: "Knox", pop: 36282 },
-        { id: "085", name: "Kosciusko", pop: 80240 },
-        { id: "087", name: "LaGrange", pop: 40446 },
-        { id: "089", name: "Lake", pop: 498700 },
-        { id: "091", name: "LaPorte", pop: 112417 },
-        { id: "093", name: "Lawrence", pop: 45011 },
-        { id: "095", name: "Madison", pop: 130129 },
-        { id: "097", name: "Marion", pop: 977203 },
-        { id: "099", name: "Marshall", pop: 46095 },
-        { id: "101", name: "Martin", pop: 9812 },
-        { id: "103", name: "Miami", pop: 35962 },
-        { id: "105", name: "Monroe", pop: 139718 },
-        { id: "107", name: "Montgomery", pop: 37936 },
-        { id: "109", name: "Morgan", pop: 71780 },
-        { id: "111", name: "Newton", pop: 13830 },
-        { id: "113", name: "Noble", pop: 47457 },
-        { id: "115", name: "Ohio", pop: 5940 },
-        { id: "117", name: "Orange", pop: 19867 },
-        { id: "119", name: "Owen", pop: 21321 },
-        { id: "121", name: "Parke", pop: 16156 },
-        { id: "123", name: "Perry", pop: 19170 },
-        { id: "125", name: "Pike", pop: 12250 },
-        { id: "127", name: "Porter", pop: 173215 },
-        { id: "129", name: "Posey", pop: 25222 },
-        { id: "131", name: "Pulaski", pop: 12514 },
-        { id: "133", name: "Putnam", pop: 36726 },
-        { id: "135", name: "Randolph", pop: 24502 },
-        { id: "137", name: "Ripley", pop: 28995 },
-        { id: "139", name: "Rush", pop: 16752 },
-        { id: "141", name: "St. Joseph", pop: 272912 },
-        { id: "143", name: "Scott", pop: 24384 },
-        { id: "145", name: "Shelby", pop: 45055 },
-        { id: "147", name: "Spencer", pop: 19810 },
-        { id: "149", name: "Starke", pop: 23371 },
-        { id: "151", name: "Steuben", pop: 34435 },
-        { id: "153", name: "Sullivan", pop: 20817 },
-        { id: "155", name: "Switzerland", pop: 9737 },
-        { id: "157", name: "Tippecanoe", pop: 186251 },
-        { id: "159", name: "Tipton", pop: 15359 },
-        { id: "161", name: "Union", pop: 7087 },
-        { id: "163", name: "Vanderburgh", pop: 180136 },
-        { id: "165", name: "Vermillion", pop: 15439 },
-        { id: "167", name: "Vigo", pop: 106153 },
-        { id: "169", name: "Wabash", pop: 30976 },
-        { id: "171", name: "Warren", pop: 8440 },
-        { id: "173", name: "Warrick", pop: 63898 },
-        { id: "175", name: "Washington", pop: 28182 },
-        { id: "177", name: "Wayne", pop: 66553 },
-        { id: "179", name: "Wells", pop: 28180 },
-        { id: "181", name: "White", pop: 24688 },
-        { id: "183", name: "Whitley", pop: 34191 }
-    ];
+    // Track initialization state
+    let isInitialized = false;
+
+    // County reference data is loaded from shared module: js/data/indiana-counties.js
+    // Access via window.IndianaCounties (getter function for lazy access)
+    const getCountyData = () => window.IndianaCounties || [];
 
     let currentPop = 385410; // Default Allen
 
-    // Declare els globally (for this module) so init can populate it
+    // DOM element references - populated by init()
     let els = {};
 
+    // Populate DOM element references - called during init()
+    function initElements()
+    {
+        els = {
+            inCounty: document.getElementById('input-county'),
+            inRevenue: document.getElementById('input-revenue'),
+            inAGR: document.getElementById('input-agr'),
+            inRate: document.getElementById('input-rate'),
+            inAllocation: document.getElementById('input-allocation'),
+
+            // Cost Inputs
+            inCostCrime: document.getElementById('input-cost-crime'),
+            inCostBusiness: document.getElementById('input-cost-business'),
+            inCostBankruptcy: document.getElementById('input-cost-bankruptcy'),
+            inCostIllness: document.getElementById('input-cost-illness'),
+            inCostServices: document.getElementById('input-cost-services'),
+            inCostAbused: document.getElementById('input-cost-abused'),
+
+            // Allocation Visuals
+            allocBarHuman: document.getElementById('alloc-bar-human'),
+            allocBarTaxpayer: document.getElementById('alloc-bar-taxpayer'),
+            allocTextHuman: document.getElementById('alloc-text-human'),
+            allocTextTaxpayer: document.getElementById('alloc-text-taxpayer'),
+
+            valRevenue: document.getElementById('val-revenue'),
+            valAGR: document.getElementById('val-agr'),
+            valEffectiveRate: document.getElementById('val-effective-rate'),
+            valRate: document.getElementById('val-rate'),
+
+            // Value Displays
+            valCostTotal: document.getElementById('val-cost-total'),
+            valCostCrime: document.getElementById('val-cost-crime'),
+            valCostBusiness: document.getElementById('val-cost-business'),
+            valCostBankruptcy: document.getElementById('val-cost-bankruptcy'),
+            valCostIllness: document.getElementById('val-cost-illness'),
+            valCostServices: document.getElementById('val-cost-services'),
+            valCostAbused: document.getElementById('val-cost-abused'),
+            resVictims: document.getElementById('res-victims'),
+            resTotalCost: document.getElementById('res-total-cost'),
+            resDeficit: document.getElementById('res-deficit'),
+            resResultLabel: document.getElementById('res-result-label'),
+            resEqRevenue: document.getElementById('res-eq-revenue'),
+            resEqCost: document.getElementById('res-eq-cost'),
+            resBar: document.getElementById('res-bar'),
+            resFooter: document.getElementById('res-footer'),
+            deficitTitle: document.getElementById('deficit-title'),
+
+            // Calculation Breakdown 1
+            calcPop: document.getElementById('calc-pop'),
+            calcRate: document.getElementById('calc-rate'),
+            calcResult: document.getElementById('calc-result'),
+
+            // Calculation Breakdowns
+            calcAGR: document.getElementById('calc-agr'),
+            calcTaxRate: document.getElementById('calc-tax-rate'),
+            calcTaxTotal: document.getElementById('calc-tax-total'),
+
+            // Split Allocation Elements
+            calcRevTotalH: document.getElementById('calc-rev-total-h'),
+            calcAllocPctH: document.getElementById('calc-alloc-pct-h'),
+            calcAllocHumanVal: document.getElementById('calc-alloc-human-val'),
+
+            calcRevTotalG: document.getElementById('calc-rev-total-g'),
+            calcAllocPctG: document.getElementById('calc-alloc-pct-g'),
+            calcAllocGenVal: document.getElementById('calc-alloc-gen-val'),
+
+            // Detailed Breakdown Elements
+            calcBreakHealthVictims: document.getElementById('calc-break-health-victims'),
+            calcBreakSocialVictims: document.getElementById('calc-break-social-victims'),
+            calcBreakCrimeVictims: document.getElementById('calc-break-crime-victims'),
+            calcBreakLegalVictims: document.getElementById('calc-break-legal-victims'),
+            calcBreakEconVictims: document.getElementById('calc-break-econ-victims'),
+            calcBreakTotalVictims: document.getElementById('calc-break-total-victims')
+        };
+    }
+
+    // Init Counties
     function initCounties()
     {
-        if (!els.inCounty) return;
         // 1. Populate Native Select (Hidden)
         els.inCounty.innerHTML = ''; // Clear
-        countyData.forEach(c =>
+        getCountyData().forEach(c =>
         {
             const opt = document.createElement('option');
             opt.value = c.pop;
@@ -115,13 +103,13 @@ window.EconomicCalculator = (function ()
         });
 
         // 2. Init Custom UI
-        renderCustomOptions(countyData); // Initial Render
+        renderCustomOptions(getCountyData()); // Initial Render
     }
 
+    // Render Custom Options Function
     function renderCustomOptions(data)
     {
         const container = document.getElementById('county-options');
-        if (!container) return;
         container.innerHTML = '';
 
         if (data.length === 0)
@@ -135,9 +123,9 @@ window.EconomicCalculator = (function ()
             const div = document.createElement('div');
             div.className = "px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors flex items-center justify-between group";
             div.innerHTML = `
-                <span class="font-medium">${c.name}</span>
-                <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${c.pop.toLocaleString()}</span>
-            `;
+                                        <span class="font-medium">${c.name}</span>
+                                        <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${c.pop.toLocaleString()}</span>
+                                    `;
             div.onclick = () =>
             {
                 selectCounty(c.name, c.pop);
@@ -146,15 +134,14 @@ window.EconomicCalculator = (function ()
         });
     }
 
+    // Select County Helper
     function selectCounty(name, pop)
     {
-        if (!els.inCounty) return;
         // 1. Update Native Select
         els.inCounty.value = pop;
 
         // 2. Update Display
-        const disp = document.getElementById('county-display');
-        if (disp) disp.textContent = `${name} (${pop.toLocaleString()})`;
+        document.getElementById('county-display').textContent = `${name} (${pop.toLocaleString()})`;
 
         // 3. Trigger Calculation
         els.inCounty.dispatchEvent(new Event('change'));
@@ -163,18 +150,20 @@ window.EconomicCalculator = (function ()
         toggleMenu(false);
     }
 
+    // Menu Logic - elements populated by initMenuLogic()
+    let trigger = null;
+    let menu = null;
+    let searchInput = null;
     let isOpen = false;
 
     function toggleMenu(show)
     {
-        const menu = document.getElementById('county-menu');
-        const searchInput = document.getElementById('county-search');
         if (!menu || !searchInput) return;
-
         isOpen = show;
         if (show)
         {
             menu.classList.remove('hidden');
+            // Small delay to allow display:block to apply before transition
             requestAnimationFrame(() =>
             {
                 menu.classList.remove('opacity-0', 'scale-95');
@@ -189,21 +178,66 @@ window.EconomicCalculator = (function ()
             {
                 menu.classList.add('hidden');
                 searchInput.value = ''; // Reset search
-                renderCustomOptions(countyData); // Reset list
-            }, 200);
+                renderCustomOptions(getCountyData()); // Reset list
+            }, 200); // Match duration
         }
     }
 
+    // Initialize menu logic - called during init()
+    function initMenuLogic()
+    {
+        trigger = document.getElementById('county-trigger');
+        menu = document.getElementById('county-menu');
+        searchInput = document.getElementById('county-search');
+
+        if (trigger)
+        {
+            trigger.onclick = (e) =>
+            {
+                e.preventDefault(); // Prevent form submission if in form
+                toggleMenu(!isOpen);
+            };
+        }
+
+        if (searchInput)
+        {
+            // Search Logic
+            searchInput.oninput = (e) =>
+            {
+                const term = e.target.value.toLowerCase();
+                const filtered = getCountyData().filter(c => c.name.toLowerCase().includes(term));
+                renderCustomOptions(filtered);
+            };
+        }
+
+        // Click Outside to Close
+        document.addEventListener('click', (e) =>
+        {
+            if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target) && isOpen)
+            {
+                toggleMenu(false);
+            }
+        });
+    }
+
+
     function calculateTax(agr)
     {
+        // Step A: Supplemental Tax
         let supplementalTax = agr * 0.035;
+
+        // Step B: Determine Base Rate
         let baseRate = (agr < 75000000) ? 0.05 : 0.15;
+
+        // Step C: Free Play Deduction
         let taxableAGR = Math.max(0, agr - 7000000);
         let freePlayDeduction = (agr > 7000000) ? 7000000 : agr;
 
+        // Step D: Apply Brackets to Taxable_AGR
         let bracketTax = 0;
         let breakdown = [];
 
+        // Format helper
         const fmtM = (v) => '$' + (v / 1000000).toFixed(1) + 'MM';
         const fmt = (v) => '$' + v.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
@@ -257,9 +291,11 @@ window.EconomicCalculator = (function ()
         let totalTax = supplementalTax + bracketTax;
         breakdown.push({ label: "TOTAL ESTIMATED TAX", val: fmt(totalTax), note: "", type: 'total' });
 
+        // Effective Rate
         const effRate = agr > 0 ? (totalTax / agr) * 100 : 0;
         breakdown.push({ label: "Effective Tax Rate of AGR", val: effRate.toFixed(2) + '%', note: "", type: 'eff-rate' });
 
+        // Step E: Total
         return { total: totalTax, breakdown: breakdown };
     }
 
@@ -277,7 +313,7 @@ window.EconomicCalculator = (function ()
             const tax = res.total;
 
             if (Math.abs(tax - targetTax) < 100)
-            {
+            { // Precision $100
                 return mid;
             }
 
@@ -295,12 +331,12 @@ window.EconomicCalculator = (function ()
 
     function calculate(e)
     {
-        if (!els.inCounty) return;
-
+        // Update Title
         const selectedOption = els.inCounty.options[els.inCounty.selectedIndex];
-        const countyName = selectedOption ? selectedOption.text.split(' (')[0] : "Selected";
-        if (els.deficitTitle) els.deficitTitle.innerHTML = `<span class="material-symbols-outlined text-red-500 align-middle mr-2">calculate</span> ${countyName} County Casino Net Economic Impact Analysis`;
+        const countyName = selectedOption.text.split(' (')[0];
+        els.deficitTitle.innerHTML = `<span class="material-symbols-outlined text-red-500 align-middle mr-2">calculate</span> ${countyName} County Casino Net Economic Impact Analysis`;
 
+        // 1. Two-Way Binding Logic (AGR vs Revenue)
         const source = e ? e.target : null;
         let revenueM = 0;
         let agrM = 0;
@@ -308,52 +344,51 @@ window.EconomicCalculator = (function ()
 
         if (source === els.inAGR)
         {
+            // Master: AGR
             agrM = parseFloat(els.inAGR.value);
             taxResult = calculateTax(agrM * 1000000);
             revenueM = taxResult.total / 1000000;
 
-            if (els.inRevenue)
-            {
-                els.inRevenue.value = revenueM.toFixed(2);
-                els.inRevenue.dispatchEvent(new Event('slider-update'));
-            }
+            // Update Revenue Slider (Snap disabled for calculated updates)
+            els.inRevenue.value = revenueM.toFixed(2);
+            els.inRevenue.dispatchEvent(new Event('slider-update'));
         } else if (source === els.inRevenue)
         {
+            // Master: Revenue
             revenueM = parseFloat(els.inRevenue.value);
             const targetTax = revenueM * 1000000;
             const agr = calculateAGRFromTax(targetTax);
             agrM = agr / 1000000;
-            taxResult = calculateTax(agr);
+            taxResult = calculateTax(agr); // Recalculate for breakdown
 
-            if (els.inAGR)
-            {
-                els.inAGR.value = agrM.toFixed(1);
-                els.inAGR.dispatchEvent(new Event('slider-update'));
-            }
+            // Update AGR Slider
+            els.inAGR.value = agrM.toFixed(1);
+            els.inAGR.dispatchEvent(new Event('slider-update'));
         } else
         {
-            if (els.inRevenue)
+            // Init or other inputs: Default to Revenue as Master (e.g. 27.5M)
+            // If this is init, inRevenue has 27.5.
+            revenueM = parseFloat(els.inRevenue.value);
+            const targetTax = revenueM * 1000000;
+            const agr = calculateAGRFromTax(targetTax);
+            agrM = agr / 1000000;
+            taxResult = calculateTax(agr); // Recalculate for breakdown
+            if (!source)
             {
-                revenueM = parseFloat(els.inRevenue.value);
-                const targetTax = revenueM * 1000000;
-                const agr = calculateAGRFromTax(targetTax);
-                agrM = agr / 1000000;
-                taxResult = calculateTax(agr);
-                if (!source && els.inAGR)
-                {
-                    els.inAGR.value = agrM.toFixed(1);
-                    els.inAGR.dispatchEvent(new Event('slider-update'));
-                }
+                els.inAGR.value = agrM.toFixed(1); // Only update on init
+                els.inAGR.dispatchEvent(new Event('slider-update'));
             }
         }
 
-        if (els.valRevenue) els.valRevenue.textContent = '$' + revenueM.toFixed(1) + 'MM';
-        if (els.valAGR) els.valAGR.textContent = '$' + agrM.toFixed(1) + 'MM';
+        // Update Displays
+        els.valRevenue.textContent = '$' + revenueM.toFixed(1) + 'MM';
+        els.valAGR.textContent = '$' + agrM.toFixed(1) + 'MM';
 
         // RENDER TAX BREAKDOWN
         const container = document.getElementById('tax-details-container');
         if (container && taxResult && taxResult.breakdown)
         {
+            // Force font-sans on container if not present
             container.classList.remove('font-mono');
             container.classList.add('font-sans');
 
@@ -368,17 +403,18 @@ window.EconomicCalculator = (function ()
                 if (item.type === 'info') colorClass = 'text-slate-500 italic pl-2';
 
                 return `
-                        <div class="flex justify-between items-center ${colorClass}">
-                            <div class="flex flex-col">
-                                <span>${item.label}</span>
-                                ${item.note ? `<span class="text-[10px] opacity-70 font-mono">${item.note}</span>` : ''}
-                            </div>
-                            <span class="font-mono">${item.val}</span>
-                        </div>
-                    `;
+                                                <div class="flex justify-between items-center ${colorClass}">
+                                                    <div class="flex flex-col">
+                                                        <span>${item.label}</span>
+                                                        ${item.note ? `<span class="text-[10px] opacity-70 font-mono">${item.note}</span>` : ''}
+                                                    </div>
+                                                    <span class="font-mono">${item.val}</span>
+                                                </div>
+                                            `;
             }).join('');
         }
 
+        // Snap Logic & Visual Update
         const inputs = [
             els.inRate, els.inAGR, els.inRevenue, els.inCostCrime, els.inCostBusiness,
             els.inCostBankruptcy, els.inCostIllness, els.inCostServices, els.inCostAbused
@@ -388,6 +424,7 @@ window.EconomicCalculator = (function ()
         {
             if (!input) return;
 
+            // Support multiple defaults for Rate slider
             const defs = input.id === 'input-rate' ? [2.3, 3.0, 5.5] : [parseFloat(input.dataset.default)];
             let val = parseFloat(input.value);
             const min = parseFloat(input.min);
@@ -411,6 +448,7 @@ window.EconomicCalculator = (function ()
             const valDisplayId = input.id.replace('input-', 'val-');
             const valDisplay = document.getElementById(valDisplayId);
 
+            // Determine active color based on slider type
             let activeColor = null;
             if (input.id === 'input-rate') activeColor = 'text-orange-500';
             else if (input.id === 'input-revenue') activeColor = 'text-emerald-500';
@@ -438,6 +476,7 @@ window.EconomicCalculator = (function ()
                 }
             }
 
+            // Update Sibling (Radio or Tick)
             if (input.id === 'input-rate')
             {
                 const radios = document.querySelectorAll('input[name="gambling-rate-preset"]');
@@ -465,14 +504,29 @@ window.EconomicCalculator = (function ()
 
         const costPer = cCrime + cBusiness + cBankruptcy + cIllness + cServices + cAbused;
 
-        if (els.valRate) els.valRate.textContent = rate.toFixed(1) + '%';
-        if (els.valCostTotal) els.valCostTotal.textContent = '$' + costPer.toLocaleString();
-        if (els.valCostCrime) els.valCostCrime.textContent = '$' + cCrime.toLocaleString();
-        if (els.valCostBusiness) els.valCostBusiness.textContent = '$' + cBusiness.toLocaleString();
-        if (els.valCostBankruptcy) els.valCostBankruptcy.textContent = '$' + cBankruptcy.toLocaleString();
-        if (els.valCostIllness) els.valCostIllness.textContent = '$' + cIllness.toLocaleString();
-        if (els.valCostServices) els.valCostServices.textContent = '$' + cServices.toLocaleString();
-        if (els.valCostAbused) els.valCostAbused.textContent = '$' + cAbused.toLocaleString();
+        // Update value displays
+        // els.valRevenue.textContent = '$' + revenueM.toFixed(1) + ' M'; // Already updated above
+        els.valRate.textContent = rate.toFixed(1) + '%';
+
+        els.valCostTotal.textContent = '$' + costPer.toLocaleString();
+        els.valCostCrime.textContent = '$' + cCrime.toLocaleString();
+        els.valCostBusiness.textContent = '$' + cBusiness.toLocaleString();
+        els.valCostBankruptcy.textContent = '$' + cBankruptcy.toLocaleString();
+        els.valCostIllness.textContent = '$' + cIllness.toLocaleString();
+        els.valCostServices.textContent = '$' + cServices.toLocaleString();
+        els.valCostAbused.textContent = '$' + cAbused.toLocaleString();
+
+        // Logic
+        // Logic
+        currentPop = parseInt(els.inCounty.value);
+
+        // REFACTORED: We now rely on the Map Logic to calculate true victim count.
+        // However, `calculate` runs when inputs change.
+        // We need to read the `totalVictims` that the Map logic pushed to the DOM,
+        // or re-calculate it if we want to be pure.
+        // Since Map Logic updates the DOM element #total-victims which is NOT in this `els` scope easily,
+        // let's use the value from #calc-result if available, or 0.
+        // BETTER: Read the text content of the global total-victims display.
 
         let victims = 0;
         const tvEl = document.getElementById('total-gamblers');
@@ -481,211 +535,558 @@ window.EconomicCalculator = (function ()
             victims = parseInt(tvEl.textContent.replace(/,/g, '')) || 0;
         }
 
-        // ... Continued logic for final result display ...
-        // For brevity in this extraction, ensuring the update updates:
-        const totalCost = victims * costPer;
-        const netDeficit = (revenueM * 1000000) - totalCost;
+        // If victims is 0 (initial load race condition), fallback to simple? 
+        // No, map loads fast.
 
-        if (els.resTotalCost) els.resTotalCost.textContent = '$' + totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 });
-        if (els.resEqRevenue) els.resEqRevenue.textContent = '$' + (revenueM * 1000000).toLocaleString(undefined, { maximumFractionDigits: 0 });
-        if (els.resEqCost) els.resEqCost.textContent = '-$' + totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        // Calculate Effective Rate for display purposes (This is 'Problem Gambler Growth' rate, distinct from tax rate)
+        let gamblerGrowthRate = 0;
+        if (currentPop > 0) gamblerGrowthRate = (victims / currentPop) * 100;
+        els.calcRate.textContent = gamblerGrowthRate.toFixed(2) + '%';
 
-        if (els.resDeficit)
+        // --- 5-GROUP COST CALCULATIONS ---
+        // 1. Public Health (Humanitarian)
+        const costHealthPer = cIllness;
+        const totalCostHealth = victims * costHealthPer;
+
+        // 2. Social Services (General)
+        const costSocialPer = cServices;
+        const totalCostSocial = victims * costSocialPer;
+
+        // 3. Law Enforcement
+        const costCrimePer = cCrime;
+        const totalCostCrime = victims * costCrimePer;
+
+        // 4. Civil Legal
+        const costLegalPer = cBankruptcy;
+        const totalCostLegal = victims * costLegalPer;
+
+        // 5. Private Economy (Split)
+        const costAbusedPer = cAbused;
+        const totalCostAbused = victims * costAbusedPer;
+
+        const costEmploymentPer = cBusiness;
+        const totalCostEmployment = victims * costEmploymentPer;
+
+        // Aggregate for Total Cost
+        const totalCostEcon = totalCostAbused + totalCostEmployment; // Kept for backward compat with breakdown if needed
+        const costEconPer = costAbusedPer + costEmploymentPer;
+
+        const totalCost = totalCostHealth + totalCostSocial + totalCostCrime + totalCostLegal + totalCostEcon;
+        const totalCostM = totalCost / 1000000;
+        // --- REVENUE SPLIT ---
+        const totalRevenue = revenueM * 1000000;
+
+        // Get Allocation %
+        const allocPct = parseInt(els.inAllocation.value);
+
+        // Update Allocation Bar Visuals
+        els.allocBarHuman.style.width = allocPct + '%';
+        els.allocBarTaxpayer.style.width = (100 - allocPct) + '%';
+        els.allocTextHuman.textContent = allocPct + '%';
+        els.allocTextTaxpayer.textContent = (100 - allocPct) + '%';
+
+        // Calculate Pools
+        const revHealthPool = totalRevenue * (allocPct / 100);
+        const revGeneralPool = totalRevenue * ((100 - allocPct) / 100);
+
+        // --- COST COVERAGE LOGIC ---
+
+        // 1. Humanitarian Fund covers Public Health first
+        let revHealthAllocated = 0;
+        let healthSurplus = 0;
+        let healthUncovered = 0;
+
+        if (revHealthPool >= totalCostHealth)
         {
-            els.resDeficit.textContent = (netDeficit >= 0 ? '+' : '-') + '$' + Math.abs(netDeficit).toLocaleString(undefined, { maximumFractionDigits: 0 });
-            if (netDeficit >= 0)
+            revHealthAllocated = totalCostHealth;
+            healthSurplus = revHealthPool - totalCostHealth;
+            healthUncovered = 0;
+        } else
+        {
+            revHealthAllocated = revHealthPool;
+            healthSurplus = 0;
+            healthUncovered = totalCostHealth - revHealthPool;
+        }
+
+        // 2. General Fund covers remaining burdens (Taxpayer Health + Crime + Social + Legal)
+        // We use a weighted average distribution for the General Fund
+        // UPDATED: General Fund does NOT cover Public Health gaps. Public Health is solely the responsibility of the Humanitarian Fund.
+        const burdenHealth = 0;
+        const burdenCrime = totalCostCrime;
+        const burdenSocial = totalCostSocial;
+        const burdenLegal = totalCostLegal;
+
+        const totalGeneralBurden = burdenHealth + burdenCrime + burdenSocial + burdenLegal;
+
+        let revHealthFromGen = 0;
+        let revCrime = 0;
+        let revSocial = 0;
+        let revLegal = 0;
+
+        if (totalGeneralBurden > 0)
+        {
+            revHealthFromGen = revGeneralPool * (burdenHealth / totalGeneralBurden);
+            revCrime = revGeneralPool * (burdenCrime / totalGeneralBurden);
+            revSocial = revGeneralPool * (burdenSocial / totalGeneralBurden);
+            revLegal = revGeneralPool * (burdenLegal / totalGeneralBurden);
+        } else
+        {
+            // If no burden, revenue sits as surplus? 
+            // For now, it remains unallocated in this logic block, 
+            // but effectively it's a general surplus.
+        }
+
+        // Private gets 0
+        const revEcon = 0;
+
+        // --- BALANCES (NET IMPACT ANALYSIS) ---
+
+        // Helpers
+        const fmtM = (v) => '$' + (v / 1000000).toFixed(1) + 'MM';
+        const fmt = (v) => '$' + v.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        const fmtDiff = (v) =>
+        {
+            return (v >= 0 ? '+$' : '-$') + Math.abs(v / 1000000).toFixed(1) + 'MM';
+        };
+        const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        const setClass = (id, cls) => { const el = document.getElementById(id); if (el) el.className = cls; };
+
+        // 1. Detailed Social Cost Breakdown
+        const fmtVictims = victims.toLocaleString();
+
+        setTxt('calc-break-health-victims', fmtVictims);
+        setTxt('calc-break-health-per', fmt(costHealthPer));
+        setTxt('calc-break-health-total', fmtM(totalCostHealth));
+
+        setTxt('calc-break-social-victims', fmtVictims);
+        setTxt('calc-break-social-per', fmt(costSocialPer));
+        setTxt('calc-break-social-total', fmtM(totalCostSocial));
+
+        setTxt('calc-break-crime-victims', fmtVictims);
+        setTxt('calc-break-crime-per', fmt(costCrimePer));
+        setTxt('calc-break-crime-total', fmtM(totalCostCrime));
+
+        setTxt('calc-break-legal-victims', fmtVictims);
+        setTxt('calc-break-legal-per', fmt(costLegalPer));
+        setTxt('calc-break-legal-total', fmtM(totalCostLegal));
+
+        setTxt('calc-break-abused-victims', fmtVictims);
+        setTxt('calc-break-abused-per', fmt(costAbusedPer));
+        setTxt('calc-break-abused-total', fmtM(totalCostAbused));
+
+        setTxt('calc-break-employment-victims', fmtVictims);
+        setTxt('calc-break-employment-per', fmt(costEmploymentPer));
+        setTxt('calc-break-employment-total', fmtM(totalCostEmployment));
+
+        setTxt('calc-break-total-victims', fmtVictims);
+        setTxt('calc-total-cost-per', fmt(costPer));
+        setTxt('calc-total-cost-combined', fmtM(totalCost));
+
+        // 2. Net Impact Analysis (Balance Sheet)
+
+        // 1a. Public Health (Humanitarian)
+        // Revenue: The amount of the pool used + any surplus
+        const humanNet = revHealthPool - revHealthAllocated; // Should be surplus or 0 if deficit
+        // Actually, balance is Revenue - Cost.
+        // Here cost covered is revHealthAllocated.
+        // Wait, the row is "Public Health (Humanitarian)". 
+        // Cost attributed here is the portion covered by Humanitarian fund? Or the full cost?
+        // Standard accounting: 
+        // Row 1: Humanitarian Source. Cost = Amount Covered. Balance = Surplus.
+        // Row 2: Taxpayer Source. Cost = Remaining Amount. Balance = Net.
+
+        // Let's display: 
+        // Rev: Total Humanitarian Pool
+        // Cost: The portion of Health Cost assigned to this fund (revHealthAllocated)
+        // Balance: Surplus (if any)
+
+        // Wait, if we split the cost row, we should split the cost value too.
+        // Cost 1: Portion covered by Human Fund.
+        // Cost 2: Portion covered by Tax Fund.
+
+        // However, the user might want to see the FULL cost against the revenue?
+        // No, splitting rows implies splitting responsibility.
+
+        setTxt('bal-health-human-rev', fmtM(revHealthPool));
+        setTxt('bal-health-human-cost', fmtM(revHealthAllocated)); // The cost absorbed by this fund
+        setTxt('bal-health-human-net', fmtDiff(healthSurplus)); // Net surplus
+        setClass('bal-health-human-net', `text-right font-bold font-mono ${healthSurplus >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // 1b. Public Health (Taxpayer)
+        // Revenue: Allocation from General Fund
+        // Cost: The Uncovered Health Cost
+        const netHealthTax = revHealthFromGen - healthUncovered;
+        setTxt('bal-health-tax-rev', fmtM(revHealthFromGen));
+        setTxt('bal-health-tax-cost', fmtM(healthUncovered));
+        setTxt('bal-health-tax-net', fmtDiff(netHealthTax));
+        setClass('bal-health-tax-net', `text-right font-bold font-mono ${netHealthTax >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Subtotal: Public Health
+        const subHealthRev = revHealthPool + revHealthFromGen;
+        const subHealthCost = revHealthAllocated + healthUncovered;
+        const subHealthNet = healthSurplus + netHealthTax;
+
+        setTxt('bal-health-sub-rev', fmtM(subHealthRev));
+        setTxt('bal-health-sub-cost', fmtM(subHealthCost));
+        setTxt('bal-health-sub-net', fmtDiff(subHealthNet));
+        setClass('bal-health-sub-net', `text-right font-bold font-mono ${subHealthNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Law Enforcement
+        const netCrime = revCrime - totalCostCrime;
+        setTxt('bal-crime-rev', fmtM(revCrime));
+        setTxt('bal-crime-cost', fmtM(totalCostCrime));
+        setTxt('bal-crime-net', fmtDiff(netCrime));
+        setClass('bal-crime-net', `text-right font-bold font-mono ${netCrime >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Social Services
+        const netSocial = revSocial - totalCostSocial;
+        setTxt('bal-social-rev', fmtM(revSocial));
+        setTxt('bal-social-cost', fmtM(totalCostSocial));
+        setTxt('bal-social-net', fmtDiff(netSocial));
+        setClass('bal-social-net', `text-right font-bold font-mono ${netSocial >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Civil Legal
+        const netLegal = revLegal - totalCostLegal;
+        setTxt('bal-legal-rev', fmtM(revLegal));
+        setTxt('bal-legal-cost', fmtM(totalCostLegal));
+        setTxt('bal-legal-net', fmtDiff(netLegal));
+        setClass('bal-legal-net', `text-right font-bold font-mono ${netLegal >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Subtotal: General Taxpayer Services (Law + Social + Legal)
+        const subGenRev = revCrime + revSocial + revLegal;
+        const subGenCost = totalCostCrime + totalCostSocial + totalCostLegal;
+        const subGenNet = netCrime + netSocial + netLegal;
+
+        setTxt('bal-gen-sub-rev', fmtM(subGenRev));
+        setTxt('bal-gen-sub-cost', fmtM(subGenCost));
+        setTxt('bal-gen-sub-net', fmtDiff(subGenNet));
+        setClass('bal-gen-sub-net', `text-right font-bold font-mono ${subGenNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Subtotal: Total Public Burden (Public Health + General Taxpayer Services)
+        const subPublicRev = subHealthRev + subGenRev; // Should equal totalRevenue allocated effectively (minus any unallocated surplus if logic differed, but here it matches)
+        const subPublicCost = subHealthCost + subGenCost;
+        const subPublicNet = subHealthNet + subGenNet;
+
+        setTxt('bal-public-sub-rev', fmtM(subPublicRev));
+        setTxt('bal-public-sub-cost', fmtM(subPublicCost));
+        setTxt('bal-public-sub-net', fmtDiff(subPublicNet));
+        setClass('bal-public-sub-net', `text-right font-black font-mono ${subPublicNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Private Sector Breakout
+        // Set Revenue to 0 for Private Sector
+        setTxt('bal-abused-rev', fmtM(0));
+        setTxt('bal-employment-rev', fmtM(0));
+        setTxt('bal-econ-sub-rev', fmtM(0));
+
+        // 5a. Abused Dollars
+        setTxt('bal-abused-cost', fmtM(totalCostAbused));
+        setTxt('bal-abused-net', fmtDiff(-totalCostAbused));
+        setClass('bal-abused-net', 'text-right font-mono text-red-500');
+
+        // 5b. Lost Employment
+        setTxt('bal-employment-cost', fmtM(totalCostEmployment));
+        setTxt('bal-employment-net', fmtDiff(-totalCostEmployment));
+        setClass('bal-employment-net', 'text-right font-mono text-red-500');
+
+        // Subtotal: Private Sector Impact
+        const totalCostPrivate = totalCostAbused + totalCostEmployment;
+        setTxt('bal-econ-sub-cost', fmtM(totalCostPrivate));
+        setTxt('bal-econ-sub-net', fmtDiff(-totalCostPrivate));
+        setClass('bal-econ-sub-net', 'text-right font-mono text-red-500');
+
+        // TOTAL NET IMPACT
+        const netTotalBalance = totalRevenue - totalCost;
+        setTxt('bal-total-rev', fmtM(totalRevenue));
+        setTxt('bal-total-cost', fmtM(totalCost));
+        setTxt('bal-total-net', fmtDiff(netTotalBalance));
+        setClass('bal-total-net', `text-right font-black font-mono text-base ${netTotalBalance >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
+
+        // Update New Calculation Breakdowns
+        const taxEffRateActual = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
+        els.calcAGR.textContent = fmtM(agrM * 1000000);
+        els.calcTaxRate.textContent = taxEffRateActual.toFixed(2) + '%';
+        els.calcTaxTotal.textContent = fmtM(totalRevenue);
+
+        // Update Split Allocation
+        // Humanitarian
+        els.calcRevTotalH.textContent = fmtM(totalRevenue);
+        els.calcAllocPctH.textContent = allocPct + '%';
+        els.calcAllocHumanVal.textContent = fmtM(revHealthPool);
+
+        // General
+        els.calcRevTotalG.textContent = fmtM(totalRevenue);
+        els.calcAllocPctG.textContent = (100 - allocPct) + '%';
+        els.calcAllocGenVal.textContent = fmtM(revGeneralPool);
+
+        // Update Calculation Breakdown 1
+        els.calcPop.textContent = currentPop.toLocaleString();
+        els.calcRate.textContent = gamblerGrowthRate.toFixed(2) + '%';
+        els.calcResult.textContent = victims.toLocaleString();
+
+        // Bar
+        let percentCovered = 0;
+        if (totalCostM > 0)
+        {
+            percentCovered = Math.min(100, Math.max(0, (revenueM / totalCostM) * 100));
+        } else
+        {
+            percentCovered = 100;
+        }
+
+        if (els.resBar) els.resBar.style.width = percentCovered + '%';
+
+        if (els.resFooter)
+        {
+            if (percentCovered >= 100)
             {
-                els.resDeficit.classList.remove('text-red-500');
-                els.resDeficit.classList.add('text-green-500');
-                if (els.resResultLabel) els.resResultLabel.textContent = "NET GAIN";
+                els.resFooter.innerHTML = `Revenue covers <strong class="text-white text-lg">100%</strong> of costs.`;
             } else
             {
-                els.resDeficit.classList.remove('text-green-500');
-                els.resDeficit.classList.add('text-red-500');
-                if (els.resResultLabel) els.resResultLabel.textContent = "NET LOSS";
+                els.resFooter.innerHTML = `Tax Revenue covers only <strong class="text-white text-lg">${percentCovered.toFixed(0)}%</strong> of costs.`;
             }
+        }
+
+        // --- DYNAMIC ANALYSIS TEXT ---
+        const analysisEl = document.getElementById('analysis-text');
+        if (analysisEl)
+        {
+            const costRatio = totalRevenue > 0 ? (totalCost / totalRevenue).toFixed(2) : "N/A";
+            const taxEffRate = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
+
+            const countyInfo = getCountyData().find(c => c.pop === currentPop) || { name: "Selected", pop: currentPop };
+            const baselineRateVal = parseFloat(els.inRate.value);
+            const t1Pop = document.getElementById('val-t1').textContent;
+            const t2Pop = document.getElementById('val-t2').textContent;
+            const t3Pop = document.getElementById('val-t3').textContent;
+            const t1Rate = document.getElementById('rate-t1').textContent;
+            const t2Rate = document.getElementById('rate-t2').textContent;
+            const t3Rate = document.getElementById('rate-t3').textContent;
+            const effRateDisplay = document.getElementById('calc-rate').textContent;
+
+            let analysisHTML = '';
+
+            // 1. Disclaimer (Sub-header + Bullet)
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Disclaimers</div>`;
+            analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+            analysisHTML += `<li>In an effort to encourage community involvement and transparency, SaveFW has published the source code for this Economic Impact Calculator as free and open-source software (FOSS) under the AGPL-3.0 License, available on GitHub at <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">https://github.com/savefw/casino-economic-impact-calculator</a>.</li>`;
+            analysisHTML += `<li>SaveFW's Economic Impact Calculator does not currently include positive economic multipliers often cited by proponents (the "Economic Engine" model). SaveFW is currently evaluating the methodological appropriateness of such multipliers in a "convenience casino" market context. This classification is corroborated by the State's Spectrum Study (2025), which indicates that for a Northeast Indiana location, approximately 95% of projected revenue is sourced from the primary catchment area (residents within a 90-minute radius). This metric suggests that the project primarily facilitates a reallocation of local capital to external corporate entities, rather than introducing new capital via external tourism. Given this context, SaveFW is assessing academic literature before making a determination regarding:
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-3">
+                                                <li><strong class="text-white">Leakage Rates:</strong> The extent to which revenue is retained locally versus exported to external corporate entities. Research from the <a href="https://www.civiceconomics.com/indie-impact.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Civic Economics "Indie Impact" Series</a> establishes that national corporate chains often return significantly less revenue to the local economy (approx. 14%) compared to independent local businesses (approx. 48%).</li>
+                                                <li><strong class="text-white">Multiplier Magnitudes:</strong> Determining accurate local multipliers for gaming revenues. While independent local businesses typically generate multipliers of <a href="https://www.civiceconomics.com/indie-impact.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">~1.7–2.0</a> (recirculating ~$48–$53 per $100 spent), research from the <a href="https://massgaming.com/wp-content/uploads/Social-and-Economic-Impacts-of-Casino-Introduction-to-Massachusetts_Report.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Massachusetts Gaming Commission</a> indicates that regional "convenience" casinos may yield multipliers as low as 0.5–0.7 in scenarios where local retail cannibalization is factored into the economic model.</li>
+                                                <li><strong class="text-white">Net Fiscal Impact:</strong> The necessity of balancing indirect tax revenue against local expenditure substitution. Systematic reviews such as <a href="https://www.greo.ca/Modules/EvidenceCentre/Details/social-and-economic-impacts-gambling" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">The Social and Economic Impacts of Gambling (2011)</a> and <a href="https://www.researchgate.net/publication/343114919_Does_Gambling_Harm_or_Benefit_Other_Industries_A_Systematic_Review" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">"Does Gambling Harm or Benefit Other Industries? A Systematic Review"</a> conclude that while destination gambling can be beneficial, "convenience" gambling often substitutes for other local industries (retail and merchandise) rather than introducing new capital into the market.</li>
+                                            </ul>
+                                        </li>`;
+            analysisHTML += `<li>This tool provides a programmatic economic analysis based on deterministic, rule-based logic and peer-reviewed data, rather than an artificial intelligence (AI) model or probabilistic algorithm. Unlike AI, which can be unpredictable, this programmatic approach ensures that all results are derived from fixed, transparent formulas. Common usecases for deterministic analyses occur in highly regulated fields, such as banking. At a future date, SaveFW may include functionality to generate automated analyses utilizing more than the programmatic (deterministic) approach, as well as a blended approach which mitigates weaknesses of each. To provide clarity regarding the differences between the key methodologies in the pipeline, SaveFW has outlined the key distinctions below:
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-3">
+                                                <li><strong class="text-white">Programmatic (Deterministic) Analysis:</strong> This methodology operates on fixed-logic inputs and rigid mathematical formulas where the relationship between variables is constant. Given a specific set of parameters, the model generates an identical output in every iteration. It is used to produce exact, reproducible figures based on predefined causal relationships (e.g., $Revenue = P \times Q$).</li>
+                                                <li><strong class="text-white">Probabilistic (Stochastic) Analysis:</strong> This approach treats variables as probability distributions rather than static integers to account for market volatility. By employing random sampling and statistical techniques like Monte Carlo simulations, the model calculates a range of potential outcomes and the statistical likelihood of each, typically expressed as a confidence interval.</li>
+                                                <li><strong class="text-white">AI (Machine Learning) Analysis:</strong> This paradigm utilizes algorithms that identify non-linear correlations within high-dimensional datasets by developing internal weightings through training. Unlike rule-based systems, the logic is derived from statistical pattern recognition rather than human-coded formulas, allowing the model to adapt its predictive weightings as it processes new information.</li>
+                                            </ul>
+                                        </li>`;
+            analysisHTML += `<li>Individuals and entities should recognize that all economic models are projections subject to data limitations and inherent variability. The responsibility for any actions or decisions made based on this analysis rests solely with the individual or entity, and SaveFW assumes no liability for the application or interpretation of these results.</li>`;
+            analysisHTML += `</ul>`;
+
+            // 2. Assumptions (Sub-header + Bullets)
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Assumptions</div>`;
+            analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+            analysisHTML += `<li>In the current iteration of this model, the Humanitarian Fund (${allocPct}%) is prioritized for Public Health expenditures. Future updates may include the functionality to define discrete allocations for various humanitarian initiatives.</li>`;
+            analysisHTML += `<li>The Local Economy category represents private sector losses (productivity, debt) borne directly by households and businesses.</li>`;
+            analysisHTML += `</ul>`;
+
+            // Geographic Analysis
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Analysis</div>`;
+            analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+            analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population and boundary data aggregated via <a href="https://censusreporter.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">CensusReporter.org</a> (Source: U.S. Census Bureau, 2020 Decennial Block Groups). Data files were processed, merged, and simplified using <a href="https://mapshaper.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Mapshaper.org</a>.</li>`;
+            analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The current version of the Economic Impact Calculator limits its analysis to the singular county being assessed. It does not factor spillover impact to neighboring counties in Indiana or neighboring states when the impact radius extends beyond county limits.</li>`;
+            analysisHTML += `<li><strong class="text-white">Assessed Area:</strong> This analysis focuses on ${countyInfo.name} County, with a total population of ${countyInfo.pop.toLocaleString()}.</li>`;
+
+            // Proximity Model with programmatic Baseline details
+            let baselineDesc = '';
+            if (baselineRateVal === 2.3)
+            {
+                baselineDesc = `Indiana's Diagnosed Rate (2.3%), which represents Hoosiers meeting clinical criteria for Gambling Disorder (2023)`;
+            } else if (baselineRateVal === 3.0)
+            {
+                baselineDesc = `Indiana's Problem Rate (3.0%), derived from self-reported 'problems with gambling' in state surveys`;
+            } else if (baselineRateVal === 5.5)
+            {
+                baselineDesc = `the National Average (5.5%), representing the broader combined At-Risk and Problem gambling rate`;
+            } else
+            {
+                const variance = ((baselineRateVal - 2.3) / 2.3) * 100;
+                const varianceStr = variance > 0 ? `+${variance.toFixed(1)}%` : `${variance.toFixed(1)}%`;
+                baselineDesc = `a Custom Rate of ${baselineRateVal.toFixed(1)}%, which is a <strong class="${variance > 0 ? 'text-red-400' : 'text-emerald-400'}">${varianceStr}</strong> variance from Indiana's Diagnosed Rate (2.3%)`;
+            }
+
+            analysisHTML += `<li><strong class="text-white">Impact Distribution:</strong> This distribution models the increased statistical likelihood of residents developing problem gambling behaviors (Gambling Disorder) based on their geographic proximity to the casino site.
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-2">
+                                                <li><strong class="text-white">High Risk Zone (0-10 miles):</strong> ${t1Pop} residents are subject to a ${t1Rate} prevalence rate due to immediate proximity.</li>
+                                                <li><strong class="text-white">Elevated Risk Zone (10-20 miles):</strong> ${t2Pop} residents are subject to a ${t2Rate} prevalence rate.</li>`;
+
+            if (t3Pop === 'Fully Captured' || t3Pop === '0')
+            {
+                analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> The High and Elevated Risk zones encompass the entire county population, leaving effectively zero residents in the baseline risk category.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> ${t3Pop} residents are subject to the baseline ${t3Rate} rate.</li>`;
+            }
+            analysisHTML += `</ul></li>`;
+            analysisHTML += `<li><strong class="text-white">Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate is ${effRateDisplay}, projecting ${victims.toLocaleString()} new problem gamblers within the county.</li>`;
+            analysisHTML += `</ul>`;
+
+            // 4. Analysis (Split into sections)
+
+            // A. TAX REVENUE
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Tax Revenue Analysis</div>`;
+            analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
+            analysisHTML += `<li><strong class="text-white">Adjusted Gross Revenue (AGR):</strong> The projected base of ${fmtM(agrM * 1000000)} represent the total wealth extracted from gamblers. Unlike standard sales or property taxes, gambling revenue is subject to a unique progressive structure in Indiana, utilizing a 3.5% supplemental tax and tiered brackets that scale based on volume.</li>`;
+            analysisHTML += `<li><strong class="text-white">Effective Tax Rate:</strong> For this scenario, the calculated effective tax rate is ${taxEffRate.toFixed(2)}%, resulting in ${fmtM(totalRevenue)} in estimated public tax revenue.</li>`;
+            analysisHTML += `<li><strong class="text-white">Revenue Allocation:</strong> The model directs ${allocPct}% (${fmtM(revHealthPool)}) to the Humanitarian Fund and ${100 - allocPct}% (${fmtM(revGeneralPool)}) to the General Fund. This General Fund portion is distributed pro rata (proportionally based on share of total cost) towards addressing remaining burdens: Law Enforcement, Social Services, and Civil Legal.</li>`;
+            analysisHTML += '</ul>';
+
+            // B. SOCIAL COSTS
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Social Cost Analysis</div>`;
+            analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
+            analysisHTML += `<li><strong class="text-white">Data Source:</strong> Baseline social cost valuations are derived from peer-reviewed research by <a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Grinols</a> (2011), with values adjusted for 2025 inflation to reflect current economic conditions.</li>`;
+            // Public Health
+            if (revHealthPool >= totalCostHealth)
+            {
+                analysisHTML += `<li><strong class="text-white">Public Health:</strong> The ${allocPct}% Humanitarian allocation is fully sufficient to cover the projected ${fmtM(totalCostHealth)} in Public Health costs. This surplus enables proactive recovery initiatives, which can stabilize vulnerable households and reduce long-term homelessness.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong class="text-white">Public Health:</strong> The projected Public Health costs exceed the capacity of the ${allocPct}% Humanitarian allocation, leaving a funding gap for addiction and mental health treatments. This shortfall risks exacerbating homelessness and straining emergency medical services as untreated conditions escalate.</li>`;
+            }
+            // General Taxpayer Services Analysis (Dollar Amounts)
+
+            // Law Enforcement
+            const gapCrime = totalCostCrime - revCrime;
+            if (gapCrime > 0)
+            {
+                analysisHTML += `<li><strong class="text-white">Law Enforcement:</strong> The department faces a projected deficit of ${fmtM(gapCrime)}, necessitating a reduction in operational throughput. This budgetary deficit is projected to result in increased response latencies, diminished clearance rates for property crimes, and a reduced capacity to manage the anticipated surge in domestic disturbance calls.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong class="text-white">Law Enforcement:</strong> The department projects a budget surplus of ${fmtM(Math.abs(gapCrime))}, positioning it to maintain high operational readiness. This additional capacity enables the implementation of enhanced community policing initiatives and the establishment of specialized units dedicated to investigating complex financial crimes.</li>`;
+            }
+
+            // Social Services
+            const gapSocial = totalCostSocial - revSocial;
+            if (gapSocial > 0)
+            {
+                analysisHTML += `<li><strong class="text-white">Social Services:</strong> This sector faces a projected deficit of ${fmtM(gapSocial)}, diminishing the programmatic efficacy of the regional social safety net. A deficit of this magnitude risks exceeding the throughput capacity of the foster care system and restricts the availability of essential support resources for households experiencing displacement or foreclosure.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong class="text-white">Social Services:</strong> With a projected surplus of ${fmtM(Math.abs(gapSocial))}, the county can maintain a robust and stable safety net. This financial stability facilitates the expansion of proactive family stabilization programs and ensures adequate resource availability for food banks and emergency housing assistance.</li>`;
+            }
+
+            // Courts (Civil Legal)
+            const gapLegal = totalCostLegal - revLegal;
+            if (gapLegal > 0)
+            {
+                analysisHTML += `<li><strong class="text-white">Civil Legal (Courts):</strong> The judicial system faces a projected deficit of ${fmtM(gapLegal)}, resulting in systemic administrative bottlenecks. This budgetary deficit is anticipated to generate substantial backlogs in bankruptcy proceedings, extended processing delays for divorce and custody hearings, and an inability to manage the projected volume of eviction cases efficiently.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong class="text-white">Civil Legal (Courts):</strong> The system projects a budget surplus of ${fmtM(Math.abs(gapLegal))}, equipping it to maintain operational efficiency despite increased caseloads. This financial capacity facilitates the timely processing of civil matters and provides necessary funding for mediation services and diversion programs.</li>`;
+            }
+
+            // Private Sector (Local Economy) Breakout
+            analysisHTML += `<li><strong class="text-white">Abused Dollars:</strong> The private sector faces a projected unmitigated loss of ${fmtM(totalCostAbused)}. This represents direct wealth extraction from households where financial resources are diverted from essential needs and savings to service gambling debts, reducing overall local purchasing power.</li>`;
+
+            analysisHTML += `<li><strong class="text-white">Lost Employment:</strong> The local economy is projected to incur ${fmtM(totalCostEmployment)} in losses due to reduced workforce productivity. This includes costs associated with absenteeism, termination of problem gamblers, and the friction costs of rehiring and retraining, effectively operating as a hidden tax on local employers.</li>`;
+
+            analysisHTML += '</ul>';
+
+            // C. NET ECONOMIC IMPACT
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Net Economic Impact Analysis</div>`;
+            analysisHTML += '<ul class="list-disc pl-8 space-y-3 text-slate-300">';
+
+            analysisHTML += `<li><strong class="text-white">Sector Comparison:</strong> The Public Sector (government departments) projected impact is a ${fmtM(Math.abs(subPublicNet))} ${subPublicNet >= 0 ? 'surplus' : 'deficit'}. In comparison, the Private Sector (Local Economy) faces an unmitigated loss of ${fmtM(totalCostPrivate)}.</li>`;
+
+            if (netTotalBalance < 0)
+            {
+                analysisHTML += `<li><strong class="text-white">Fiscal Conclusion:</strong> The projected social costs exceed the direct tax revenue, resulting in a net fiscal deficit for the county. The projected ${fmtM(totalRevenue)} in revenue is significantly surpassed by ${fmtM(totalCost)} in projected social cost liabilities, leaving taxpayers with a ${fmtM(Math.abs(netTotalBalance))} annual net fiscal deficit.</li>`;
+                analysisHTML += `<li><strong class="text-white">Cost-to-Benefit Ratio:</strong> For every $1 in tax revenue generated, the county is projected to incur $${costRatio} in social costs (crime, bankruptcy, lost productivity).</li>`;
+
+                const deficitM = Math.abs(netTotalBalance) / 1000000;
+                if (deficitM > 50)
+                {
+                    analysisHTML += `<li><strong class="text-white">Secondary Offsets:</strong> Given the magnitude of this deficit (${fmtM(Math.abs(netTotalBalance))}), it is statistically unlikely that unmodeled economic multipliers or indirect tax benefits would be sufficient to mitigate the shortfall. Proponents would need to demonstrate substantial secondary economic activity to neutralize such a significant fiscal gap.</li>`;
+                } else
+                {
+                    analysisHTML += `<li><strong class="text-white">Secondary Offsets:</strong> While this model does not account for economic multipliers or indirect tax benefits, proponents would need to demonstrate that such factors can generate at least ${fmtM(Math.abs(netTotalBalance))} in additional value to achieve a fiscal break-even point.</li>`;
+                }
+            } else
+            {
+                analysisHTML += `<li><strong class="text-white">Fiscal Conclusion:</strong> Under this specific configuration of variables, the casino generates a net fiscal surplus. The projected revenue of ${fmtM(totalRevenue)} exceeds the estimated social cost liabilities of ${fmtM(totalCost)}.</li>`;
+            }
+
+            analysisHTML += '</ul>';
+            analysisEl.innerHTML = analysisHTML;
         }
     }
 
+    // Initialize all listeners - called during init()
+    function initListeners()
+    {
+        if (els.inCounty) els.inCounty.addEventListener('change', calculate);
+        if (els.inRevenue) els.inRevenue.addEventListener('input', calculate);
+        if (els.inAGR) els.inAGR.addEventListener('input', calculate);
+        if (els.inRate) els.inRate.addEventListener('input', calculate);
+        if (els.inAllocation) els.inAllocation.addEventListener('input', calculate);
+
+        if (els.inCostCrime) els.inCostCrime.addEventListener('input', calculate);
+        if (els.inCostBusiness) els.inCostBusiness.addEventListener('input', calculate);
+        if (els.inCostBankruptcy) els.inCostBankruptcy.addEventListener('input', calculate);
+        if (els.inCostIllness) els.inCostIllness.addEventListener('input', calculate);
+        if (els.inCostServices) els.inCostServices.addEventListener('input', calculate);
+        if (els.inCostAbused) els.inCostAbused.addEventListener('input', calculate);
+
+        // Map Event Listener
+        window.addEventListener('county-selected-map', (e) =>
+        {
+            selectCounty(e.detail.name, e.detail.pop);
+        });
+    }
+
+    // Main init function - called by Blazor after component renders
     function init()
     {
-        els = {
-            inCounty: document.getElementById('input-county'),
-            inRevenue: document.getElementById('input-revenue'),
-            inAGR: document.getElementById('input-agr'),
-            inRate: document.getElementById('input-rate'),
-            inAllocation: document.getElementById('input-allocation'),
-
-            inCostCrime: document.getElementById('input-cost-crime'),
-            inCostBusiness: document.getElementById('input-cost-business'),
-            inCostBankruptcy: document.getElementById('input-cost-bankruptcy'),
-            inCostIllness: document.getElementById('input-cost-illness'),
-            inCostServices: document.getElementById('input-cost-services'),
-            inCostAbused: document.getElementById('input-cost-abused'),
-
-            valRevenue: document.getElementById('val-revenue'),
-            valAGR: document.getElementById('val-agr'),
-            valRate: document.getElementById('val-rate'),
-            valCostTotal: document.getElementById('val-cost-total'),
-            valCostCrime: document.getElementById('val-cost-crime'),
-            valCostBusiness: document.getElementById('val-cost-business'),
-            valCostBankruptcy: document.getElementById('val-cost-bankruptcy'),
-            valCostIllness: document.getElementById('val-cost-illness'),
-            valCostServices: document.getElementById('val-cost-services'),
-            valCostAbused: document.getElementById('val-cost-abused'),
-
-            resTotalCost: document.getElementById('res-total-cost'),
-            resDeficit: document.getElementById('res-deficit'),
-            resResultLabel: document.getElementById('res-result-label'),
-            resEqRevenue: document.getElementById('res-eq-revenue'),
-            resEqCost: document.getElementById('res-eq-cost'),
-
-            deficitTitle: document.getElementById('deficit-title')
-        };
-
-        const sliderConfigs = [
-            { id: 'input-rate', stepMajor: 1.0, stepMinor: 0.5, format: v => v + '%' },
-            { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'MM' },
-            { id: 'input-revenue', stepMajor: 50, stepMinor: 10, format: v => '$' + v + 'MM' },
-            { id: 'input-cost-crime', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-business', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-bankruptcy', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-illness', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-services', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-abused', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() }
-        ];
-
-        sliderConfigs.forEach(cfg =>
+        if (isInitialized)
         {
-            const input = document.getElementById(cfg.id);
-            if (!input) return;
+            console.log('EconomicCalculator already initialized, skipping');
+            return;
+        }
 
-            const container = input.parentElement;
+        console.log('Initializing EconomicCalculator...');
 
-            const children = Array.from(container.children);
-            children.forEach(child =>
-            {
-                if (child.className.includes('slider-tick') || child.className.includes('tick-label') || child.className.includes('slider-tooltip') || child.className.includes('slider-track'))
-                {
-                    child.remove();
-                }
-            });
+        // Populate DOM references
+        initElements();
 
-            // Bind Radio Buttons
-            const radios = container.querySelectorAll('input[type="radio"]');
-            radios.forEach(radio =>
-            {
-                radio.addEventListener('change', () =>
-                {
-                    input.value = radio.value;
-                    input.dispatchEvent(new Event('input'));
-                    input.dispatchEvent(new Event('change'));
-                });
+        // Initialize menu logic
+        initMenuLogic();
 
-                input.addEventListener('input', () =>
-                {
-                    if (Math.abs(parseFloat(input.value) - parseFloat(radio.value)) < 0.1)
-                    {
-                        radio.checked = true;
-                    } else
-                    {
-                        radio.checked = false;
-                    }
-                });
-            });
+        // Set up event listeners
+        initListeners();
 
-            input.classList.remove('bg-slate-700');
-            input.classList.add('bg-transparent');
-            input.style.backgroundColor = 'transparent';
-
-            const track = document.createElement('div');
-            track.className = 'slider-track';
-            container.insertBefore(track, input);
-
-            const min = parseFloat(input.min);
-            const max = parseFloat(input.max);
-            const range = max - min;
-
-            function addTick(val, typeClass, labelText = null)
-            {
-                const tick = document.createElement('div');
-                tick.className = `slider-tick ${typeClass}`;
-                const pct = ((val - min) / range) * 100;
-                tick.style.left = `${pct}%`;
-                container.insertBefore(tick, input);
-
-                if (labelText)
-                {
-                    const label = document.createElement('div');
-                    label.className = 'tick-label';
-                    label.textContent = labelText;
-                    label.style.left = `${pct}%`;
-                    container.insertBefore(label, input);
-                }
-            }
-
-            if (range > 0)
-            {
-                const startMajor = Math.ceil(min / cfg.stepMajor) * cfg.stepMajor;
-                for (let v = startMajor; v <= max; v += cfg.stepMajor)
-                {
-                    addTick(v, 'tick-major', cfg.format(v));
-                }
-
-                const startMinor = Math.ceil(min / cfg.stepMinor) * cfg.stepMinor;
-                for (let v = startMinor; v <= max; v += cfg.stepMinor)
-                {
-                    if (v % cfg.stepMajor !== 0)
-                    {
-                        addTick(v, 'tick-minor');
-                    }
-                }
-            }
-
-            // Listeners
-            input.addEventListener('input', (e) => calculate(e));
-        });
-
+        // Initialize counties dropdown
         initCounties();
 
-        // Menu Listeners
-        const trigger = document.getElementById('county-trigger');
-        const menu = document.getElementById('county-menu');
-        const searchInput = document.getElementById('county-search');
-
-        if (trigger)
-        {
-            trigger.onclick = (e) =>
-            {
-                e.preventDefault();
-                toggleMenu(!isOpen);
-            };
-        }
-
-        if (searchInput)
-        {
-            searchInput.oninput = (e) =>
-            {
-                const term = e.target.value.toLowerCase();
-                const filtered = countyData.filter(c => c.name.toLowerCase().includes(term));
-                renderCustomOptions(filtered);
-            };
-        }
-
-        document.addEventListener('click', (e) =>
-        {
-            if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target) && isOpen)
-            {
-                toggleMenu(false);
-            }
-        });
-
-        // Initial Calculation
+        // Run initial calculation
         calculate();
+
+        isInitialized = true;
+        console.log('EconomicCalculator initialized successfully');
     }
 
-    return { init: init };
+    // Return public API
+    return {
+        init: init,
+        calculate: calculate,
+        selectCounty: selectCounty
+    };
 })();
+
+// Expose for Blazor
+window.initEconomicCalculator = window.EconomicCalculator.init;
 
 /* --- Simulator Modal Extensions --- */
 window.currentSimStep = 1;
