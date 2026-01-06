@@ -905,12 +905,12 @@ window.EconomicCalculator = (function ()
             // Geographic Analysis
             analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Analysis</div>`;
             analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
-            analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population and boundary data aggregated via <a href="https://censusreporter.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">CensusReporter.org</a> (Source: U.S. Census Bureau, 2020 Decennial Block Groups). Data files were processed, merged, and simplified using <a href="https://mapshaper.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Mapshaper.org</a>.</li>`;
+            analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population data is sourced directly from the <a href="https://www.census.gov/data/developers/data-sets/decennial-census.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">U.S. Census Bureau's 2020 Decennial Census API</a>, seeded into the SaveFW database in January 2026. Geographic boundaries utilize high-precision 2020 TIGER/Line Shapefiles processed via PostGIS.</li>`;
             analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The current version of the Economic Impact Calculator limits its analysis to the singular county being assessed. It does not factor spillover impact to neighboring counties in Indiana or neighboring states when the impact radius extends beyond county limits.</li>`;
 
             // updated specific bullet point with adult pop
             let adultPopStr = adultPop > 0 ? adultPop.toLocaleString() : "Unknown";
-            analysisHTML += `<li><strong class="text-white">Assessed Area:</strong> This analysis focuses on ${countyInfo.name} County, with a total population of ${countyInfo.pop.toLocaleString()}. <strong> The Adult Population (18+) for this area is ${adultPopStr}.</strong></li>`;
+            analysisHTML += `<li><strong class="text-white">Assessed Area:</strong> This analysis focuses on ${countyInfo.name} County, with a total population of ${countyInfo.pop.toLocaleString()}. The Adult Population (18+) for this area is ${adultPopStr}.</li>`;
 
             // Proximity Model with programmatic Baseline details
             let baselineDesc = '';

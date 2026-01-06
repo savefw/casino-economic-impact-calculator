@@ -579,7 +579,9 @@ window.ImpactMap = (function ()
                     // FIPS in data is often full '18003...', currentCountyId is '003'
                     // Indiana FIPS = 18.
                     const geoid = props.GEOID || "";
-                    if (geoid.startsWith("18" + currentCountyId))
+                    const isFeatureInCounty = geoid.startsWith("18" + currentCountyId);
+
+                    if (isFeatureInCounty)
                     {
                         countyAdults += popAdult;
                     }
@@ -604,10 +606,12 @@ window.ImpactMap = (function ()
 
                     if (dist <= 10)
                     {
-                        t1Pop += popAdult;
+                        // STRICTLY COUNT COUNTY RESIDENTS ONLY
+                        // This prevents "Effective Rate" > "Max Rate" by ensuring numerator doesn't include out-of-county spillover
+                        if (isFeatureInCounty) t1Pop += popAdult;
                     } else if (dist <= 20)
                     {
-                        t2Pop += popAdult;
+                        if (isFeatureInCounty) t2Pop += popAdult;
                     }
                 });
 
@@ -654,17 +658,26 @@ window.ImpactMap = (function ()
 
                 const dispPop = document.getElementById('disp-pop-impact-zones');
                 const dispPopAdults = document.getElementById('disp-pop-adults');
-                const dispRate = document.getElementById('disp-effective-rate');
+                const dispRateAdult = document.getElementById('disp-rate-adult');
+                const dispRateTotal = document.getElementById('disp-rate-total');
 
-                // DISPLAY TOTAL POPULATION (ALL AGES) AS REQUESTED
+                // DISPLAY TOTAL POPULATION (ALL AGES)
                 if (dispPop) dispPop.textContent = countyTotal.toLocaleString();
                 // DISPLAY ADULT POPULATION (18+)
                 if (dispPopAdults) dispPopAdults.textContent = countyAdults.toLocaleString();
 
-                if (dispRate)
+                if (dispRateAdult)
                 {
+                    // UPDATED: Calculate effective rate based on Adult Population (18+)
+                    const effectiveRate = countyAdults > 0 ? (totalVictims / countyAdults) * 100 : 0;
+                    dispRateAdult.textContent = effectiveRate.toFixed(2) + '%';
+                }
+
+                if (dispRateTotal)
+                {
+                    // UPDATED: Calculate effective rate based on Total Population (All Ages) as secondary metric
                     const effectiveRate = countyTotal > 0 ? (totalVictims / countyTotal) * 100 : 0;
-                    dispRate.textContent = effectiveRate.toFixed(2) + '%';
+                    dispRateTotal.textContent = effectiveRate.toFixed(2) + '%';
                 }
 
                 const triggerInput = document.getElementById('input-revenue');
