@@ -44,10 +44,6 @@ window.ImpactMap = (function ()
                 if (cb)
                 {
                     layersVisible[id] = cb.checked;
-                    if (id === 'heatmap')
-                    {
-                        if (blockGroupLayer && currentGeoJSON) blockGroupLayer.setStyle(getHeatMapStyle);
-                    }
                     if (id === 'streets') updateBaseLayer();
                     else updateLayerVisibility();
                 }
@@ -377,39 +373,116 @@ window.ImpactMap = (function ()
             async function loadCounty(countyId, skipMarkerMove = false)
             {
                 if (!countyId) return;
-                // Check cache for standard county shape (visualization) AND context (data)
-                // Actually, we'll just fetch the context now as it serves both purposes if we want
-                // But for now, let's keep the visualization `cache` separate or merge them.
-                // The existing `cache` stores specific county GeoJSONs for the "Highlight Layer" (visual boundary).
-                // The new `contextCache` will store the 50-mile buffer features for CALCULATION.
 
-                // 1. Load Visual Boundary (Legacy flow, fast, keeps map looking good)
-                try
+                // 1. Load Calculation Context (The 50 mile buffer data)
+                await loadCountyContext(countyId);
+
+                // 2. Set Visuals using the loaded context data
+                // We extract the county specific features from the context for visualization
+                if (currentContextGeoJSON)
                 {
-                    if (!cache[countyId])
-                    {
-                        const res = await fetch(`./data/counties/${countyId}.json`);
-                        if (res.ok)
-                        {
-                            const data = await res.json();
-                            cache[countyId] = data;
-                        }
-                    }
-                    if (cache[countyId])
-                    {
-                        // highlightCountyVisuals uses `cache[countyId]` for the orange boundary
-                        // We set generic `currentGeoJSON` to this for the visual heatmaps, 
-                        // BUT we will use `currentContextGeoJSON` for calculations.
-                        currentGeoJSON = cache[countyId];
-                        currentCountyId = countyId;
-                        highlightCountyVisuals(countyId, skipMarkerMove);
-                    }
-                } catch (e) { console.error("Visual load error", e); }
-
-                // 2. Load Calculation Context (The 50 mile buffer data)
-                await loadCountyContext(countyId); // This updates `currentContextGeoJSON`
+                    currentCountyId = countyId;
+                    highlightCountyVisuals(countyId, currentContextGeoJSON, skipMarkerMove);
+                }
 
                 calculateImpact(); // Trigger calc after data load
+            }
+
+            // ... (keep surrounding code) ...
+
+            function highlightCountyVisuals(countyId, contextData, skipMarkerMove = false)
+            {
+                if (!stateData) return;
+                const countyFeature = stateData.features.find(f => f.properties.COUNTY === countyId);
+                if (highlightLayer) map.removeLayer(highlightLayer);
+                if (countyFeature)
+                {
+                    highlightLayer = L.geoJSON(countyFeature, { style: { color: '#f97316', weight: 3, fillColor: '#7c2d12', fillOpacity: 0.2, dashArray: '4, 4' }, interactive: false });
+                }
+                if (blockGroupLayer) map.removeLayer(blockGroupLayer);
+                if (tractLayer) map.removeLayer(tractLayer);
+
+                // Use the REAL Census Data from our Context (filtered to this county)
+                if (contextData)
+                {
+                    // Filter features that belong to this county (FIPS match)
+                    const countyFeatures = contextData.features.filter(f =>
+                    {
+                        const geoid = f.properties.GEOID || "";
+                        return geoid.startsWith("18" + countyId);
+                    });
+
+                    const countyGeoJSON = { type: "FeatureCollection", features: countyFeatures };
+
+
+                    // Heatmap Generation (Gradient / Radiating) via Leaflet.heat
+                    const heatPoints = [];
+                    let maxPop = 0;
+
+                    turf.featureEach(countyGeoJSON, (f) =>
+                    {
+                        const p = f.properties.POP_ADULT || 0;
+                        if (p > maxPop) maxPop = p;
+                    });
+
+                    // Avoid div by zero
+                    if (maxPop === 0) maxPop = 1;
+
+                    turf.featureEach(countyGeoJSON, (f) =>
+                    {
+                        const p = f.properties.POP_ADULT || 0;
+                        if (p > 0)
+                        {
+                            const centroid = turf.centroid(f);
+                            const lat = centroid.geometry.coordinates[1];
+                            const lng = centroid.geometry.coordinates[0];
+                            // Intensity:
+                            // Leaflet.heat works best with values 0-1.
+                            // We want areas with high pop to be 'hotter'.
+                            const intensity = (p / maxPop);
+                            heatPoints.push([lat, lng, intensity]);
+                        }
+                    });
+
+                    // Remove old if exists
+                    if (blockGroupLayer)
+                    {
+                        map.removeLayer(blockGroupLayer);
+                        blockGroupLayer = null;
+                    }
+
+                    if (heatPoints.length > 0)
+                    {
+                        try
+                        {
+                            // Using a higher maxZoom and blur allows for a more continuous 'cloud'
+                            blockGroupLayer = L.heatLayer(heatPoints, {
+                                radius: 30, // Larger radius for more overlap/blend
+                                blur: 20,   // High blur for 'radiating' look
+                                maxZoom: 13,
+                                max: 1.0,
+                                gradient: { 0.2: 'blue', 0.4: 'lime', 0.6: 'yellow', 0.9: 'orange', 1.0: 'red' }
+                            });
+                        } catch (e)
+                        {
+                            console.warn("Leaflet.heat not loaded?", e);
+                        }
+                    }
+
+                    // Generate Tracts from this same live data
+                    tractLayer = generateTractLayer(countyGeoJSON);
+                }
+
+                if (countyFeature && !skipMarkerMove)
+                {
+                    const bounds = L.geoJSON(countyFeature).getBounds();
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                    const latLng = bounds.getCenter();
+                    marker.setLatLng(latLng); circle10.setLatLng(latLng); circle20.setLatLng(latLng);
+                }
+                updateLayerVisibility();
+                const cInfo = getCountyReference().find(c => c.id === countyId);
+                if (els.displayCounty && cInfo) els.displayCounty.textContent = cInfo.name;
             }
 
             let currentContextGeoJSON = null;
@@ -480,9 +553,7 @@ window.ImpactMap = (function ()
                 if (tractLayer) map.removeLayer(tractLayer);
 
                 // Note: BlockGroupLayer (Heatmap) currently uses the VISUAL `currentGeoJSON` (the single county). 
-                // This is fine. The user didn't ask for a 50-mile heatmap, just calculation.
                 // If we want the heatmap to extend, we'd use `currentContextGeoJSON` here.
-                // Let's stick to single-county heatmap for clarity/performance unless requested.
                 if (currentGeoJSON)
                 {
                     let maxDensity = 0;
