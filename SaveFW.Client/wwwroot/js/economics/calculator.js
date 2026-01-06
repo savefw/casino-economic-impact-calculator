@@ -7,6 +7,30 @@ window.EconomicCalculator = (function ()
 
     let currentPop = 0;
     let lastImpactBreakdown = null;
+    let otherCountiesExpanded = false;
+
+    function escapeHtml(input)
+    {
+        return String(input ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll("\"", "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function fmtM(value)
+    {
+        const v = Number(value) || 0;
+        return '$' + (v / 1000000).toFixed(1) + 'MM';
+    }
+
+    function fmtDiffM(value)
+    {
+        const v = Number(value) || 0;
+        const sign = v >= 0 ? '+' : '-';
+        return `${sign}${fmtM(Math.abs(v))}`;
+    }
 
     // DOM element references - populated by init()
     let els = {};
@@ -745,127 +769,238 @@ window.EconomicCalculator = (function ()
         setTxt('calc-total-cost-combined', fmtM(totalCost));
 
         // 2. Net Impact Analysis (Balance Sheet)
-
-        // 1a. Public Health (Humanitarian)
-        // Revenue: The amount of the pool used + any surplus
-        const humanNet = revHealthPool - revHealthAllocated; // Should be surplus or 0 if deficit
-        // Actually, balance is Revenue - Cost.
-        // Here cost covered is revHealthAllocated.
-        // Wait, the row is "Public Health (Humanitarian)". 
-        // Cost attributed here is the portion covered by Humanitarian fund? Or the full cost?
-        // Standard accounting: 
-        // Row 1: Humanitarian Source. Cost = Amount Covered. Balance = Surplus.
-        // Row 2: Taxpayer Source. Cost = Remaining Amount. Balance = Net.
-
-        // Let's display: 
-        // Rev: Total Humanitarian Pool
-        // Cost: The portion of Health Cost assigned to this fund (revHealthAllocated)
-        // Balance: Surplus (if any)
-
-        // Wait, if we split the cost row, we should split the cost value too.
-        // Cost 1: Portion covered by Human Fund.
-        // Cost 2: Portion covered by Tax Fund.
-
-        // However, the user might want to see the FULL cost against the revenue?
-        // No, splitting rows implies splitting responsibility.
-
-        setTxt('bal-health-human-rev', fmtM(revHealthPool));
-        setTxt('bal-health-human-cost', fmtM(revHealthAllocated)); // The cost absorbed by this fund
-        setTxt('bal-health-human-net', fmtDiff(healthSurplus)); // Net surplus
-        setClass('bal-health-human-net', `text-right font-bold font-mono ${healthSurplus >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
-
-        // 1b. Public Health (Taxpayer)
-        // Revenue: Allocation from General Fund
-        // Cost: The Uncovered Health Cost
         const netHealthTax = revHealthFromGen - healthUncovered;
-        setTxt('bal-health-tax-rev', fmtM(revHealthFromGen));
-        setTxt('bal-health-tax-cost', fmtM(healthUncovered));
-        setTxt('bal-health-tax-net', fmtDiff(netHealthTax));
-        setClass('bal-health-tax-net', `text-right font-bold font-mono ${netHealthTax >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
 
-        // Subtotal: Public Health
         const subHealthRev = revHealthPool + revHealthFromGen;
         const subHealthCost = revHealthAllocated + healthUncovered;
         const subHealthNet = healthSurplus + netHealthTax;
 
-        setTxt('bal-health-sub-rev', fmtM(subHealthRev));
-        setTxt('bal-health-sub-cost', fmtM(subHealthCost));
-        setTxt('bal-health-sub-net', fmtDiff(subHealthNet));
-        setClass('bal-health-sub-net', `text-right font-bold font-mono ${subHealthNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
-
-        // Law Enforcement
         const netCrime = revCrime - totalCostCrime;
-        setTxt('bal-crime-rev', fmtM(revCrime));
-        setTxt('bal-crime-cost', fmtM(totalCostCrime));
-        setTxt('bal-crime-net', fmtDiff(netCrime));
-        setClass('bal-crime-net', `text-right font-bold font-mono ${netCrime >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
-
-        // Social Services
         const netSocial = revSocial - totalCostSocial;
-        setTxt('bal-social-rev', fmtM(revSocial));
-        setTxt('bal-social-cost', fmtM(totalCostSocial));
-        setTxt('bal-social-net', fmtDiff(netSocial));
-        setClass('bal-social-net', `text-right font-bold font-mono ${netSocial >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
-
-        // Civil Legal
         const netLegal = revLegal - totalCostLegal;
-        setTxt('bal-legal-rev', fmtM(revLegal));
-        setTxt('bal-legal-cost', fmtM(totalCostLegal));
-        setTxt('bal-legal-net', fmtDiff(netLegal));
-        setClass('bal-legal-net', `text-right font-bold font-mono ${netLegal >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
 
-        // Subtotal: General Taxpayer Services (Law + Social + Legal)
         const subGenRev = revCrime + revSocial + revLegal;
         const subGenCost = totalCostCrime + totalCostSocial + totalCostLegal;
         const subGenNet = netCrime + netSocial + netLegal;
 
-        setTxt('bal-gen-sub-rev', fmtM(subGenRev));
-        setTxt('bal-gen-sub-cost', fmtM(subGenCost));
-        setTxt('bal-gen-sub-net', fmtDiff(subGenNet));
-        setClass('bal-gen-sub-net', `text-right font-bold font-mono ${subGenNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
-
-        // Subtotal: Total Public Burden (Public Health + General Taxpayer Services)
-        const subPublicRev = subHealthRev + subGenRev; // Should equal totalRevenue allocated effectively (minus any unallocated surplus if logic differed, but here it matches)
+        const subPublicRev = subHealthRev + subGenRev;
         const subPublicCost = subHealthCost + subGenCost;
         const subPublicNet = subHealthNet + subGenNet;
 
-        setTxt('bal-public-sub-rev', fmtM(subPublicRev));
-        setTxt('bal-public-sub-cost', fmtM(subPublicCost));
-        setTxt('bal-public-sub-net', fmtDiff(subPublicNet));
-        setClass('bal-public-sub-net', `text-right font-black font-mono ${subPublicNet >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
-
-        // Private Sector Breakout
-        // Set Revenue to 0 for Private Sector
-        setTxt('bal-abused-rev', fmtM(0));
-        setTxt('bal-employment-rev', fmtM(0));
-        setTxt('bal-econ-sub-rev', fmtM(0));
-
-        // 5a. Abused Dollars
-        setTxt('bal-abused-cost', fmtM(totalCostAbused));
-        setTxt('bal-abused-net', fmtDiff(-totalCostAbused));
-        setClass('bal-abused-net', 'text-right font-mono text-red-500');
-
-        // 5b. Lost Employment
-        setTxt('bal-employment-cost', fmtM(totalCostEmployment));
-        setTxt('bal-employment-net', fmtDiff(-totalCostEmployment));
-        setClass('bal-employment-net', 'text-right font-mono text-red-500');
-
-        // Subtotal: Private Sector Impact
         const totalCostPrivate = totalCostAbused + totalCostEmployment;
-        setTxt('bal-econ-sub-cost', fmtM(totalCostPrivate));
-        setTxt('bal-econ-sub-net', fmtDiff(-totalCostPrivate));
-        setClass('bal-econ-sub-net', 'text-right font-mono text-red-500');
-
-        // TOTAL NET IMPACT
         const netTotalBalance = totalRevenue - totalCost;
-        setTxt('bal-total-rev', fmtM(totalRevenue));
-        setTxt('bal-total-cost', fmtM(totalCost));
-        setTxt('bal-total-net', fmtDiff(netTotalBalance));
-        setClass('bal-total-net', `text-right font-black font-mono text-base ${netTotalBalance >= 0 ? 'text-emerald-400' : 'text-red-500'}`);
 
-        // Update New Calculation Breakdowns
-        const taxEffRateActual = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
-        els.calcAGR.textContent = fmtM(agrM * 1000000);
+        const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || (els.inCounty && els.inCounty.value) || "");
+        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
+        const subjectCountyName = countyIndex.get(subjectCountyFips) || subjectCountyFips || "Subject County";
+
+        const otherCosts = computeOtherCountyCosts({
+            impactBreakdown: lastImpactBreakdown,
+            baselineRate: rate,
+            perVictimCosts: {
+                health: costHealthPer,
+                crime: costCrimePer,
+                social: costSocialPer,
+                legal: costLegalPer,
+                abused: costAbusedPer,
+                employment: costEmploymentPer
+            }
+        });
+
+        const o = otherCosts && otherCosts.totals ? otherCosts.totals : {};
+        const otherTotals = {
+            health: Number(o.health || 0),
+            crime: Number(o.crime || 0),
+            social: Number(o.social || 0),
+            legal: Number(o.legal || 0),
+            abused: Number(o.abused || 0),
+            employment: Number(o.employment || 0),
+            public: Number(o.public || 0),
+            private: Number(o.private || 0),
+            total: Number(o.total || 0)
+        };
+
+        const netImpactRows = [
+            {
+                key: 'health_human',
+                kind: 'detail',
+                label: 'Public Health (Humanitarian)',
+                labelClass: 'text-purple-400',
+                tooltip: 'Addiction treatment, counseling, and prevention programs funded specifically by the Humanitarian Fund allocation.',
+                revenue: revHealthPool,
+                countyCost: revHealthAllocated,
+                countyBalance: healthSurplus,
+                otherCost: 0
+            },
+            {
+                key: 'health_tax',
+                kind: 'detail',
+                label: 'Public Health (Taxpayer)',
+                labelClass: 'text-purple-400',
+                tooltip: 'Excess public health costs falling on the general taxpayer after Humanitarian funds are exhausted.',
+                revenue: revHealthFromGen,
+                countyCost: healthUncovered,
+                countyBalance: netHealthTax,
+                otherCost: otherTotals.health
+            },
+            {
+                key: 'health_sub',
+                kind: 'subtotal',
+                label: 'Subtotal: Public Health',
+                labelClass: 'text-purple-400',
+                revenue: subHealthRev,
+                countyCost: subHealthCost,
+                countyBalance: subHealthNet,
+                otherCost: otherTotals.health
+            },
+            {
+                key: 'crime',
+                kind: 'detail',
+                label: 'Law Enforcement',
+                labelClass: 'text-blue-400',
+                tooltip: 'Police response, investigations, and incarceration costs related to gambling-related crimes (theft, fraud, domestic disturbances).',
+                revenue: revCrime,
+                countyCost: totalCostCrime,
+                countyBalance: netCrime,
+                otherCost: otherTotals.crime
+            },
+            {
+                key: 'social',
+                kind: 'detail',
+                label: 'Social Services',
+                labelClass: 'text-blue-400',
+                tooltip: 'Unemployment benefits, welfare support, and child protective services for families destabilized by gambling addiction.',
+                revenue: revSocial,
+                countyCost: totalCostSocial,
+                countyBalance: netSocial,
+                otherCost: otherTotals.social
+            },
+            {
+                key: 'legal',
+                kind: 'detail',
+                label: 'Civil Legal',
+                labelClass: 'text-blue-400',
+                tooltip: 'Court costs for bankruptcy proceedings, divorce filings, and civil lawsuits associated with gambling debts.',
+                revenue: revLegal,
+                countyCost: totalCostLegal,
+                countyBalance: netLegal,
+                otherCost: otherTotals.legal
+            },
+            {
+                key: 'gen_sub',
+                kind: 'subtotal',
+                label: 'Subtotal: General Taxpayer Services',
+                labelClass: 'text-blue-400',
+                revenue: subGenRev,
+                countyCost: subGenCost,
+                countyBalance: subGenNet,
+                otherCost: otherTotals.crime + otherTotals.social + otherTotals.legal
+            },
+            {
+                key: 'public_sub',
+                kind: 'subtotal',
+                label: 'Subtotal: Public Sector Impact',
+                labelClass: 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400',
+                revenue: subPublicRev,
+                countyCost: subPublicCost,
+                countyBalance: subPublicNet,
+                otherCost: otherTotals.public
+            },
+            {
+                key: 'abused',
+                kind: 'detail',
+                label: 'Abused Dollars',
+                labelClass: 'text-orange-400',
+                tooltip: 'Household spending diverted from local goods/services to gambling losses, reducing local consumer demand.',
+                revenue: 0,
+                countyCost: totalCostAbused,
+                countyBalance: -totalCostAbused,
+                otherCost: otherTotals.abused
+            },
+            {
+                key: 'employment',
+                kind: 'detail',
+                label: 'Lost Employment',
+                labelClass: 'text-orange-400',
+                tooltip: 'Productivity losses for local businesses due to employee absenteeism, distraction, and turnover related to gambling.',
+                revenue: 0,
+                countyCost: totalCostEmployment,
+                countyBalance: -totalCostEmployment,
+                otherCost: otherTotals.employment
+            },
+            {
+                key: 'private_sub',
+                kind: 'subtotal',
+                label: 'Subtotal: Private Sector Impact',
+                labelClass: 'text-orange-400',
+                revenue: 0,
+                countyCost: totalCostPrivate,
+                countyBalance: -totalCostPrivate,
+                otherCost: otherTotals.private
+            },
+            {
+                key: 'total',
+                kind: 'total',
+                label: 'Total Net Economic Impact',
+                labelClass: 'text-white',
+                revenue: totalRevenue,
+                countyCost: totalCost,
+                countyBalance: netTotalBalance,
+                otherCost: otherTotals.total
+            }
+        ];
+
+	        renderNetEconomicImpactTable({
+	            subjectCountyName,
+	            subjectCountyFips,
+	            baselineRate: rate,
+	            rows: netImpactRows,
+	            otherCounties: otherCosts ? otherCosts.counties : [],
+	            expanded: otherCountiesExpanded
+	        });
+
+	        const hasImpact = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
+	        const otherVictimsRaw = otherCosts && Array.isArray(otherCosts.counties)
+	            ? otherCosts.counties.reduce((sum, c) => sum + (Number(c && c.victimsWithin50) || 0), 0)
+	            : 0;
+	        const otherVictims = Math.round(otherVictimsRaw);
+	        const otherVictimsDisplay = hasImpact ? otherVictims.toLocaleString() : '-';
+	
+	        const otherPerDisplay = (v) => hasImpact ? fmt(v) : '-';
+	        const otherCostDisplay = (v) => hasImpact ? fmtM(v) : '-';
+	
+	        // Detailed Social Cost Breakdown (Other Counties Aggregate)
+	        setTxt('calc-break-health-victims-other', otherVictimsDisplay);
+	        setTxt('calc-break-health-per-other', otherPerDisplay(costHealthPer));
+	        setTxt('calc-break-health-total-other', otherCostDisplay(otherTotals.health));
+	
+	        setTxt('calc-break-social-victims-other', otherVictimsDisplay);
+	        setTxt('calc-break-social-per-other', otherPerDisplay(costSocialPer));
+	        setTxt('calc-break-social-total-other', otherCostDisplay(otherTotals.social));
+	
+	        setTxt('calc-break-crime-victims-other', otherVictimsDisplay);
+	        setTxt('calc-break-crime-per-other', otherPerDisplay(costCrimePer));
+	        setTxt('calc-break-crime-total-other', otherCostDisplay(otherTotals.crime));
+	
+	        setTxt('calc-break-legal-victims-other', otherVictimsDisplay);
+	        setTxt('calc-break-legal-per-other', otherPerDisplay(costLegalPer));
+	        setTxt('calc-break-legal-total-other', otherCostDisplay(otherTotals.legal));
+	
+	        setTxt('calc-break-abused-victims-other', otherVictimsDisplay);
+	        setTxt('calc-break-abused-per-other', otherPerDisplay(costAbusedPer));
+	        setTxt('calc-break-abused-total-other', otherCostDisplay(otherTotals.abused));
+	
+	        setTxt('calc-break-employment-victims-other', otherVictimsDisplay);
+	        setTxt('calc-break-employment-per-other', otherPerDisplay(costEmploymentPer));
+	        setTxt('calc-break-employment-total-other', otherCostDisplay(otherTotals.employment));
+	
+	        setTxt('calc-break-total-victims-other', otherVictimsDisplay);
+	        setTxt('calc-total-cost-per-other', otherPerDisplay(costPer));
+	        setTxt('calc-total-cost-combined-other', otherCostDisplay(otherTotals.total));
+
+	        // Update New Calculation Breakdowns
+	        const taxEffRateActual = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
+	        els.calcAGR.textContent = fmtM(agrM * 1000000);
         els.calcTaxRate.textContent = taxEffRateActual.toFixed(2) + '%';
         els.calcTaxTotal.textContent = fmtM(totalRevenue);
 
@@ -972,7 +1107,7 @@ window.EconomicCalculator = (function ()
             analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Analysis</div>`;
             analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
             analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population data is sourced directly from the <a href="https://www.census.gov/data/developers/data-sets/decennial-census.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">U.S. Census Bureau's 2020 Decennial Census API</a>, seeded into the SaveFW database in January 2026. Geographic boundaries utilize high-precision 2020 TIGER/Line Shapefiles processed via PostGIS.</li>`;
-            analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The primary balance-sheet results model fiscal exposure for the assessed county. A separate spillover section estimates how impacts may distribute to other same-state counties within a 50-mile radius (out-of-state excluded).</li>`;
+            analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The primary balance-sheet results model fiscal exposure for the assessed county. The Net Economic Impact table also includes an <strong class="text-white">Other Counties Costs</strong> column estimating how same-state impacts may distribute within a 50-mile radius (out-of-state excluded); use <strong class="text-white">Expand</strong> to view the county-by-county breakout.</li>`;
 
             // updated specific bullet point with adult pop
             let adultPopStr = adultPop > 0 ? adultPop.toLocaleString() : "Unknown";
@@ -1098,172 +1233,248 @@ window.EconomicCalculator = (function ()
                 analysisHTML += `<li><strong class="text-white">Fiscal Conclusion:</strong> Under this specific configuration of variables, the casino generates a net fiscal surplus. The projected revenue of ${fmtM(totalRevenue)} exceeds the estimated social cost liabilities of ${fmtM(totalCost)}.</li>`;
             }
 
-            analysisHTML += '</ul>';
-            analysisEl.innerHTML = analysisHTML;
-        }
+	            analysisHTML += '</ul>';
+	            analysisEl.innerHTML = analysisHTML;
+	        }
+	    }
 
-        renderRegionalSpilloverTable({
-            subjectCountyName: countyName,
-            totalRevenue,
-            baselineRate: rate,
-            perVictimCosts: {
-                crime: cCrime,
-                business: cBusiness,
-                bankruptcy: cBankruptcy,
-                illness: cIllness,
-                services: cServices,
-                abused: cAbused
-            }
-        });
-    }
+	    function computeOtherCountyCosts(options)
+	    {
+	        const impact = options && options.impactBreakdown ? options.impactBreakdown : null;
+	        const impacted = impact && Array.isArray(impact.byCounty) ? impact.byCounty : [];
+	        const subjectCountyFips = String((impact && impact.countyFips) || "");
+	
+	        const baselineRateCandidate = Number((impact && impact.baselineRate) || (options && options.baselineRate) || 2.3);
+	        const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
+	        const r1 = (baselineRate * 2.0) / 100;
+	        const r2 = (baselineRate * 1.5) / 100;
+	        const r3 = (baselineRate * 1.0) / 100;
+	
+	        const perVictimCosts = (options && options.perVictimCosts) ? options.perVictimCosts : {};
+	        const costsPerVictim = {
+	            health: Number(perVictimCosts.health || 0),
+	            crime: Number(perVictimCosts.crime || 0),
+	            social: Number(perVictimCosts.social || 0),
+	            legal: Number(perVictimCosts.legal || 0),
+	            abused: Number(perVictimCosts.abused || 0),
+	            employment: Number(perVictimCosts.employment || 0)
+	        };
+	
+	        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
+	
+	        const totals = {
+	            health: 0,
+	            crime: 0,
+	            social: 0,
+	            legal: 0,
+	            abused: 0,
+	            employment: 0,
+	            public: 0,
+	            private: 0,
+	            total: 0
+	        };
+	
+	        const counties = [];
+	        for (const c of impacted)
+	        {
+	            const fips = String((c && (c.fips || c.geoid)) || "");
+	            if (!fips || fips === subjectCountyFips) continue;
+	
+	            const t1Adults = Number(c.t1Pop || 0);
+	            const t2Adults = Number(c.t2Pop || 0);
+	            const t3Adults = Number(c.t3Pop || 0);
+	            const victimsWithin50 = (t1Adults * r1) + (t2Adults * r2) + (t3Adults * r3);
+	            if (!Number.isFinite(victimsWithin50) || victimsWithin50 <= 0) continue;
+	
+	            const name = countyIndex.get(fips) || fips;
+	
+	            const health = victimsWithin50 * costsPerVictim.health;
+	            const crime = victimsWithin50 * costsPerVictim.crime;
+	            const social = victimsWithin50 * costsPerVictim.social;
+	            const legal = victimsWithin50 * costsPerVictim.legal;
+	            const abused = victimsWithin50 * costsPerVictim.abused;
+	            const employment = victimsWithin50 * costsPerVictim.employment;
+	            const publicTotal = health + crime + social + legal;
+	            const privateTotal = abused + employment;
+	            const total = publicTotal + privateTotal;
+	
+	            counties.push({
+	                fips,
+	                name,
+	                victimsWithin50,
+	                costs: { health, crime, social, legal, abused, employment, public: publicTotal, private: privateTotal, total }
+	            });
+	
+	            totals.health += health;
+	            totals.crime += crime;
+	            totals.social += social;
+	            totals.legal += legal;
+	            totals.abused += abused;
+	            totals.employment += employment;
+	        }
+	
+	        totals.public = totals.health + totals.crime + totals.social + totals.legal;
+	        totals.private = totals.abused + totals.employment;
+	        totals.total = totals.public + totals.private;
+	
+	        counties.sort((a, b) => (b.costs.total || 0) - (a.costs.total || 0));
+	
+	        return { counties, totals, baselineRate };
+	    }
+	
+	    function getOtherCountyCostForRow(rowKey, costs)
+	    {
+	        const c = costs || {};
+	        switch (rowKey)
+	        {
+	            case 'health_human': return 0;
+	            case 'health_tax': return Number(c.health || 0);
+	            case 'health_sub': return Number(c.health || 0);
+	            case 'crime': return Number(c.crime || 0);
+	            case 'social': return Number(c.social || 0);
+	            case 'legal': return Number(c.legal || 0);
+	            case 'gen_sub': return Number((c.crime || 0) + (c.social || 0) + (c.legal || 0));
+	            case 'public_sub': return Number(c.public || 0);
+	            case 'abused': return Number(c.abused || 0);
+	            case 'employment': return Number(c.employment || 0);
+	            case 'private_sub': return Number(c.private || 0);
+	            case 'total': return Number(c.total || 0);
+	            default: return 0;
+	        }
+	    }
+	
+	    function renderNetEconomicImpactTable(model)
+	    {
+	        const container = document.getElementById('net-impact-table');
+	        if (!container) return;
+	
+	        const noteEl = document.getElementById('net-impact-note');
+	
+	        const rows = (model && Array.isArray(model.rows)) ? model.rows : [];
+	        const otherCounties = (model && Array.isArray(model.otherCounties)) ? model.otherCounties : [];
+	        const expanded = !!(model && model.expanded && otherCounties.length > 0);
+	        const baselineRate = Number(model && model.baselineRate);
+	        const baselineRateDisplay = Number.isFinite(baselineRate) ? baselineRate.toFixed(1) : "—";
+	
+	        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
+	        const countyHeaderText = subjectCountyName ? `${subjectCountyName} County Costs` : 'County Costs';
+	        const otherHeaderText = `Other Counties Costs${otherCounties.length ? ` (${otherCounties.length})` : ''}`;
+	        const toggleButton = otherCounties.length
+	            ? `<button type="button" onclick="window.EconomicCalculator && window.EconomicCalculator.toggleOtherCounties && window.EconomicCalculator.toggleOtherCounties()" class="ml-2 px-2 py-0.5 rounded border border-slate-600 text-[10px] uppercase tracking-widest text-slate-200 hover:bg-slate-800 transition-colors">${expanded ? 'Collapse' : 'Expand'}</button>`
+	            : '';
+	
+	        if (!rows.length)
+	        {
+	            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see cost distribution.</div>`;
+	            if (noteEl) noteEl.textContent = "";
+	            return;
+	        }
+	
+	        const headerExtra = expanded
+	            ? otherCounties.map(c => `<th class="px-3 py-2 text-right whitespace-nowrap text-slate-300">${escapeHtml(c.name)}</th>`).join('')
+	            : '';
+	
+	        const thead = `
+	            <thead>
+	                <tr class="border-b border-slate-700 bg-slate-900/60">
+	                    <th class="px-3 py-2 text-left whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur">Group</th>
+	                    <th class="px-3 py-2 text-right whitespace-nowrap">Revenue</th>
+	                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(countyHeaderText.toUpperCase())}</th>
+	                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(otherHeaderText.toUpperCase())}${toggleButton}</th>
+	                    ${headerExtra}
+	                    <th class="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur">Net Balance</th>
+	                </tr>
+	            </thead>
+	        `;
+	
+	        let tbody = '<tbody>';
+	        for (const row of rows)
+	        {
+	            const kind = String(row.kind || 'detail');
+	            const rowKey = String(row.key || "");
+	
+	            const rowRevenue = Number(row.revenue || 0);
+	            const rowCountyCost = Number(row.countyCost || 0);
+	            const rowOtherCost = Number(row.otherCost || 0);
+	            const rowBalance = Number(row.countyBalance || 0);
+	
+	            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : 'text-slate-600';
+	            const balanceClass = rowBalance >= 0 ? 'text-emerald-400' : 'text-red-500';
+	
+	            const rowBgClass = kind === 'total'
+	                ? 'bg-slate-800/60 border-t-2 border-slate-500'
+	                : kind === 'subtotal'
+	                    ? 'bg-slate-800/30 border-t border-slate-600'
+	                    : 'border-t border-slate-800/60';
+	
+	            const rowFontClass = kind === 'total'
+	                ? 'font-black'
+	                : kind === 'subtotal'
+	                    ? 'font-bold'
+	                    : 'font-semibold';
+	
+	            const tooltip = row.tooltip
+	                ? `
+	                    <div class="group relative flex items-center">
+	                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors">info</span>
+	                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 font-normal">
+	                            ${escapeHtml(row.tooltip)}
+	                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
+	                        </div>
+	                    </div>
+	                `
+	                : '';
+	
+	            const labelHtml = kind === 'total'
+	                ? `<div class="uppercase tracking-wider">${escapeHtml(row.label || '')}</div>`
+	                : escapeHtml(row.label || '');
+	
+	            const labelCell = `
+	                <td class="px-3 py-2 whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur ${rowFontClass} ${row.labelClass || ''}">
+	                    <div class="flex items-center gap-1">
+	                        <span>${labelHtml}</span>
+	                        ${tooltip}
+	                    </div>
+	                </td>
+	            `;
+	
+	            const otherExtraCells = expanded
+	                ? otherCounties.map(c =>
+	                {
+	                    const val = getOtherCountyCostForRow(rowKey, c.costs);
+	                    return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap text-amber-200">${fmtM(val)}</td>`;
+	                }).join('')
+	                : '';
+	
+	            tbody += `
+	                <tr class="${rowBgClass}">
+	                    ${labelCell}
+	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${revenueClass}">${fmtM(rowRevenue)}</td>
+	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-red-400">${fmtM(rowCountyCost)}</td>
+	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-amber-300">${fmtM(rowOtherCost)}</td>
+	                    ${otherExtraCells}
+	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur ${rowFontClass} ${balanceClass}">${fmtDiffM(rowBalance)}</td>
+	                </tr>
+	            `;
+	        }
+	        tbody += '</tbody>';
+	
+	        container.innerHTML = `
+	            <table class="min-w-max w-full text-xs">
+	                ${thead}
+	                ${tbody}
+	            </table>
+	        `;
+	
+	        if (noteEl)
+	        {
+	            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. Net Balance reflects subject-county revenue minus subject-county costs. “Other Counties Costs” totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
+	        }
+	    }
 
-    function renderRegionalSpilloverTable(options)
-    {
-        const container = document.getElementById('regional-cost-table');
-        if (!container) return;
-
-        const noteEl = document.getElementById('regional-cost-note');
-        const fmtM = (v) => '$' + (v / 1000000).toFixed(1) + 'MM';
-        const fmtDiff = (v) =>
-        {
-            const sign = v >= 0 ? '+' : '-';
-            return `${sign}${fmtM(Math.abs(v))}`;
-        };
-
-        const baselineRateCandidate = Number((lastImpactBreakdown && lastImpactBreakdown.baselineRate) || (options && options.baselineRate) || 2.3);
-        const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
-        const r1 = (baselineRate * 2.0) / 100;
-        const r2 = (baselineRate * 1.5) / 100;
-        const r3 = (baselineRate * 1.0) / 100;
-
-        const impacted = (lastImpactBreakdown && Array.isArray(lastImpactBreakdown.byCounty)) ? lastImpactBreakdown.byCounty : [];
-        if (!impacted.length)
-        {
-            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see spillover cost distribution.</div>`;
-            if (noteEl) noteEl.textContent = "";
-            return;
-        }
-
-        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
-
-        const counties = impacted
-            .map(c =>
-            {
-                const fips = String(c.fips || "");
-                const t1Adults = Number(c.t1Pop || 0);
-                const t2Adults = Number(c.t2Pop || 0);
-                const t3Adults = Number(c.t3Pop || 0);
-                const adultsWithin50 = t1Adults + t2Adults + t3Adults;
-                const victimsWithin50 = (t1Adults * r1) + (t2Adults * r2) + (t3Adults * r3);
-                const name = countyIndex.get(fips) || fips;
-                return { fips, name, t1Adults, t2Adults, t3Adults, adultsWithin50, victimsWithin50 };
-            })
-            .filter(c => c.fips && c.adultsWithin50 > 0);
-
-        if (!counties.length)
-        {
-            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">No regional spillover detected within 50 miles.</div>`;
-            if (noteEl) noteEl.textContent = "";
-            return;
-        }
-
-        const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || "");
-        counties.sort((a, b) =>
-        {
-            const aIsSubject = a.fips === subjectCountyFips ? 1 : 0;
-            const bIsSubject = b.fips === subjectCountyFips ? 1 : 0;
-            if (aIsSubject !== bIsSubject) return bIsSubject - aIsSubject;
-            return b.adultsWithin50 - a.adultsWithin50;
-        });
-
-        const totalRevenue = Number(options && options.totalRevenue) || 0;
-        const costs = (options && options.perVictimCosts) ? options.perVictimCosts : {};
-        const costRows = [
-            { key: 'health', label: 'Public Health', perVictim: Number(costs.illness || 0) },
-            { key: 'crime', label: 'Law Enforcement', perVictim: Number(costs.crime || 0) },
-            { key: 'social', label: 'Social Services', perVictim: Number(costs.services || 0) },
-            { key: 'legal', label: 'Civil Legal', perVictim: Number(costs.bankruptcy || 0) },
-            { key: 'abused', label: 'Abused Dollars', perVictim: Number(costs.abused || 0) },
-            { key: 'employment', label: 'Lost Employment', perVictim: Number(costs.business || 0) }
-        ];
-
-        const countyTotals = {};
-        for (const c of counties)
-        {
-            const totalPerVictim = costRows.reduce((sum, r) => sum + r.perVictim, 0);
-            countyTotals[c.fips] = {
-                victims: c.victimsWithin50,
-                totalCost: c.victimsWithin50 * totalPerVictim
-            };
-        }
-
-        const headerCells = counties.map(c => `<th class="px-3 py-2 text-right whitespace-nowrap">${c.name}</th>`).join('');
-
-        let bodyRows = "";
-        for (const row of costRows)
-        {
-            let rowTotal = 0;
-            const cells = counties.map(c =>
-            {
-                const cost = c.victimsWithin50 * row.perVictim;
-                rowTotal += cost;
-                return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap">${fmtM(cost)}</td>`;
-            }).join('');
-            bodyRows += `
-                <tr class="border-t border-slate-800/60">
-                    <td class="px-3 py-2 whitespace-nowrap text-slate-200 font-semibold">${row.label}</td>
-                    ${cells}
-                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-slate-200">${fmtM(rowTotal)}</td>
-                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur text-slate-500">—</td>
-                </tr>
-            `;
-        }
-
-        let totalCostAll = 0;
-        const totalCells = counties.map(c =>
-        {
-            const cost = countyTotals[c.fips].totalCost;
-            totalCostAll += cost;
-            return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap font-bold text-slate-100">${fmtM(cost)}</td>`;
-        }).join('');
-
-        const netAll = totalRevenue - totalCostAll;
-        const netClass = netAll >= 0 ? 'text-emerald-400' : 'text-red-500';
-
-        const table = `
-            <table class="min-w-max w-full text-xs">
-                <thead>
-                    <tr class="border-b border-slate-700 bg-slate-900/60">
-                        <th class="px-3 py-2 text-left whitespace-nowrap">Cost Category</th>
-                        ${headerCells}
-                        <th class="px-3 py-2 text-right whitespace-nowrap">Total</th>
-                        <th class="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur">Net Balance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${bodyRows}
-                    <tr class="border-t-2 border-slate-600 bg-slate-900/40">
-                        <td class="px-3 py-2 whitespace-nowrap font-bold text-white">Total (Within 50 Miles)</td>
-                        ${totalCells}
-                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap font-bold text-white">${fmtM(totalCostAll)}</td>
-                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur font-black ${netClass}">${fmtDiff(netAll)}</td>
-                    </tr>
-                </tbody>
-            </table>
-        `;
-
-        container.innerHTML = table;
-
-        if (noteEl)
-        {
-            const stateFips = String((lastImpactBreakdown && lastImpactBreakdown.stateFips) || "");
-            noteEl.textContent = `Baseline rate: ${baselineRate.toFixed(1)}%. Regional totals include same-state counties within 50 miles (state FIPS ${stateFips || "—"}). Net Balance = Total Tax Revenue − Total Spillover Cost (public + private).`;
-        }
-    }
-
-    // Initialize sliders with tick marks - called during init()
-    function initSliders()
-    {
+	    // Initialize sliders with tick marks - called during init()
+	    function initSliders()
+	    {
         const sliderConfigs = [
             { id: 'input-rate', stepMajor: 1.0, stepMinor: 0.5, format: v => v + '%' },
             { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'MM' },
@@ -1439,11 +1650,18 @@ window.EconomicCalculator = (function ()
         renderCustomOptions(getCountyData());
     }
 
+    function toggleOtherCounties()
+    {
+        otherCountiesExpanded = !otherCountiesExpanded;
+        calculate();
+    }
+
     return {
         init: init,
         calculate: calculate,
         selectCounty: selectCounty,
-        updateCounties: updateCounties
+        updateCounties: updateCounties,
+        toggleOtherCounties: toggleOtherCounties
     };
 })();
 

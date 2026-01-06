@@ -470,10 +470,10 @@
                                 <div
                                     class="text-xs text-slate-400 uppercase tracking-widest font-bold mb-4 text-center">
                                     Tax Revenue Calculation</div>
-                                <div
-                                    class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-base sm:text-lg">
-                                    <div class="flex flex-col items-center">
-                                        <span
+	                                        <div
+	                                            class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-base sm:text-lg">
+	                                            <div class="flex flex-col items-center">
+	                                                <span
                                             class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Adjusted
                                             Gross Revenue</span>
                                         <span class="text-white font-mono font-bold" id="calc-agr">-</span>
@@ -622,11 +622,33 @@
                                                 <span
                                                     class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                     Cost</span>
-                                                <span class="text-white font-mono font-bold"
-                                                    id="calc-break-health-total">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
+	                                                <span class="text-white font-mono font-bold"
+	                                                    id="calc-break-health-total">-</span>
+	                                            </div>
+	                                        </div>
+	
+	                                        <div class="mt-3 pt-3 border-t border-slate-700/50">
+	                                            <div class="text-[10px] text-slate-500 uppercase font-bold mb-2 text-center">
+	                                                Other Counties (Same State, ≤50 mi)
+	                                            </div>
+	                                            <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-sm sm:text-base">
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">New Problem Gamblers</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-health-victims-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">×</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Cost/Problem Gambler</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-health-per-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">=</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Total Cost</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-health-total-other">-</span>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
 
                                     <!-- 2. Social Services -->
                                     <div class="border-t border-slate-700/50 pt-4">
@@ -654,11 +676,33 @@
                                                 <span
                                                     class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                     Cost</span>
-                                                <span class="text-white font-mono font-bold"
-                                                    id="calc-break-social-total">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
+	                                                <span class="text-white font-mono font-bold"
+	                                                    id="calc-break-social-total">-</span>
+	                                            </div>
+	                                        </div>
+	
+	                                        <div class="mt-3 pt-3 border-t border-slate-700/50">
+	                                            <div class="text-[10px] text-slate-500 uppercase font-bold mb-2 text-center">
+	                                                Other Counties (Same State, ≤50 mi)
+	                                            </div>
+	                                            <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-sm sm:text-base">
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">New Problem Gamblers</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-social-victims-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">×</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Cost/Problem Gambler</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-social-per-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">=</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Total Cost</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-social-total-other">-</span>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
 
                                     <!-- 3. Criminal Justice -->
                                     <div class="border-t border-slate-700/50 pt-4">
@@ -686,11 +730,33 @@
                                                 <span
                                                     class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                     Cost</span>
-                                                <span class="text-white font-mono font-bold"
-                                                    id="calc-break-crime-total">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
+	                                                <span class="text-white font-mono font-bold"
+	                                                    id="calc-break-crime-total">-</span>
+	                                            </div>
+	                                        </div>
+	
+	                                        <div class="mt-3 pt-3 border-t border-slate-700/50">
+	                                            <div class="text-[10px] text-slate-500 uppercase font-bold mb-2 text-center">
+	                                                Other Counties (Same State, ≤50 mi)
+	                                            </div>
+	                                            <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-sm sm:text-base">
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">New Problem Gamblers</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-crime-victims-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">×</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Cost/Problem Gambler</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-crime-per-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">=</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Total Cost</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-crime-total-other">-</span>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
 
                                     <!-- 4. Civil Legal -->
                                     <div class="border-t border-slate-700/50 pt-4">
@@ -718,11 +784,33 @@
                                                 <span
                                                     class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                     Cost</span>
-                                                <span class="text-white font-mono font-bold"
-                                                    id="calc-break-legal-total">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
+	                                                <span class="text-white font-mono font-bold"
+	                                                    id="calc-break-legal-total">-</span>
+	                                            </div>
+	                                        </div>
+	
+	                                        <div class="mt-3 pt-3 border-t border-slate-700/50">
+	                                            <div class="text-[10px] text-slate-500 uppercase font-bold mb-2 text-center">
+	                                                Other Counties (Same State, ≤50 mi)
+	                                            </div>
+	                                            <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-sm sm:text-base">
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">New Problem Gamblers</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-legal-victims-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">×</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Cost/Problem Gambler</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-legal-per-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">=</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Total Cost</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-legal-total-other">-</span>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
 
                                     <!-- 5a. Abused Dollars -->
                                     <div class="border-t border-slate-700/50 pt-4">
@@ -750,11 +838,33 @@
                                                 <span
                                                     class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                     Cost</span>
-                                                <span class="text-white font-mono font-bold"
-                                                    id="calc-break-abused-total">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
+	                                                <span class="text-white font-mono font-bold"
+	                                                    id="calc-break-abused-total">-</span>
+	                                            </div>
+	                                        </div>
+	
+	                                        <div class="mt-3 pt-3 border-t border-slate-700/50">
+	                                            <div class="text-[10px] text-slate-500 uppercase font-bold mb-2 text-center">
+	                                                Other Counties (Same State, ≤50 mi)
+	                                            </div>
+	                                            <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-sm sm:text-base">
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">New Problem Gamblers</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-abused-victims-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">×</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Cost/Problem Gambler</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-abused-per-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">=</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Total Cost</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-abused-total-other">-</span>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
 
                                     <!-- 5b. Lost Employment -->
                                     <div class="border-t border-slate-700/50 pt-4">
@@ -782,17 +892,39 @@
                                                 <span
                                                     class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                     Cost</span>
-                                                <span class="text-white font-mono font-bold"
-                                                    id="calc-break-employment-total">-</span>
-                                            </div>
-                                        </div>
-                                    </div>
+	                                                <span class="text-white font-mono font-bold"
+	                                                    id="calc-break-employment-total">-</span>
+	                                            </div>
+	                                        </div>
+	
+	                                        <div class="mt-3 pt-3 border-t border-slate-700/50">
+	                                            <div class="text-[10px] text-slate-500 uppercase font-bold mb-2 text-center">
+	                                                Other Counties (Same State, ≤50 mi)
+	                                            </div>
+	                                            <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-sm sm:text-base">
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">New Problem Gamblers</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-employment-victims-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">×</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Cost/Problem Gambler</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-employment-per-other">-</span>
+	                                                </div>
+	                                                <div class="text-slate-500 font-bold mb-2">=</div>
+	                                                <div class="flex flex-col items-center">
+	                                                    <span class="text-slate-500 text-[10px] uppercase font-bold mb-1 text-center">Total Cost</span>
+	                                                    <span class="text-slate-200 font-mono font-bold" id="calc-break-employment-total-other">-</span>
+	                                                </div>
+	                                            </div>
+	                                        </div>
+	                                    </div>
                                 </div>
 
-                                <!-- Total Line -->
-                                <div class="mt-6 pt-4 border-t-2 border-slate-600">
-                                    <div
-                                        class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-lg sm:text-xl">
+	                                <!-- Total Line -->
+	                                <div class="mt-6 pt-4 border-t-2 border-slate-600">
+	                                    <div
+	                                        class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-lg sm:text-xl">
                                         <div class="flex flex-col items-center">
                                             <span
                                                 class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
@@ -813,11 +945,33 @@
                                             <span
                                                 class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total
                                                 Annual Social Cost</span>
-                                            <span class="text-white font-mono font-bold"
-                                                id="calc-total-cost-combined">-</span>
-                                        </div>
-                                    </div>
-                                </div>
+	                                            <span class="text-white font-mono font-bold"
+	                                                id="calc-total-cost-combined">-</span>
+	                                        </div>
+	                                    </div>
+	
+	                                    <div class="mt-4 pt-4 border-t border-slate-700/50">
+	                                        <div class="text-xs text-slate-500 uppercase font-bold mb-2 text-center">
+	                                            Other Counties (Same State, ≤50 mi)
+	                                        </div>
+	                                        <div class="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-2 items-center text-base sm:text-lg">
+	                                            <div class="flex flex-col items-center">
+	                                                <span class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total Gamblers</span>
+	                                                <span class="text-slate-200 font-mono font-bold" id="calc-break-total-victims-other">-</span>
+	                                            </div>
+	                                            <div class="text-slate-500 font-bold mb-3">×</div>
+	                                            <div class="flex flex-col items-center">
+	                                                <span class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total Cost/Problem Gambler</span>
+	                                                <span class="text-slate-200 font-mono font-bold" id="calc-total-cost-per-other">-</span>
+	                                            </div>
+	                                            <div class="text-slate-500 font-bold mb-3">=</div>
+	                                            <div class="flex flex-col items-center">
+	                                                <span class="text-slate-500 text-xs uppercase font-bold mb-1 text-center">Total Annual Social Cost</span>
+	                                                <span class="text-slate-200 font-mono font-bold" id="calc-total-cost-combined-other">-</span>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                </div>
                             </div>
                         </div>
                     </div>
@@ -848,20 +1002,22 @@
                             Net Economic Impact
                         </div>
 
-                        <p class="text-sm text-slate-400 leading-relaxed mb-6 px-4 text-left">
-                            Tax revenue is allocated based on a tiered prioritization model. The <span
-                                class="text-purple-400 font-bold">Humanitarian Fund</span> exclusively targets Public
-                            Health liabilities (addiction and mental health). The <span
+	                        <p class="text-sm text-slate-400 leading-relaxed mb-6 px-4 text-left">
+	                            Tax revenue is allocated based on a tiered prioritization model. The <span
+	                                class="text-purple-400 font-bold">Humanitarian Fund</span> exclusively targets Public
+	                            Health liabilities (addiction and mental health). The <span
                                 class="text-blue-400 font-bold">General Fund</span> is distributed pro-rata among Law
                             Enforcement, Social Services, and Civil Legal based on their relative share of the total
                             public sector burden. <span class="text-orange-400 font-bold">Private sector</span> economic
                             losses (Abused Dollars and Lost Employment) receive zero direct tax revenue offset in this
-                            analysis.
-                        </p>
+	                            analysis.
+	                        </p>
+	
+	                        @*
 
-                        <div
-                            class="grid grid-cols-4 gap-2 text-sm uppercase text-slate-500 font-bold mb-2 px-2 border-b border-slate-700 pb-2">
-                            <div class="col-span-1">Group</div>
+	                        <div
+	                            class="grid grid-cols-4 gap-2 text-sm uppercase text-slate-500 font-bold mb-2 px-2 border-b border-slate-700 pb-2">
+	                            <div class="col-span-1">Group</div>
                             <div class="col-span-1 text-right">Revenue</div>
                             <div class="col-span-1 text-right">Cost</div>
                             <div class="col-span-1 text-right">Balance</div>
@@ -1079,28 +1235,20 @@
                                 <div class="text-right text-red-400 font-mono" id="bal-total-net">-</div>
 	                            </div>
 	                        </div>
-
-	                        <!-- Regional (State) Spillover Costs (Within 50 miles) -->
-	                        <div class="mt-8 pt-6 border-t border-slate-700">
-	                            <div class="text-xs text-slate-200 uppercase tracking-widest font-bold mb-2 text-center">
-	                                Regional (State) Spillover Costs
-	                            </div>
-	                            <p class="text-sm text-slate-400 leading-relaxed mb-4 text-center px-4">
-	                                Costs are allocated to impacted counties within 50 miles (same state). Scroll
-	                                horizontally; the rightmost Net Balance column is sticky.
-	                            </p>
-	                            <div class="overflow-x-auto rounded-xl border border-slate-700 bg-slate-950/40">
-	                                <div id="regional-cost-table" class="min-w-max">
-	                                    <div class="p-4 text-sm text-slate-500 italic text-center">
-	                                        Select a county on the map to see spillover cost distribution.
-	                                    </div>
+	
+	                        *@
+	
+	                        <div class="overflow-x-auto rounded-xl border border-slate-700 bg-slate-950/40">
+	                            <div id="net-impact-table" class="min-w-max">
+	                                <div class="p-4 text-sm text-slate-500 italic text-center">
+	                                    Select a county on the map to see cost distribution.
 	                                </div>
 	                            </div>
-	                            <p class="mt-2 text-[11px] text-slate-500 italic text-center" id="regional-cost-note"></p>
 	                        </div>
+	                        <p class="mt-2 text-[11px] text-slate-500 italic text-center" id="net-impact-note"></p>
 
-	                        <!-- Progress Bar -->
-	                        <div class="relative z-10 mt-8 mb-4">
+		                        <!-- Progress Bar -->
+		                        <div class="relative z-10 mt-8 mb-4">
 	                            <div class="flex justify-between text-base font-bold mb-2">
 	                                <span class="text-emerald-500">Revenue Covered</span>
                                 <span class="text-red-500">Uncovered Cost</span>
