@@ -2,9 +2,7 @@ window.ImpactMap = (function ()
 {
 
     // --- SHARED DATA & STATE ---
-    // County reference data is loaded from shared module: js/data/indiana-counties.js
-    // Access via window.IndianaCounties
-    const getCountyReference = () => window.IndianaCounties || [];
+    const getCountyReference = () => window.CurrentCountyList || [];
 
     const cache = {};
 
@@ -12,12 +10,15 @@ window.ImpactMap = (function ()
         init: function (elementId)
         {
             let currentGeoJSON = null;
-            let currentCountyId = "003"; // Allen Default
+            let currentStateFips = null;
+            let currentCountyFips = null;
             let stateLayer = null;
+            let countyLayer = null;
             let highlightLayer = null;
             let blockGroupLayer = null;
             let tractLayer = null;
             let stateData = null;
+            let countyData = null;
             let satelliteTileLayer = null;
             let streetTileLayer = null;
 
@@ -68,12 +69,12 @@ window.ImpactMap = (function ()
                 // Zones
                 if (layersVisible.zones)
                 {
-                    if (!map.hasLayer(circle10)) map.addLayer(circle10);
-                    if (!map.hasLayer(circle20)) map.addLayer(circle20);
+                    if (circle10 && !map.hasLayer(circle10)) map.addLayer(circle10);
+                    if (circle20 && !map.hasLayer(circle20)) map.addLayer(circle20);
                 } else
                 {
-                    if (map.hasLayer(circle10)) map.removeLayer(circle10);
-                    if (map.hasLayer(circle20)) map.removeLayer(circle20);
+                    if (circle10 && map.hasLayer(circle10)) map.removeLayer(circle10);
+                    if (circle20 && map.hasLayer(circle20)) map.removeLayer(circle20);
                 }
                 // Selected County Overlay
                 if (highlightLayer)
@@ -88,15 +89,17 @@ window.ImpactMap = (function ()
                     }
                 }
                 // County Boundaries (State)
-                if (stateLayer)
+                if (stateLayer || countyLayer)
                 {
                     if (layersVisible.boundary)
                     {
-                        if (!map.hasLayer(stateLayer)) map.addLayer(stateLayer);
-                        stateLayer.bringToBack();
+                        if (stateLayer && !map.hasLayer(stateLayer)) map.addLayer(stateLayer);
+                        if (countyLayer && !map.hasLayer(countyLayer)) map.addLayer(countyLayer);
+                        if (stateLayer) stateLayer.bringToBack();
                     } else
                     {
-                        if (map.hasLayer(stateLayer)) map.removeLayer(stateLayer);
+                        if (stateLayer && map.hasLayer(stateLayer)) map.removeLayer(stateLayer);
+                        if (countyLayer && map.hasLayer(countyLayer)) map.removeLayer(countyLayer);
                     }
                 }
                 // Blocks & Heatmap
@@ -128,8 +131,8 @@ window.ImpactMap = (function ()
                 // Top ordering
                 if (layersVisible.zones)
                 {
-                    circle20.bringToFront();
-                    circle10.bringToFront();
+                    if (circle20) circle20.bringToFront();
+                    if (circle10) circle10.bringToFront();
                 }
                 if (stateLayer) stateLayer.bringToBack();
             }
@@ -165,6 +168,7 @@ window.ImpactMap = (function ()
                 valPop: document.getElementById('disp-pop-impact-zones'),
                 inputRate: document.getElementById('input-rate'),
                 map: document.getElementById(elementId),
+                stateSelect: document.getElementById('input-state'),
                 countySelect: document.getElementById('input-county'),
                 displayCounty: document.getElementById('display-impact-county')
             };
@@ -174,7 +178,7 @@ window.ImpactMap = (function ()
             // 2. Initialize Map
             const map = L.map(elementId, {
                 scrollWheelZoom: false, attributionControl: false, zoomControl: false
-            }).setView([39.8, -86.15], 7);
+            }).setView([39.5, -98.35], 4);
 
             L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -232,7 +236,7 @@ window.ImpactMap = (function ()
             setTimeout(() =>
             {
                 map.invalidateSize();
-                map.setView([39.8, -86.15], 7);
+                map.setView([39.5, -98.35], 4);
             }, 100);
             setTimeout(() =>
             {
@@ -245,10 +249,21 @@ window.ImpactMap = (function ()
             {
                 try
                 {
-                    const res = await fetch('./data/indiana_counties_merged.json');
-                    stateData = await res.json();
+                    const res = await fetch('/api/census/states');
+                    const apiData = await res.json();
+                    if (apiData && Array.isArray(apiData.features))
+                    {
+                        apiData.features.forEach(f =>
+                        {
+                            if (!f.properties) f.properties = {};
+                            if (!f.properties.NAME) f.properties.NAME = f.properties.name || f.properties.NAME || "";
+                            if (!f.properties.STUSPS) f.properties.STUSPS = f.properties.stusps || f.properties.STUSPS || "";
+                            if (!f.properties.GEOID) f.properties.GEOID = f.properties.geoid || f.properties.GEOID || "";
+                        });
+                    }
+                    stateData = apiData;
                     stateLayer = L.geoJSON(stateData, {
-                        style: { color: '#94a3b8', weight: 1, fillColor: '#94a3b8', fillOpacity: 0.1 },
+                        style: { color: '#94a3b8', weight: 1, fillColor: '#94a3b8', fillOpacity: 0.05 },
                         interactive: true,
                         onEachFeature: (feature, layer) =>
                         {
@@ -266,28 +281,136 @@ window.ImpactMap = (function ()
                                 mouseout: (e) => { stateLayer.resetStyle(e.target); },
                                 click: (e) =>
                                 {
-                                    const countyId = feature.properties.COUNTY;
-                                    if (countyId)
+                                    const stateFips = feature.properties.GEOID;
+                                    if (stateFips)
                                     {
-                                        const cInfo = getCountyReference().find(c => c.id === countyId);
-                                        if (cInfo)
-                                        {
-                                            loadCounty(countyId);
-                                            window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop } }));
-                                        }
+                                        loadStateCounties(stateFips);
                                     }
                                 }
                             });
                         }
                     }).addTo(map);
+
+                    if (els.stateSelect)
+                    {
+                        const options = apiData.features
+                            .map(f => ({
+                                geoid: f.properties.GEOID,
+                                name: f.properties.NAME || f.properties.GEOID
+                            }))
+                            .sort((a, b) => a.name.localeCompare(b.name));
+                        els.stateSelect.innerHTML = '<option value=\"\">Select a state</option>' +
+                            options.map(s => `<option value=\"${s.geoid}\">${s.name}</option>`).join('');
+
+                        els.stateSelect.onchange = () =>
+                        {
+                            const val = els.stateSelect.value;
+                            if (val) loadStateCounties(val);
+                        };
+                    }
                 } catch (e)
                 {
                     console.error("State Map Load Error", e);
                 }
             }
 
-            // Marker
-            const center = [41.0793, -85.1394];
+            async function loadStateCounties(stateFips)
+            {
+                toggleLoading(true);
+                const textEl = document.getElementById('map-loading-text');
+                if (textEl) textEl.textContent = "Loading County Boundaries...";
+                try
+                {
+                    currentStateFips = stateFips;
+                    if (els.stateSelect) els.stateSelect.value = stateFips;
+                    const displayEl = document.getElementById('county-display');
+                    if (displayEl) displayEl.textContent = "Select a county";
+                    if (highlightLayer) { map.removeLayer(highlightLayer); highlightLayer = null; }
+                    if (blockGroupLayer) { map.removeLayer(blockGroupLayer); blockGroupLayer = null; }
+                    if (tractLayer) { map.removeLayer(tractLayer); tractLayer = null; }
+                    if (marker) { map.removeLayer(marker); marker = null; }
+                    if (circle10) { map.removeLayer(circle10); circle10 = null; }
+                    if (circle20) { map.removeLayer(circle20); circle20 = null; }
+                    currentContextGeoJSON = null;
+                    const res = await fetch(`/api/census/counties/${stateFips}`);
+                    const apiData = await res.json();
+                    if (apiData && Array.isArray(apiData.features))
+                    {
+                        apiData.features.forEach(f =>
+                        {
+                            if (!f.properties) f.properties = {};
+                            const geoid = f.properties.geoid || f.properties.GEOID || "";
+                            if (!f.properties.NAME) f.properties.NAME = f.properties.name || f.properties.NAME || "";
+                            if (!f.properties.COUNTY && geoid.length >= 5) f.properties.COUNTY = geoid.slice(-3);
+                            if (!f.properties.GEOID) f.properties.GEOID = geoid;
+                        });
+                    }
+                    countyData = apiData;
+                    window.CurrentCountyList = (apiData && Array.isArray(apiData.features))
+                        ? apiData.features.map(f => ({
+                            id: (f.properties.GEOID || "").slice(-3),
+                            geoid: f.properties.GEOID || "",
+                            name: f.properties.NAME || "",
+                            pop: 0
+                        }))
+                        : [];
+
+                    if (countyLayer) map.removeLayer(countyLayer);
+                    countyLayer = L.geoJSON(countyData, {
+                        style: { color: '#94a3b8', weight: 1, fillColor: '#94a3b8', fillOpacity: 0.08 },
+                        interactive: true,
+                        onEachFeature: (feature, layer) =>
+                        {
+                            if (feature.properties && feature.properties.NAME)
+                            {
+                                const tooltipContent = `<div class="bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 p-2 font-bold shadow-2xl">${feature.properties.NAME}</div>`;
+                                layer.bindTooltip(tooltipContent, { sticky: true, className: 'map-tooltip', direction: 'top', offset: [0, -10], opacity: 1 });
+                            }
+                            layer.on({
+                                mouseover: (e) =>
+                                {
+                                    e.target.setStyle({ weight: 2, color: '#60a5fa', fillOpacity: 0.3 });
+                                    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) e.target.bringToFront();
+                                },
+                                mouseout: (e) => { countyLayer.resetStyle(e.target); },
+                                click: () =>
+                                {
+                                    const geoid = feature.properties.GEOID;
+                                    if (geoid)
+                                    {
+                                        loadCounty(geoid);
+                                    }
+                                }
+                            });
+                        }
+                    }).addTo(map);
+
+                    if (els.countySelect)
+                    {
+                        const opts = window.CurrentCountyList || [];
+                        els.countySelect.innerHTML = '<option value="">Select County</option>' +
+                            opts.map(c => `<option value="${c.geoid}">${c.name || c.geoid}</option>`).join('');
+                    }
+
+                    if (window.EconomicCalculator && window.EconomicCalculator.updateCounties)
+                    {
+                        window.EconomicCalculator.updateCounties();
+                    }
+                } catch (e)
+                {
+                    console.error("County Load Error", e);
+                } finally
+                {
+                    if (textEl) textEl.textContent = "Loading Regional Data...";
+                    toggleLoading(false);
+                    updateLayerVisibility();
+                }
+            }
+
+            // Marker (created on county selection)
+            let marker = null;
+            let circle20 = null;
+            let circle10 = null;
             const casinoPin = L.icon({
                 iconUrl: 'assets/Casino_Map_Marker.svg',
                 iconSize: [50, 88],
@@ -295,10 +418,6 @@ window.ImpactMap = (function ()
                 popupAnchor: [0, -80],
                 className: 'marker-shadow-filter'
             });
-            const marker = L.marker(center, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
-
-            const circle20 = L.circle(center, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
-            const circle10 = L.circle(center, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
 
             // Controls
             const mapOverlayControls = L.control({ position: 'topright' });
@@ -358,7 +477,7 @@ window.ImpactMap = (function ()
                     overlay.innerHTML = `
                         <div class="flex flex-col items-center gap-4">
                             <div class="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-                            <div class="text-white font-bold text-shadow-sm">Loading Regional Data...</div>
+                            <div class="text-white font-bold text-shadow-sm" id="map-loading-text">Loading Regional Data...</div>
                         </div>
                     `;
                     mapEl.parentElement.appendChild(overlay);
@@ -370,30 +489,40 @@ window.ImpactMap = (function ()
                 }
             }
 
-            async function loadCounty(countyId, skipMarkerMove = false)
+            async function loadCounty(countyFips, skipMarkerMove = false)
             {
-                if (!countyId) return;
+                if (!countyFips) return;
 
                 // 1. Load Calculation Context (The 50 mile buffer data)
-                await loadCountyContext(countyId);
+                const textEl = document.getElementById('map-loading-text');
+                if (textEl) textEl.textContent = "Loading County Data...";
+                await loadCountyContext(countyFips);
 
                 // 2. Set Visuals using the loaded context data
                 // We extract the county specific features from the context for visualization
                 if (currentContextGeoJSON)
                 {
-                    currentCountyId = countyId;
-                    highlightCountyVisuals(countyId, currentContextGeoJSON, skipMarkerMove);
+                    currentCountyFips = countyFips;
+                    highlightCountyVisuals(countyFips, currentContextGeoJSON, skipMarkerMove);
                 }
 
                 calculateImpact(); // Trigger calc after data load
+
+                const cInfo = getCountyReference().find(c => c.geoid === currentCountyFips);
+                if (cInfo)
+                {
+                    window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop || 0, geoid: currentCountyFips } }));
+                }
+
+                if (textEl) textEl.textContent = "Loading Regional Data...";
             }
 
             // ... (keep surrounding code) ...
 
-            function highlightCountyVisuals(countyId, contextData, skipMarkerMove = false)
+            function highlightCountyVisuals(countyFips, contextData, skipMarkerMove = false)
             {
-                if (!stateData) return;
-                const countyFeature = stateData.features.find(f => f.properties.COUNTY === countyId);
+                if (!countyData) return;
+                const countyFeature = countyData.features.find(f => f.properties.GEOID === countyFips);
                 if (highlightLayer) map.removeLayer(highlightLayer);
                 if (countyFeature)
                 {
@@ -409,7 +538,7 @@ window.ImpactMap = (function ()
                     const countyFeatures = contextData.features.filter(f =>
                     {
                         const geoid = f.properties.GEOID || "";
-                        return geoid.startsWith("18" + countyId);
+                        return geoid.startsWith(countyFips);
                     });
 
                     const countyGeoJSON = { type: "FeatureCollection", features: countyFeatures };
@@ -478,10 +607,42 @@ window.ImpactMap = (function ()
                     const bounds = L.geoJSON(countyFeature).getBounds();
                     map.fitBounds(bounds, { padding: [50, 50] });
                     const latLng = bounds.getCenter();
-                    marker.setLatLng(latLng); circle10.setLatLng(latLng); circle20.setLatLng(latLng);
+
+                    if (!marker)
+                    {
+                        marker = L.marker(latLng, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
+                        circle20 = L.circle(latLng, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
+                        circle10 = L.circle(latLng, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
+
+                        marker.on('drag', () =>
+                        {
+                            const pos = marker.getLatLng();
+                            circle10.setLatLng(pos); circle20.setLatLng(pos);
+                            if (countyData)
+                            {
+                                const pt = turf.point([pos.lng, pos.lat]);
+                                const matched = countyData.features.find(f => turf.booleanPointInPolygon(pt, f));
+                                if (matched)
+                                {
+                                    const newCountyFips = matched.properties.GEOID;
+                                    if (newCountyFips && newCountyFips !== currentCountyFips)
+                                    {
+                                        currentCountyFips = newCountyFips;
+                                        loadCounty(newCountyFips, true);
+                                        const cInfo = getCountyReference().find(c => c.geoid === newCountyFips);
+                                        if (cInfo) window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop } }));
+                                    }
+                                }
+                            }
+                            calculateImpact();
+                        });
+                    } else
+                    {
+                        marker.setLatLng(latLng); circle10.setLatLng(latLng); circle20.setLatLng(latLng);
+                    }
                 }
                 updateLayerVisibility();
-                const cInfo = getCountyReference().find(c => c.id === countyId);
+                const cInfo = getCountyReference().find(c => c.geoid === countyFips);
                 if (els.displayCounty && cInfo) els.displayCounty.textContent = cInfo.name;
             }
 
@@ -540,60 +701,21 @@ window.ImpactMap = (function ()
                 } catch (e) { console.error("Tract gen failed", e); return null; }
             }
 
-            function highlightCountyVisuals(countyId, skipMarkerMove = false)
-            {
-                if (!stateData) return;
-                const countyFeature = stateData.features.find(f => f.properties.COUNTY === countyId);
-                if (highlightLayer) map.removeLayer(highlightLayer);
-                if (countyFeature)
-                {
-                    highlightLayer = L.geoJSON(countyFeature, { style: { color: '#f97316', weight: 3, fillColor: '#7c2d12', fillOpacity: 0.2, dashArray: '4, 4' }, interactive: false });
-                }
-                if (blockGroupLayer) map.removeLayer(blockGroupLayer);
-                if (tractLayer) map.removeLayer(tractLayer);
-
-                // Note: BlockGroupLayer (Heatmap) currently uses the VISUAL `currentGeoJSON` (the single county). 
-                // If we want the heatmap to extend, we'd use `currentContextGeoJSON` here.
-                if (currentGeoJSON)
-                {
-                    let maxDensity = 0;
-                    let hasRealData = false;
-                    // Check generic props
-                    turf.featureEach(currentGeoJSON, (f) => { if (f.properties.POPULATION || f.properties.POP) hasRealData = true; });
-
-                    turf.featureEach(currentGeoJSON, (f) =>
-                    {
-                        const a = f.properties.ALAND || 0; let density = 0;
-                        if (hasRealData) { const p = f.properties.POPULATION || f.properties.POP || 0; density = a > 0 ? p / a : 0; }
-                        else { density = a > 0 ? 1 / a : 0; }
-                        f.properties._density = density;
-                        if (density > maxDensity) maxDensity = density;
-                    });
-                    turf.featureEach(currentGeoJSON, (f) => { f.properties._maxDensity = maxDensity; });
-                    blockGroupLayer = L.geoJSON(currentGeoJSON, { style: getHeatMapStyle, interactive: false });
-                    tractLayer = generateTractLayer(currentGeoJSON);
-                }
-
-                if (countyFeature && !skipMarkerMove)
-                {
-                    const bounds = L.geoJSON(countyFeature).getBounds();
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                    const latLng = bounds.getCenter();
-                    marker.setLatLng(latLng); circle10.setLatLng(latLng); circle20.setLatLng(latLng);
-                }
-                updateLayerVisibility();
-                // calculateImpact(); // Removed duplicate call, loadCounty calls it
-                const cInfo = getCountyReference().find(c => c.id === countyId);
-                if (els.displayCounty && cInfo) els.displayCounty.textContent = cInfo.name;
-            }
-
             const geocoder = L.Control.geocoder({
                 defaultMarkGeocode: false, collapsed: false, placeholder: "Search for an address...", suggestMinLength: 3, suggestTimeout: 300,
                 geocoder: L.Control.Geocoder.nominatim({ geocodingQueryParams: { countrycodes: 'us', viewbox: '-88.2,42.0,-84.6,37.5', bounded: 1, limit: 5 } })
             }).on('markgeocode', function (e)
             {
                 const center = e.geocode.center;
-                marker.setLatLng(center); circle10.setLatLng(center); circle20.setLatLng(center);
+                if (!marker)
+                {
+                    marker = L.marker(center, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
+                    circle20 = L.circle(center, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
+                    circle10 = L.circle(center, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
+                } else
+                {
+                    marker.setLatLng(center); circle10.setLatLng(center); circle20.setLatLng(center);
+                }
                 map.setView(center, 11);
                 calculateImpact();
             }).addTo(map);
@@ -622,19 +744,17 @@ window.ImpactMap = (function ()
             function calculateImpact()
             {
                 // CLIENT SIDE ONLY - No Fetch
-                if (!currentContextGeoJSON) return;
+                if (!currentContextGeoJSON || !marker || !currentCountyFips) return;
 
                 const baselineRate = parseFloat(els.inputRate ? els.inputRate.value : 2.3);
                 const markerLatLng = marker.getLatLng();
                 const centerPoint = turf.point([markerLatLng.lng, markerLatLng.lat]);
 
                 // Get county info for context display
-                const countyInfo = getCountyReference().find(c => c.id === currentCountyId);
-                const countyTotal = countyInfo ? countyInfo.pop : 0; // Displayed Total (All Ages)
+                const countyInfo = getCountyReference().find(c => c.geoid === currentCountyFips);
 
-                // Ideally we should calculate "County Adults" from the data too, 
-                // but `getCountyReference` only has total pop.
-                // We can sum the `POP_ADULT` of all features in the context matching the county code.
+                // Sum county totals from context data (authoritative)
+                let countyTotal = 0;
                 let countyAdults = 0;
 
                 let t1Pop = 0;
@@ -645,16 +765,16 @@ window.ImpactMap = (function ()
                 {
                     const props = feature.properties;
                     const popAdult = props.POP_ADULT || 0;
+                    const popTotal = props.POPULATION || 0;
 
                     // Sum for County Adults (based on FIPS match)
-                    // FIPS in data is often full '18003...', currentCountyId is '003'
-                    // Indiana FIPS = 18.
                     const geoid = props.GEOID || "";
-                    const isFeatureInCounty = geoid.startsWith("18" + currentCountyId);
+                    const isFeatureInCounty = geoid.startsWith(currentCountyFips);
 
                     if (isFeatureInCounty)
                     {
                         countyAdults += popAdult;
+                        countyTotal += popTotal;
                     }
 
                     // Spatial Summation
@@ -737,6 +857,13 @@ window.ImpactMap = (function ()
                 // DISPLAY ADULT POPULATION (18+)
                 if (dispPopAdults) dispPopAdults.textContent = countyAdults.toLocaleString();
 
+                if (countyInfo)
+                {
+                    countyInfo.pop = countyTotal;
+                    const displayEl = document.getElementById('county-display');
+                    if (displayEl) displayEl.textContent = countyInfo.name ? `${countyInfo.name} (${countyTotal.toLocaleString()})` : countyTotal.toLocaleString();
+                }
+
                 if (dispRateAdult)
                 {
                     // UPDATED: Calculate effective rate based on Adult Population (18+)
@@ -757,30 +884,6 @@ window.ImpactMap = (function ()
 
             function animateValue(el, val) { if (!el) return; el.textContent = Math.round(val).toLocaleString(); }
 
-            marker.on('drag', () =>
-            {
-                const pos = marker.getLatLng();
-                circle10.setLatLng(pos); circle20.setLatLng(pos);
-                // State highlighting check (fast enough to keep)
-                if (stateData)
-                {
-                    const pt = turf.point([pos.lng, pos.lat]);
-                    const matched = stateData.features.find(f => turf.booleanPointInPolygon(pt, f));
-                    if (matched)
-                    {
-                        const newCountyId = matched.properties.COUNTY;
-                        if (newCountyId !== currentCountyId)
-                        {
-                            currentCountyId = newCountyId;
-                            loadCounty(newCountyId, true);
-                            const cInfo = getCountyReference().find(c => c.id === newCountyId);
-                            if (cInfo) window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop } }));
-                        }
-                    }
-                }
-                calculateImpact();
-            });
-
             if (els.inputRate)
             {
                 els.inputRate.addEventListener('input', () => { calculateImpact(); });
@@ -790,9 +893,8 @@ window.ImpactMap = (function ()
                 els.countySelect.addEventListener('change', (e) =>
                 {
                     const val = els.countySelect.value;
-                    let found = getCountyReference().find(c => c.id === val);
-                    if (!found) found = getCountyReference().find(c => c.pop == val);
-                    if (found) { currentCountyId = found.id; loadCounty(found.id); }
+                    const found = getCountyReference().find(c => c.geoid === val);
+                    if (found) { currentCountyFips = found.geoid; loadCounty(found.geoid); }
                 });
             }
 
@@ -859,7 +961,6 @@ window.ImpactMap = (function ()
                 repGeocContainer.appendChild(repGeocNode);
             }
 
-            loadCounty("003", true); // Skip zoom on initial load - keep Indiana-wide view
         }
     };
 })();

@@ -1,55 +1,51 @@
-# TigerIngestionService Technical Plan
+# TIGER Data Ingestion Plan & Status
 
 ## Objective
-Create a robust C# service (`TigerIngestionService`) to automate the retrieval, processing, and storage of U.S. Census Bureau TIGER/Line Shapefiles (geospatial boundaries) directly into the PostGIS database. This eliminates manual Mapshaper workflows and reliance on static JSON files.
-
-## Data Source
-*   **Base URL:** `https://www2.census.gov/geo/tiger/TIGER{YEAR}/`
-    *   **Counties:** `COUNTY/tl_{YEAR}_us_county.zip` (National file)
-    *   **States:** `STATE/tl_{YEAR}_us_state.zip` (National file)
-    *   **Block Groups:** `BG/tl_{YEAR}_{STATE_FIPS}_bg.zip` (State-level files)
+Automate the downloading, processing, and storage of U.S. Census Bureau TIGER/Line Shapefiles (States, Counties, Block Groups) into PostGIS to support the SaveFW Map's drill-down functionality.
 
 ## Architecture
+- **Source:** US Census Bureau FTP/HTTP (`https://www2.census.gov/geo/tiger/TIGER2020/`)
+- **Ingestion Service:** `TigerIngestionService.cs` (C# .NET 10)
+- **Database:** PostGIS (`tiger_states`, `tiger_counties`, `census_block_groups`)
+- **Seeding:** `TigerSeeder.cs` (Runs on startup or via manual API trigger)
 
-### 1. `TigerIngestionService.cs` (Server-Side)
-This service will function as a background task or on-demand executable.
+## Current Status (2026-01-06)
 
-**Core Responsibilities:**
-1.  **Download Manager:**
-    *   Connect to Census HTTP(S) directory.
-    *   Smart caching: Check if `.zip` already exists locally in a temp dir before re-downloading.
-    *   Extract `.zip` contents (Shapefiles: `.shp`, `.shx`, `.dbf`, `.prj`) to a temporary workspace.
+### ✅ Completed
+1.  **Ingestion Logic:** `TigerIngestionService` uses `HttpClient` to download and `NetTopologySuite` to read/insert shapefiles.
+2.  **Database Integration:** PostGIS methods (`ST_Transform`, `ST_AsGeoJSON`) are working. `tiger_states` was successfully ingested.
+3.  **API Endpoints:** Created `/api/census/status` and `/api/census/seed/force` for control/visibility.
+4.  **State Boundary Caching:** Implemented `api/census/states` to serve cached GeoJSON (replacing local JSON files).
 
-2.  **Shapefile Reader (NetTopologySuite):**
-    *   Use `NetTopologySuite.IO.ShapeFile` (requires `NetTopologySuite.IO.Esri.Shapefile` NuGet package) to read the `.shp` files directly in memory or stream them.
-    *   Read geometry (Polygon/MultiPolygon) and attributes (GEOID, NAME, ALAND, etc.).
+### 🚧 In Progress / Critical Blockers
+1.  **Census Bureau Blocking:**
+    *   **Issue:** Requests to `https://www2.census.gov/.../tl_2020_us_county.zip` are being intercepted by a "Lapse in Funding" HTML notice page, even though the server returns `200 OK`.
+    *   **Result:** The "downloaded" zip file is actually an 8KB HTML file, causing `InvalidDataException` during extraction.
+    *   **Attempted Fixes:**
+        *   Added `User-Agent` header (Result: Still blocked).
+        *   Tried `wget` and `curl` (Result: Still blocked/redirected to HTML).
+        *   Tried `ftp2.census.gov` (Result: Redirects to www2 HTML page).
+    *   **Current Strategy:** Implement a **Cookie Bypass** mechanism. The HTML interceptor sets a cookie and uses a JS redirect. We are updating `TigerIngestionService` to:
+        1.  Detect the HTML intercept (small size/content-type).
+        2.  Capture the `Set-Cookie` header.
+        3.  Wait 12 seconds (mimicking the JS timer).
+        4.  Re-request the file with the valid Cookie.
 
-3.  **Database Seeder (EF Core / Npgsql):**
-    *   **Direct SQL/COPY:** For maximum speed with massive files (like Block Groups), efficient `COPY` commands or batch inserts are preferred over individual EF Core entity tracking.
-    *   **Geometry Transformation:** Ensure coordinate system is SRID 4326 (WGS 84). TIGER files are usually NAD83 (SRID 4269). We must transform them.
-        *   *Option A:* Transform in C# using NTS `ProjNet`.
-        *   *Option B (Preferred):* Insert raw as 4269, then execute `UPDATE table SET geom = ST_Transform(geom, 4326)` inside PostGIS.
+        ### NOTE FROM USER:
+        I do not believe there is county-level zip files available to download individiually. You must download the state zip, which is indexed by state code. For example:
+            tl_2020_01_bg.zip
+            tl_2020_02_bg.zip
+            tl_2020_04_bg.zip
+            tl_2020_05_bg.zip
+            tl_2020_06_bg.zip
+        The website these are reached at is here: https://www2.census.gov/geo/tiger/TIGER2020/BG/
+        The website is VERY slow to load. I imagine each zip file is also slow to download. Take that into account.
 
-### 2. Database Schema (PostGIS)
-We will likely need new tables or straightforward mapping to existing ones.
+2.  **Code Syntax Error:**
+    *   **Issue:** A copy-paste error introduced duplicate method signatures in `TigerIngestionService.cs`, causing Build Error `CS1513: } expected`.
+    *   **Action:** Need to remove the duplicate start of `ProcessTigerFile` (lines 61-66) to restore build stability.
 
-*   `tiger_states`: Simplified state boundaries (Level 1 navigation).
-*   `tiger_counties`: Simplified county boundaries (Level 2 navigation).
-*   `census_block_groups` (Existing): We are already using this. We will refine it to be the "Level 3" detailed layer.
-
-### 3. Usage Workflow (Future State)
-1.  **Administrator Endpoint:** `POST /api/admin/ingest/tiger/states` -> Triggers national state download.
-2.  **Administrator Endpoint:** `POST /api/admin/ingest/tiger/counties` -> Triggers national county download.
-3.  **Administrator Endpoint:** `POST /api/admin/ingest/tiger/bg/{stateFips}` -> Downloads specific state's block groups.
-
-## Implementation Steps
-
-1.  **Dependencies:** Install `NetTopologySuite.IO.Esri.Shapefile` and `System.IO.Compression`.
-2.  **Scaffold Service:** Create `TigerIngestionService` class.
-3.  **Implement Download Logic:** `HttpClient` download + `ZipFile.ExtractToDirectory`.
-4.  **Implement DB Logic:** Write the raw Shapefile features into PostGIS.
-5.  **Post-Processing:** Run SQL `ST_SimplifyPreserveTopology` to create "lightweight" versions for display, while keeping "heavynet" for analysis if needed.
-
-## Why PostGIS over Mapshaper?
-*   **Scale:** Mapshaper runs in RAM. Loading the entire US datasets might crash it. PostGIS handles big data on disk.
-*   **Automation:** Zero manual "drag-and-drop" steps. It's fully scriptable code.
+### Next Immediate Actions
+1.  **Fix Syntax:** Clean up `TigerIngestionService.cs`.
+2.  **Verify Bypass:** Run the `ForceSeed` endpoint and verify the "Cookie Replay" logic successfully downloads the real 100MB+ zip file.
+3.  **Frontend Update:** Once data is verified in DB, update `map.js` to consume the new API endpoints.

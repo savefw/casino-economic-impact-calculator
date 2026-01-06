@@ -3,11 +3,9 @@ window.EconomicCalculator = (function ()
     // Track initialization state
     let isInitialized = false;
 
-    // County reference data is loaded from shared module: js/data/indiana-counties.js
-    // Access via window.IndianaCounties (getter function for lazy access)
-    const getCountyData = () => window.IndianaCounties || [];
+    const getCountyData = () => window.CurrentCountyList || window.IndianaCounties || [];
 
-    let currentPop = 385410; // Default Allen
+    let currentPop = 0;
 
     // DOM element references - populated by init()
     let els = {};
@@ -93,17 +91,28 @@ window.EconomicCalculator = (function ()
     {
         // 1. Populate Native Select (Hidden)
         els.inCounty.innerHTML = ''; // Clear
-        getCountyData().forEach(c =>
+        const data = getCountyData();
+        if (!data.length)
         {
             const opt = document.createElement('option');
-            opt.value = c.pop;
-            opt.textContent = `${c.name} (${c.pop.toLocaleString()})`;
-            if (c.name === 'Allen') opt.selected = true;
+            opt.value = '';
+            opt.textContent = 'Select a county';
+            els.inCounty.appendChild(opt);
+            renderCustomOptions([]);
+            return;
+        }
+
+        data.forEach(c =>
+        {
+            const opt = document.createElement('option');
+            opt.value = c.geoid || c.id || '';
+            opt.dataset.pop = c.pop || 0;
+            opt.textContent = c.pop ? `${c.name} (${c.pop.toLocaleString()})` : c.name;
             els.inCounty.appendChild(opt);
         });
 
         // 2. Init Custom UI
-        renderCustomOptions(getCountyData()); // Initial Render
+        renderCustomOptions(data); // Initial Render
     }
 
     // Render Custom Options Function
@@ -124,24 +133,25 @@ window.EconomicCalculator = (function ()
             div.className = "px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors flex items-center justify-between group";
             div.innerHTML = `
                                         <span class="font-medium">${c.name}</span>
-                                        <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${c.pop.toLocaleString()}</span>
+                                        <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${c.pop ? c.pop.toLocaleString() : ''}</span>
                                     `;
             div.onclick = () =>
             {
-                selectCounty(c.name, c.pop);
+                selectCounty(c.name, c.geoid || c.id || '', c.pop || 0);
             };
             container.appendChild(div);
         });
     }
 
     // Select County Helper
-    function selectCounty(name, pop)
+    function selectCounty(name, geoid, pop)
     {
         // 1. Update Native Select
-        els.inCounty.value = pop;
+        if (geoid) els.inCounty.value = geoid;
 
         // 2. Update Display
-        document.getElementById('county-display').textContent = `${name} (${pop.toLocaleString()})`;
+        const display = document.getElementById('county-display');
+        if (display) display.textContent = pop ? `${name} (${pop.toLocaleString()})` : name;
 
         // 3. Trigger Calculation
         els.inCounty.dispatchEvent(new Event('change'));
@@ -517,7 +527,15 @@ window.EconomicCalculator = (function ()
         els.valCostAbused.textContent = '$' + cAbused.toLocaleString();
 
         // Logic
-        currentPop = parseInt(els.inCounty.value);
+        const totalPopEl = document.getElementById('disp-pop-impact-zones');
+        if (totalPopEl)
+        {
+            const val = parseInt(totalPopEl.textContent.replace(/,/g, ''));
+            currentPop = !isNaN(val) && val > 0 ? val : 0;
+        } else
+        {
+            currentPop = parseInt(els.inCounty.options[els.inCounty.selectedIndex]?.dataset?.pop || '0');
+        }
 
         // Retrieve Adult Population from Map DOM (populated by map.js)
         let adultPop = currentPop; // Fallback
@@ -1165,7 +1183,7 @@ window.EconomicCalculator = (function ()
         // Map Event Listener
         window.addEventListener('county-selected-map', (e) =>
         {
-            selectCounty(e.detail.name, e.detail.pop);
+            selectCounty(e.detail.name, e.detail.geoid, e.detail.pop);
         });
     }
 
@@ -1203,10 +1221,18 @@ window.EconomicCalculator = (function ()
     }
 
     // Return public API
+    function updateCounties()
+    {
+        if (!els.inCounty) initElements();
+        initCounties();
+        renderCustomOptions(getCountyData());
+    }
+
     return {
         init: init,
         calculate: calculate,
-        selectCounty: selectCounty
+        selectCounty: selectCounty,
+        updateCounties: updateCounties
     };
 })();
 
