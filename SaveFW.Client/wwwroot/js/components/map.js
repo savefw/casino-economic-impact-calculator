@@ -619,6 +619,11 @@ window.ImpactMap = (function ()
                     {
                         window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop || 0, geoid: currentCountyFips } }));
                     }
+
+                    if (layersVisible.blocks || layersVisible.heatmap || layersVisible.tracts)
+                    {
+                        await ensureContextLayers();
+                    }
                 }
                 finally
                 {
@@ -646,8 +651,16 @@ window.ImpactMap = (function ()
                 {
                     highlightLayer = L.geoJSON(countyFeature, { style: { color: '#f97316', weight: 3, fillColor: '#7c2d12', fillOpacity: 0.2, dashArray: '4, 4' }, interactive: false });
                 }
-                if (blockGroupLayer) map.removeLayer(blockGroupLayer);
-                if (tractLayer) map.removeLayer(tractLayer);
+                if (blockGroupLayer)
+                {
+                    if (map.hasLayer(blockGroupLayer)) map.removeLayer(blockGroupLayer);
+                    blockGroupLayer = null;
+                }
+                if (tractLayer)
+                {
+                    if (map.hasLayer(tractLayer)) map.removeLayer(tractLayer);
+                    tractLayer = null;
+                }
 
                 if (countyFeature && !skipMarkerMove)
                 {
@@ -1058,6 +1071,11 @@ window.ImpactMap = (function ()
 
                 if (layersVisible.tracts)
                 {
+                    if (tractLayer)
+                    {
+                        map.removeLayer(tractLayer);
+                        tractLayer = null;
+                    }
                     tractLayer = generateTractLayer(countyGeoJSON);
                 }
             }
