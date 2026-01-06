@@ -22,9 +22,13 @@ fi
 echo "Starting server..."
 # Ensure the app runs with the correct content root/appsettings
 cd /root/SaveFW/SaveFW.Server || exit 1
+# Build server (static web assets served via manifest)
+rm -rf /root/SaveFW/SaveFW.Server/wwwroot
+/root/.dotnet/dotnet build /root/SaveFW/SaveFW.Server/SaveFW.Server.csproj
 # Using full path to dotnet to be safe, though environment might have it
 env DOTNET_ROOT=/root/.dotnet PATH=/root/.dotnet:$PATH nohup /root/.dotnet/dotnet /root/SaveFW/SaveFW.Server/bin/Debug/net10.0/SaveFW.Server.dll --urls "http://0.0.0.0:80" > /root/server.log 2>&1 &
 
-echo "Server process started. Tailing logs..."
+echo "Server process started."
 sleep 2
-tail -n 20 -f /root/server.log
+tail -n 40 /root/server.log
+echo "To follow logs: tail -f /root/server.log"

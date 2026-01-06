@@ -1,6 +1,7 @@
 ## .NET Standard
 [Bb]in/
 [Oo]bj/
+**/publish/
 .vs/
 *.user
 *.suo

@@ -71,6 +71,9 @@ namespace SaveFW.Server.Data
             {
                 _logger.LogInformation("TigerSeeder: Block Groups already seeded.");
             }
+
+            // 4. Ensure simplified geometry columns exist and are populated (visualization only)
+            await EnsureSimplifiedGeometriesAsync(conn);
         }
 
         private async Task<bool> HasData(NpgsqlConnection conn, string tableName)
@@ -87,5 +90,73 @@ namespace SaveFW.Server.Data
             var res = await cmd.ExecuteScalarAsync();
             return res != null;
         }
+
+        private async Task EnsureSimplifiedGeometriesAsync(NpgsqlConnection conn)
+        {
+            await EnsureSimplifiedForTable(conn, "tiger_states", 100, 10000);
+            await EnsureSimplifiedForTable(conn, "tiger_counties", 100, 10000);
+            await EnsureSimplifiedForTable(conn, "census_block_groups", 10, 5000);
+        }
+
+        private async Task EnsureSimplifiedForTable(NpgsqlConnection conn, string tableName, int toleranceMeters, int batchSize)
+        {
+            // Skip if table doesn't exist
+            using var cmdExists = conn.CreateCommand();
+            cmdExists.CommandText = $"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '{tableName}');";
+            var exists = (bool?)await cmdExists.ExecuteScalarAsync();
+            if (exists != true) return;
+
+            // Add simplified column and index if missing
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                    ALTER TABLE {tableName}
+                    ADD COLUMN IF NOT EXISTS geom_simplified geometry(MultiPolygon, 4326);
+                    CREATE INDEX IF NOT EXISTS idx_{tableName}_geom_simplified
+                    ON {tableName} USING GIST (geom_simplified);
+                ";
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            // Populate once (only rows missing simplified geometry)
+            // Skip if already fully simplified
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT EXISTS (SELECT 1 FROM {tableName} WHERE geom_simplified IS NULL LIMIT 1);";
+                var needs = (bool?)await cmd.ExecuteScalarAsync();
+                if (needs != true) return;
+            }
+
+            _logger.LogInformation($"TigerSeeder: Simplifying {tableName} (tolerance {toleranceMeters}m)...");
+            var totalUpdated = 0;
+            while (true)
+            {
+                using var cmd = conn.CreateCommand();
+                cmd.CommandTimeout = 0;
+                cmd.CommandText = $@"
+                    WITH todo AS (
+                        SELECT ctid
+                        FROM {tableName}
+                        WHERE geom_simplified IS NULL
+                        LIMIT @batch
+                    )
+                    UPDATE {tableName} t
+                    SET geom_simplified = ST_Transform(
+                        ST_SimplifyPreserveTopology(ST_Transform(t.geom, 3857), @tol),
+                        4326
+                    )
+                    FROM todo
+                    WHERE t.ctid = todo.ctid;
+                ";
+                cmd.Parameters.AddWithValue("tol", toleranceMeters);
+                cmd.Parameters.AddWithValue("batch", batchSize);
+                var updated = await cmd.ExecuteNonQueryAsync();
+                if (updated <= 0) break;
+                totalUpdated += updated;
+                _logger.LogInformation($"TigerSeeder: {tableName} simplified {totalUpdated} rows...");
+            }
+        }
+
+        // No meta table required; skip when geom_simplified is fully populated.
     }
 }

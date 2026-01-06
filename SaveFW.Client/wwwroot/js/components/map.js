@@ -13,6 +13,7 @@ window.ImpactMap = (function ()
             let currentStateFips = null;
             let currentCountyFips = null;
             let stateLayer = null;
+            let selectedStateLayer = null;
             let countyLayer = null;
             let highlightLayer = null;
             let blockGroupLayer = null;
@@ -39,12 +40,16 @@ window.ImpactMap = (function ()
                 }
             };
 
-            window.toggleLayer = function (id)
+            window.toggleLayer = async function (id)
             {
                 const cb = document.getElementById('layer-' + id);
                 if (cb)
                 {
                     layersVisible[id] = cb.checked;
+                    if ((id === 'blocks' || id === 'heatmap' || id === 'tracts') && layersVisible[id])
+                    {
+                        await ensureContextLayers();
+                    }
                     if (id === 'streets') updateBaseLayer();
                     else updateLayerVisibility();
                 }
@@ -89,17 +94,19 @@ window.ImpactMap = (function ()
                     }
                 }
                 // County Boundaries (State)
-                if (stateLayer || countyLayer)
+                if (stateLayer || countyLayer || selectedStateLayer)
                 {
                     if (layersVisible.boundary)
                     {
                         if (stateLayer && !map.hasLayer(stateLayer)) map.addLayer(stateLayer);
                         if (countyLayer && !map.hasLayer(countyLayer)) map.addLayer(countyLayer);
+                        if (selectedStateLayer && !map.hasLayer(selectedStateLayer)) map.addLayer(selectedStateLayer);
                         if (stateLayer) stateLayer.bringToBack();
                     } else
                     {
                         if (stateLayer && map.hasLayer(stateLayer)) map.removeLayer(stateLayer);
                         if (countyLayer && map.hasLayer(countyLayer)) map.removeLayer(countyLayer);
+                        if (selectedStateLayer && map.hasLayer(selectedStateLayer)) map.removeLayer(selectedStateLayer);
                     }
                 }
                 // Blocks & Heatmap
@@ -169,6 +176,10 @@ window.ImpactMap = (function ()
                 inputRate: document.getElementById('input-rate'),
                 map: document.getElementById(elementId),
                 stateSelect: document.getElementById('input-state'),
+                stateTrigger: document.getElementById('state-trigger'),
+                stateMenu: document.getElementById('state-menu'),
+                stateOptions: document.getElementById('state-options'),
+                stateDisplay: document.getElementById('state-display'),
                 countySelect: document.getElementById('input-county'),
                 displayCounty: document.getElementById('display-impact-county')
             };
@@ -245,6 +256,48 @@ window.ImpactMap = (function ()
 
             initStateMap();
 
+            let stateMenuOpen = false;
+
+            function toggleStateMenu(show)
+            {
+                if (!els.stateMenu) return;
+                stateMenuOpen = show;
+                if (show)
+                {
+                    els.stateMenu.classList.remove('hidden');
+                    requestAnimationFrame(() =>
+                    {
+                        els.stateMenu.classList.remove('opacity-0', 'scale-95');
+                        els.stateMenu.classList.add('opacity-100', 'scale-100');
+                    });
+                } else
+                {
+                    els.stateMenu.classList.remove('opacity-100', 'scale-100');
+                    els.stateMenu.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => { els.stateMenu.classList.add('hidden'); }, 200);
+                }
+            }
+
+            function renderStateOptions(options)
+            {
+                if (!els.stateOptions) return;
+                els.stateOptions.innerHTML = '';
+                options.forEach(s =>
+                {
+                    const div = document.createElement('div');
+                    div.className = "px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-blue-300 cursor-pointer transition-colors";
+                    div.textContent = s.name;
+                    div.onclick = () =>
+                    {
+                        if (els.stateSelect) els.stateSelect.value = s.geoid;
+                        if (els.stateDisplay) els.stateDisplay.textContent = s.name;
+                        loadStateCounties(s.geoid);
+                        toggleStateMenu(false);
+                    };
+                    els.stateOptions.appendChild(div);
+                });
+            }
+
             async function initStateMap()
             {
                 try
@@ -258,7 +311,8 @@ window.ImpactMap = (function ()
                             if (!f.properties) f.properties = {};
                             if (!f.properties.NAME) f.properties.NAME = f.properties.name || f.properties.NAME || "";
                             if (!f.properties.STUSPS) f.properties.STUSPS = f.properties.stusps || f.properties.STUSPS || "";
-                            if (!f.properties.GEOID) f.properties.GEOID = f.properties.geoid || f.properties.GEOID || "";
+                            const rawGeoid = f.properties.geoid || f.properties.GEOID || "";
+                            f.properties.GEOID = String(rawGeoid).padStart(2, '0');
                         });
                     }
                     stateData = apiData;
@@ -281,7 +335,7 @@ window.ImpactMap = (function ()
                                 mouseout: (e) => { stateLayer.resetStyle(e.target); },
                                 click: (e) =>
                                 {
-                                    const stateFips = feature.properties.GEOID;
+                                    const stateFips = String(feature.properties.GEOID || feature.properties.geoid || "").padStart(2, '0');
                                     if (stateFips)
                                     {
                                         loadStateCounties(stateFips);
@@ -307,7 +361,27 @@ window.ImpactMap = (function ()
                             const val = els.stateSelect.value;
                             if (val) loadStateCounties(val);
                         };
+
+                        renderStateOptions(options);
                     }
+
+                    if (els.stateTrigger)
+                    {
+                        els.stateTrigger.onclick = (e) =>
+                        {
+                            e.preventDefault();
+                            toggleStateMenu(!stateMenuOpen);
+                        };
+                    }
+
+                    document.addEventListener('click', (e) =>
+                    {
+                        if (els.stateTrigger && els.stateMenu &&
+                            !els.stateTrigger.contains(e.target) && !els.stateMenu.contains(e.target) && stateMenuOpen)
+                        {
+                            toggleStateMenu(false);
+                        }
+                    });
                 } catch (e)
                 {
                     console.error("State Map Load Error", e);
@@ -321,8 +395,14 @@ window.ImpactMap = (function ()
                 if (textEl) textEl.textContent = "Loading County Boundaries...";
                 try
                 {
-                    currentStateFips = stateFips;
-                    if (els.stateSelect) els.stateSelect.value = stateFips;
+                    const normalizedFips = String(stateFips).padStart(2, '0');
+                    currentStateFips = normalizedFips;
+                    if (els.stateSelect) els.stateSelect.value = normalizedFips;
+                    if (els.stateDisplay && stateData)
+                    {
+                        const stateFeature = stateData.features.find(f => f.properties.GEOID === normalizedFips);
+                        if (stateFeature) els.stateDisplay.textContent = stateFeature.properties.NAME || normalizedFips;
+                    }
                     const displayEl = document.getElementById('county-display');
                     if (displayEl) displayEl.textContent = "Select a county";
                     if (highlightLayer) { map.removeLayer(highlightLayer); highlightLayer = null; }
@@ -332,7 +412,32 @@ window.ImpactMap = (function ()
                     if (circle10) { map.removeLayer(circle10); circle10 = null; }
                     if (circle20) { map.removeLayer(circle20); circle20 = null; }
                     currentContextGeoJSON = null;
-                    const res = await fetch(`/api/census/counties/${stateFips}`);
+                    currentCalcFeatures = null;
+                    currentCountyTotals = null;
+                    if (stateData)
+                    {
+                        const stateFeature = stateData.features.find(f => f.properties.GEOID === normalizedFips);
+                        if (stateFeature)
+                        {
+                            const bounds = L.geoJSON(stateFeature).getBounds();
+                            map.fitBounds(bounds, { padding: [40, 40] });
+                        }
+                    }
+                    if (stateLayer && map.hasLayer(stateLayer)) map.removeLayer(stateLayer);
+                    stateLayer = null;
+                    if (selectedStateLayer && map.hasLayer(selectedStateLayer)) map.removeLayer(selectedStateLayer);
+                    if (stateData)
+                    {
+                        const stateFeature = stateData.features.find(f => f.properties.GEOID === normalizedFips);
+                        if (stateFeature)
+                        {
+                            selectedStateLayer = L.geoJSON(stateFeature, {
+                                style: { color: '#64748b', weight: 2, fillOpacity: 0 },
+                                interactive: false
+                            }).addTo(map);
+                        }
+                    }
+                    const res = await fetch(`/api/census/counties/${normalizedFips}`);
                     const apiData = await res.json();
                     if (apiData && Array.isArray(apiData.features))
                     {
@@ -343,6 +448,7 @@ window.ImpactMap = (function ()
                             if (!f.properties.NAME) f.properties.NAME = f.properties.name || f.properties.NAME || "";
                             if (!f.properties.COUNTY && geoid.length >= 5) f.properties.COUNTY = geoid.slice(-3);
                             if (!f.properties.GEOID) f.properties.GEOID = geoid;
+                            if (!f.properties.POP_TOTAL) f.properties.POP_TOTAL = f.properties.pop_total || 0;
                         });
                     }
                     countyData = apiData;
@@ -351,7 +457,7 @@ window.ImpactMap = (function ()
                             id: (f.properties.GEOID || "").slice(-3),
                             geoid: f.properties.GEOID || "",
                             name: f.properties.NAME || "",
-                            pop: 0
+                            pop: f.properties.POP_TOTAL || 0
                         }))
                         : [];
 
@@ -384,6 +490,7 @@ window.ImpactMap = (function ()
                             });
                         }
                     }).addTo(map);
+                    countyLayer.bringToFront();
 
                     if (els.countySelect)
                     {
@@ -493,36 +600,47 @@ window.ImpactMap = (function ()
             {
                 if (!countyFips) return;
 
-                // 1. Load Calculation Context (The 50 mile buffer data)
                 const textEl = document.getElementById('map-loading-text');
-                if (textEl) textEl.textContent = "Loading County Data...";
-                await loadCountyContext(countyFips);
-
-                // 2. Set Visuals using the loaded context data
-                // We extract the county specific features from the context for visualization
-                if (currentContextGeoJSON)
+                if (textEl) textEl.textContent = "Loading Lite Data...";
+                try
                 {
+                    // 1. Load Calculation Context (buffered point data for zones)
+                    const ok = await loadCountyContext(countyFips, true);
+                    if (!ok) return;
+
+                    // 2. Set Visuals
                     currentCountyFips = countyFips;
                     highlightCountyVisuals(countyFips, currentContextGeoJSON, skipMarkerMove);
+
+                    calculateImpact();
+
+                    const cInfo = getCountyReference().find(c => c.geoid === currentCountyFips);
+                    if (cInfo)
+                    {
+                        window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop || 0, geoid: currentCountyFips } }));
+                    }
                 }
-
-                calculateImpact(); // Trigger calc after data load
-
-                const cInfo = getCountyReference().find(c => c.geoid === currentCountyFips);
-                if (cInfo)
+                finally
                 {
-                    window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop || 0, geoid: currentCountyFips } }));
+                    if (textEl) textEl.textContent = "Loading Regional Data...";
                 }
-
-                if (textEl) textEl.textContent = "Loading Regional Data...";
             }
 
             // ... (keep surrounding code) ...
 
             function highlightCountyVisuals(countyFips, contextData, skipMarkerMove = false)
             {
-                if (!countyData) return;
+                if (!countyData) 
+                {
+                    console.warn("highlightCountyVisuals: countyData is missing.");
+                    return;
+                }
                 const countyFeature = countyData.features.find(f => f.properties.GEOID === countyFips);
+                if (!countyFeature)
+                {
+                    console.warn(`highlightCountyVisuals: Feature not found for ${countyFips}`);
+                }
+
                 if (highlightLayer) map.removeLayer(highlightLayer);
                 if (countyFeature)
                 {
@@ -530,77 +648,6 @@ window.ImpactMap = (function ()
                 }
                 if (blockGroupLayer) map.removeLayer(blockGroupLayer);
                 if (tractLayer) map.removeLayer(tractLayer);
-
-                // Use the REAL Census Data from our Context (filtered to this county)
-                if (contextData)
-                {
-                    // Filter features that belong to this county (FIPS match)
-                    const countyFeatures = contextData.features.filter(f =>
-                    {
-                        const geoid = f.properties.GEOID || "";
-                        return geoid.startsWith(countyFips);
-                    });
-
-                    const countyGeoJSON = { type: "FeatureCollection", features: countyFeatures };
-
-
-                    // Heatmap Generation (Gradient / Radiating) via Leaflet.heat
-                    const heatPoints = [];
-                    let maxPop = 0;
-
-                    turf.featureEach(countyGeoJSON, (f) =>
-                    {
-                        const p = f.properties.POP_ADULT || 0;
-                        if (p > maxPop) maxPop = p;
-                    });
-
-                    // Avoid div by zero
-                    if (maxPop === 0) maxPop = 1;
-
-                    turf.featureEach(countyGeoJSON, (f) =>
-                    {
-                        const p = f.properties.POP_ADULT || 0;
-                        if (p > 0)
-                        {
-                            const centroid = turf.centroid(f);
-                            const lat = centroid.geometry.coordinates[1];
-                            const lng = centroid.geometry.coordinates[0];
-                            // Intensity:
-                            // Leaflet.heat works best with values 0-1.
-                            // We want areas with high pop to be 'hotter'.
-                            const intensity = (p / maxPop);
-                            heatPoints.push([lat, lng, intensity]);
-                        }
-                    });
-
-                    // Remove old if exists
-                    if (blockGroupLayer)
-                    {
-                        map.removeLayer(blockGroupLayer);
-                        blockGroupLayer = null;
-                    }
-
-                    if (heatPoints.length > 0)
-                    {
-                        try
-                        {
-                            // Using a higher maxZoom and blur allows for a more continuous 'cloud'
-                            blockGroupLayer = L.heatLayer(heatPoints, {
-                                radius: 30, // Larger radius for more overlap/blend
-                                blur: 20,   // High blur for 'radiating' look
-                                maxZoom: 13,
-                                max: 1.0,
-                                gradient: { 0.2: 'blue', 0.4: 'lime', 0.6: 'yellow', 0.9: 'orange', 1.0: 'red' }
-                            });
-                        } catch (e)
-                        {
-                            console.warn("Leaflet.heat not loaded?", e);
-                        }
-                    }
-
-                    // Generate Tracts from this same live data
-                    tractLayer = generateTractLayer(countyGeoJSON);
-                }
 
                 if (countyFeature && !skipMarkerMove)
                 {
@@ -630,7 +677,7 @@ window.ImpactMap = (function ()
                                         currentCountyFips = newCountyFips;
                                         loadCounty(newCountyFips, true);
                                         const cInfo = getCountyReference().find(c => c.geoid === newCountyFips);
-                                        if (cInfo) window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop } }));
+                                        if (cInfo) window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { name: cInfo.name, pop: cInfo.pop, geoid: newCountyFips } }));
                                     }
                                 }
                             }
@@ -647,47 +694,395 @@ window.ImpactMap = (function ()
             }
 
             let currentContextGeoJSON = null;
+            let currentCalcFeatures = null;
+            let currentCountyTotals = null;
+            let contextIsLite = false;
             let contextCache = {};
 
-            async function loadCountyContext(fips)
+            // Debug Logger
+            function logToUI(msg)
             {
-                if (contextCache[fips])
-                {
-                    currentContextGeoJSON = contextCache[fips];
-                    return;
-                }
-                toggleLoading(true);
-                try
-                {
-                    // Use a slightly larger timeout or retry if needed, but PostGIS is fast
-                    // Ensure FIPS is correct length. Client uses '003', server expects '18003' or handles it.
-                    // We'll pass '003' and let server logic (added previously) handle prefix.
-                    const res = await fetch(`/api/Impact/county-context/${fips}`);
-                    if (!res.ok) throw new Error("Context fetch failed");
-                    const data = await res.json();
-
-                    // Pre-process for Turf if needed (ensure numeric props)
-                    turf.featureEach(data, (f) =>
+                try {
+                    console.log(msg);
+                    
+                    // 1. Update UI Overlay
+                    let logBox = document.getElementById('debug-log-overlay');
+                    if (!logBox)
                     {
-                        f.properties.POP_ADULT = Number(f.properties.POP_ADULT || 0);
-                        f.properties.POPULATION = Number(f.properties.POPULATION || 0);
-                    });
-
-                    contextCache[fips] = data;
-                    currentContextGeoJSON = data;
-                } catch (e)
-                {
-                    console.error("Context Load Error", e);
-                } finally
-                {
-                    toggleLoading(false);
+                        logBox = document.createElement('div');
+                        logBox.id = 'debug-log-overlay';
+                        logBox.className = 'fixed bottom-0 right-0 w-96 h-64 bg-black/80 text-green-400 font-mono text-xs p-4 overflow-y-auto z-[9999] pointer-events-none border-t-2 border-green-500';
+                        document.body.appendChild(logBox);
+                    }
+                    const entry = document.createElement('div');
+                    entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                    logBox.appendChild(entry);
+                    logBox.scrollTop = logBox.scrollHeight;
+                } catch(e) {
+                    console.error("Logging failed", e);
                 }
             }
 
-            function preprocessPopulation(geoJSON, countyId)
+            function formatBytes(bytes)
             {
-                // Legacy visual-only helper, kept for heatmap if needed on the visual layer
-                // No changes needed, as highlightCountyVisuals uses `currentGeoJSON` (visual layer)
+                if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+                const units = ["B", "KB", "MB", "GB"];
+                const idx = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+                const scaled = bytes / Math.pow(1024, idx);
+                const digits = idx === 0 ? 0 : scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
+                return `${scaled.toFixed(digits)} ${units[idx]}`;
+            }
+
+            let activeContextLoad = null;
+            let contextLoadSeq = 0;
+
+            async function loadCountyContext(fips, lite = false)
+            {
+                if (contextCache[fips])
+                {
+                    const cached = contextCache[fips];
+                    if (!(!lite && cached.isLite))
+                    {
+                        currentContextGeoJSON = cached.geojson;
+                        currentCalcFeatures = cached.calcFeatures;
+                        currentCountyTotals = cached.totals;
+                        contextIsLite = cached.isLite;
+                        return true;
+                    }
+                }
+
+                if (activeContextLoad)
+                {
+                    const sameFips = activeContextLoad.fips === fips;
+                    const activeSatisfiesRequest = sameFips && (activeContextLoad.lite === false || activeContextLoad.lite === lite);
+                    if (activeSatisfiesRequest) return activeContextLoad.promise;
+
+                    try { activeContextLoad.controller.abort(); } catch { }
+                }
+
+                const loadId = ++contextLoadSeq;
+                const controller = new AbortController();
+                const timeoutMs = lite ? 45000 : 90000;
+                const timeoutId = setTimeout(() =>
+                {
+                    try { controller.abort(); } catch { }
+                }, timeoutMs);
+
+                toggleLoading(true);
+                logToUI(`Loading ${fips}...`);
+
+                const promise = (async () =>
+                {
+                    try
+                    {
+                        logToUI(`Fetching... (${Math.round(timeoutMs / 1000)}s timeout)`);
+                        const ts = new Date().getTime();
+                        const res = await fetch(`/api/Impact/county-context/${fips}?lite=${lite}&_ts=${ts}`, {
+                            signal: controller.signal,
+                            cache: 'no-store'
+                        });
+
+                        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
+                        const contentLength = Number(res.headers.get('content-length') || 0) || 0;
+                        const contentEncoding = res.headers.get('content-encoding') || "";
+                        logToUI(`Downloading... ${contentLength ? `(${formatBytes(contentLength)})` : ""}${contentEncoding ? ` [${contentEncoding}]` : ""}`.trim());
+
+                        const textEl = document.getElementById('map-loading-text');
+                        let lastUiUpdateMs = 0;
+                        let lastProgressLogMs = 0;
+
+                        async function readTextWithProgress()
+                        {
+                            if (!res.body || !res.body.getReader)
+                            {
+                                const tick = setInterval(() => logToUI("Downloading..."), 5000);
+                                try { return await res.text(); }
+                                finally { clearInterval(tick); }
+                            }
+
+                            const reader = res.body.getReader();
+                            const decoder = new TextDecoder();
+                            const parts = [];
+                            let received = 0;
+
+                            while (true)
+                            {
+                                const { done, value } = await reader.read();
+                                if (done) break;
+                                if (value)
+                                {
+                                    received += value.byteLength;
+                                    parts.push(decoder.decode(value, { stream: true }));
+
+                                    const nowMs = Date.now();
+                                    if (nowMs - lastUiUpdateMs >= 500)
+                                    {
+                                        lastUiUpdateMs = nowMs;
+                                        if (textEl && contentLength > 0)
+                                        {
+                                            textEl.textContent = `Downloading... ${formatBytes(received)} / ${formatBytes(contentLength)}`;
+                                        }
+                                        await new Promise(requestAnimationFrame);
+                                    }
+
+                                    if (nowMs - lastProgressLogMs >= 5000)
+                                    {
+                                        lastProgressLogMs = nowMs;
+                                        if (contentLength > 0)
+                                        {
+                                            const pct = Math.min(100, Math.max(0, (received / contentLength) * 100));
+                                            logToUI(`Downloading... ${formatBytes(received)} / ${formatBytes(contentLength)} (${pct.toFixed(1)}%)`);
+                                        } else
+                                        {
+                                            logToUI(`Downloading... ${formatBytes(received)}`);
+                                        }
+                                    }
+                                }
+                            }
+
+                            parts.push(decoder.decode());
+                            if (textEl) textEl.textContent = "Downloading...";
+                            return parts.join('');
+                        }
+
+                        const text = await readTextWithProgress();
+
+                        logToUI(`Parsing JSON (${text.length} chars)...`);
+                        await new Promise(requestAnimationFrame);
+
+                        const data = JSON.parse(text);
+
+                        // 4. Process Payload
+                        logToUI("Processing...");
+
+                        let geojson = null;
+                        let calcFeatures = [];
+                        let countyAdults = 0;
+                        let countyTotal = 0;
+
+                        const cachedExisting = contextCache[fips];
+                        const preserveCalc = !lite &&
+                            cachedExisting &&
+                            Array.isArray(cachedExisting.calcFeatures) &&
+                            cachedExisting.calcFeatures.length > 0 &&
+                            cachedExisting.totals;
+
+                        if (preserveCalc)
+                        {
+                            calcFeatures = cachedExisting.calcFeatures;
+                            countyAdults = Number(cachedExisting.totals.adults || 0);
+                            countyTotal = Number(cachedExisting.totals.total || 0);
+                        }
+
+                        // Lite payload can be a compact { points: [[lng,lat,popAdult], ...], county_total, county_adults }
+                        if (data && Array.isArray(data.points))
+                        {
+                            const points = data.points;
+                            logToUI(`Parsed ${points.length} points.`);
+
+                            countyAdults = Number(data.county_adults || 0);
+                            countyTotal = Number(data.county_total || 0);
+
+                            calcFeatures = [];
+                            for (let j = 0; j < points.length; j++)
+                            {
+                                if (j > 0 && (j % 5000) === 0) await new Promise(requestAnimationFrame);
+
+                                const p = points[j];
+                                if (!p || p.length < 3) continue;
+                                const lng = Number(p[0]);
+                                const lat = Number(p[1]);
+                                const popAdult = Number(p[2] || 0);
+                                if (!Number.isFinite(lng) || !Number.isFinite(lat) || popAdult <= 0) continue;
+                                calcFeatures.push({ lng, lat, popAdult });
+                            }
+                        } else
+                        {
+                            geojson = data;
+                            const features = (data && Array.isArray(data.features)) ? data.features : [];
+                            logToUI(`Parsed ${features.length} features.`);
+
+                            for (let j = 0; !preserveCalc && j < features.length; j++)
+                            {
+                                if (j > 0 && (j % 2000) === 0) await new Promise(requestAnimationFrame);
+
+                                const f = features[j];
+                                if (!f) continue;
+
+                                const props = f.properties || (f.properties = {});
+
+                                const geoid = String(props.GEOID || props.geoid || "");
+                                if (geoid) props.GEOID = geoid;
+
+                                const popAdult = Number(props.POP_ADULT || 0);
+                                const popTotal = Number(props.POPULATION || 0);
+                                props.POP_ADULT = popAdult;
+                                props.POPULATION = popTotal;
+
+                                if (geoid.startsWith(fips))
+                                {
+                                    countyAdults += popAdult;
+                                    countyTotal += popTotal;
+                                }
+
+                                const cx = Number(props.CX || 0);
+                                const cy = Number(props.CY || 0);
+                                props.CX = cx;
+                                props.CY = cy;
+
+                                // Prefer server-provided point-on-surface to avoid expensive turf.centroid calls.
+                                if (Number.isFinite(cx) && Number.isFinite(cy) && (cx !== 0 || cy !== 0))
+                                {
+                                    calcFeatures.push({ lng: cx, lat: cy, popAdult });
+                                } else if (f.geometry)
+                                {
+                                    try
+                                    {
+                                        const coords = turf.centroid(f).geometry.coordinates;
+                                        if (coords && coords.length === 2) calcFeatures.push({ lng: coords[0], lat: coords[1], popAdult });
+                                    } catch { }
+                                }
+                            }
+                        }
+
+                        contextCache[fips] = {
+                            geojson: geojson,
+                            calcFeatures: calcFeatures,
+                            totals: { adults: countyAdults, total: countyTotal },
+                            isLite: lite
+                        };
+
+                        const isStale = !activeContextLoad || activeContextLoad.id !== loadId;
+                        if (!isStale)
+                        {
+                            contextIsLite = lite;
+                            currentContextGeoJSON = geojson;
+                            currentCalcFeatures = calcFeatures;
+                            currentCountyTotals = { adults: countyAdults, total: countyTotal };
+                        }
+
+                        logToUI(`Success. (${calcFeatures.length} points)`);
+                        return true;
+                    } catch (e)
+                    {
+                        if (e && e.name === 'AbortError')
+                        {
+                            logToUI("Cancelled or timed out.");
+                        } else
+                        {
+                            logToUI(`Error: ${e.message}`);
+                            console.error("Context Load Error", e);
+                        }
+                        return false;
+                    } finally
+                    {
+                        clearTimeout(timeoutId);
+                        if (activeContextLoad && activeContextLoad.id === loadId)
+                        {
+                            activeContextLoad = null;
+                            toggleLoading(false);
+                        }
+                    }
+                })();
+
+                activeContextLoad = { id: loadId, fips, lite, controller, promise };
+                return promise;
+            }
+
+            async function ensureContextLayers()
+            {
+                if (!currentCountyFips) return;
+                if (!currentContextGeoJSON || contextIsLite)
+                {
+                    toggleLoading(true);
+                    const textEl = document.getElementById('map-loading-text');
+                    if (textEl) textEl.textContent = "Loading Layer Data...";
+                    try
+                    {
+                        const ok = await loadCountyContext(currentCountyFips, false);
+                        if (!ok) return;
+                    } finally
+                    {
+                        if (textEl) textEl.textContent = "Loading Regional Data...";
+                        toggleLoading(false);
+                    }
+                }
+                if (currentContextGeoJSON)
+                {
+                    buildContextLayers(currentCountyFips, currentContextGeoJSON);
+                    updateLayerVisibility();
+                }
+            }
+
+            function buildContextLayers(countyFips, contextData)
+            {
+                if (!layersVisible.blocks && !layersVisible.heatmap && !layersVisible.tracts) return;
+                if (!contextData || !contextData.features) return;
+                const countyFeatures = contextData.features.filter(f =>
+                {
+                    const geoid = f.properties.GEOID || "";
+                    return geoid.startsWith(countyFips);
+                });
+
+                const countyGeoJSON = { type: "FeatureCollection", features: countyFeatures };
+
+                if (layersVisible.blocks || layersVisible.heatmap)
+                {
+                    const heatPoints = [];
+                    let maxPop = 0;
+
+                    turf.featureEach(countyGeoJSON, (f) =>
+                    {
+                        const p = f.properties.POP_ADULT || 0;
+                        if (p > maxPop) maxPop = p;
+                    });
+
+                    if (maxPop === 0) maxPop = 1;
+
+                    turf.featureEach(countyGeoJSON, (f) =>
+                    {
+                        const p = f.properties.POP_ADULT || 0;
+                        if (p > 0)
+                        {
+                            const cx = f.properties.CX;
+                            const cy = f.properties.CY;
+                            const centroid = (cx && cy) ? [cx, cy] : turf.centroid(f).geometry.coordinates;
+                            const lat = centroid[1];
+                            const lng = centroid[0];
+                            const intensity = (p / maxPop);
+                            heatPoints.push([lat, lng, intensity]);
+                        }
+                    });
+
+                    if (blockGroupLayer)
+                    {
+                        map.removeLayer(blockGroupLayer);
+                        blockGroupLayer = null;
+                    }
+
+                    if (heatPoints.length > 0)
+                    {
+                        try
+                        {
+                            blockGroupLayer = L.heatLayer(heatPoints, {
+                                radius: 30,
+                                blur: 20,
+                                maxZoom: 13,
+                                max: 1.0,
+                                gradient: { 0.2: 'blue', 0.4: 'lime', 0.6: 'yellow', 0.9: 'orange', 1.0: 'red' }
+                            });
+                        } catch (e)
+                        {
+                            console.warn("Leaflet.heat not loaded?", e);
+                        }
+                    }
+                }
+
+                if (layersVisible.tracts)
+                {
+                    tractLayer = generateTractLayer(countyGeoJSON);
+                }
             }
 
             function generateTractLayer(geoJSON)
@@ -744,69 +1139,40 @@ window.ImpactMap = (function ()
             function calculateImpact()
             {
                 // CLIENT SIDE ONLY - No Fetch
-                if (!currentContextGeoJSON || !marker || !currentCountyFips) return;
+                if (!currentCalcFeatures || !currentCountyTotals || !marker || !currentCountyFips) return;
 
                 const baselineRate = parseFloat(els.inputRate ? els.inputRate.value : 2.3);
                 const markerLatLng = marker.getLatLng();
-                const centerPoint = turf.point([markerLatLng.lng, markerLatLng.lat]);
 
-                // Get county info for context display
-                const countyInfo = getCountyReference().find(c => c.geoid === currentCountyFips);
+                const toRad = Math.PI / 180;
+                const earthRadiusMiles = 3958.7613;
+                const centerLat = markerLatLng.lat;
+                const centerLng = markerLatLng.lng;
 
-                // Sum county totals from context data (authoritative)
-                let countyTotal = 0;
-                let countyAdults = 0;
+                function distanceMiles(lng1, lat1, lng2, lat2)
+                {
+                    const dLat = (lat2 - lat1) * toRad;
+                    const dLng = (lng2 - lng1) * toRad;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) *
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    return earthRadiusMiles * c;
+                }
 
                 let t1Pop = 0;
                 let t2Pop = 0;
+                const countyAdults = currentCountyTotals.adults || 0;
+                const countyTotal = currentCountyTotals.total || 0;
 
-                // Iterate over the loaded 50-mile context
-                turf.featureEach(currentContextGeoJSON, (feature) =>
+                for (let i = 0; i < currentCalcFeatures.length; i++)
                 {
-                    const props = feature.properties;
-                    const popAdult = props.POP_ADULT || 0;
-                    const popTotal = props.POPULATION || 0;
+                    const entry = currentCalcFeatures[i];
+                    const dist = distanceMiles(centerLng, centerLat, entry.lng, entry.lat);
+                    if (dist <= 10) t1Pop += entry.popAdult;
+                    else if (dist <= 20) t2Pop += entry.popAdult;
+                }
 
-                    // Sum for County Adults (based on FIPS match)
-                    const geoid = props.GEOID || "";
-                    const isFeatureInCounty = geoid.startsWith(currentCountyFips);
-
-                    if (isFeatureInCounty)
-                    {
-                        countyAdults += popAdult;
-                        countyTotal += popTotal;
-                    }
-
-                    // Spatial Summation
-                    // We use centroid distance for speed, or intersection area for precision?
-                    // Previous client code used centroid.
-                    // Server code used Intersection Area.
-                    // Client Intersection Area with Turf is slow for many polygons.
-                    // Let's use Centroid with a weighting factor or simple inclusion?
-                    // "Block Groups" are small enough that Centroid is "Okay" for a drag UI, 
-                    // BUT user noticed precision issues before.
-                    // OPTIMIZATION: Only check distance to centroid first.
-
-                    // Fast Centroid approach:
-                    // Only accurate if block groups are small.
-                    // Let's try to stick to the logic that worked well before but client side if possible.
-                    // Actually, turf.distance is fast.
-
-                    const centerOfFeat = turf.centroid(feature);
-                    const dist = turf.distance(centerPoint, centerOfFeat, { units: 'miles' });
-
-                    if (dist <= 10)
-                    {
-                        // STRICTLY COUNT COUNTY RESIDENTS ONLY
-                        // This prevents "Effective Rate" > "Max Rate" by ensuring numerator doesn't include out-of-county spillover
-                        if (isFeatureInCounty) t1Pop += popAdult;
-                    } else if (dist <= 20)
-                    {
-                        if (isFeatureInCounty) t2Pop += popAdult;
-                    }
-                });
-
-                // Baseline Adults
                 let t3Pop = Math.max(0, countyAdults - t1Pop - t2Pop);
 
                 const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
@@ -857,6 +1223,7 @@ window.ImpactMap = (function ()
                 // DISPLAY ADULT POPULATION (18+)
                 if (dispPopAdults) dispPopAdults.textContent = countyAdults.toLocaleString();
 
+                const countyInfo = getCountyReference().find(c => c.geoid === currentCountyFips);
                 if (countyInfo)
                 {
                     countyInfo.pop = countyTotal;
@@ -893,6 +1260,7 @@ window.ImpactMap = (function ()
                 els.countySelect.addEventListener('change', (e) =>
                 {
                     const val = els.countySelect.value;
+                    if (!val || val === currentCountyFips) return;
                     const found = getCountyReference().find(c => c.geoid === val);
                     if (found) { currentCountyFips = found.geoid; loadCounty(found.geoid); }
                 });

@@ -12,16 +12,19 @@ public class ImpactController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly IConfiguration _config;
+    private readonly ILogger<ImpactController> _logger;
 
-    public ImpactController(AppDbContext db, IConfiguration config)
+    public ImpactController(AppDbContext db, IConfiguration config, ILogger<ImpactController> logger)
     {
         _db = db;
         _config = config;
+        _logger = logger;
     }
 
     [HttpGet("calculate")]
     public async Task<IActionResult> CalculateImpact(double lat, double lon)
     {
+        // ... (existing code) ...
         var connString = _config.GetConnectionString("DefaultConnection");
         await using var conn = new NpgsqlConnection(connString);
         await conn.OpenAsync();
@@ -106,64 +109,99 @@ public class ImpactController : ControllerBase
         
         return Ok(new { t1 = 0, t2 = 0, county_total = 0, county_adults = 0 });
     }
+
     [HttpGet("county-context/{fips}")]
-    public async Task<IActionResult> GetCountyContext(string fips)
+    public async Task<IActionResult> GetCountyContext(string fips, [FromQuery] bool lite = false)
     {
+        _logger.LogInformation($"[ImpactController] 1. Request received for {fips} (Lite: {lite})");
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        
         var connString = _config.GetConnectionString("DefaultConnection");
         await using var conn = new NpgsqlConnection(connString);
         await conn.OpenAsync();
+        _logger.LogInformation($"[ImpactController] 2. DB Connection Open ({sw.ElapsedMilliseconds}ms)");
 
-        // 50 miles = ~80467 meters
-        // We select all block groups that intersect a 50-mile buffer around the target county
-        var sql = @"
-            WITH target_county_geom AS (
-                -- Union all block groups for this county to make the base shape
-                -- (Note: Faster if we had a counties table, but this works given our ingestion)
-                SELECT ST_Union(geom) as geom
-                FROM census_block_groups
-                WHERE state_fp || substring(geoid, 3, 3) = @fips
-                   OR geoid LIKE @fips || '%' -- Handle both 5-digit FIPS or just state+county prefix match
-            ),
-            search_area AS (
-                SELECT ST_Buffer(geom::geography, 80467)::geometry as geom
-                FROM target_county_geom
-            )
-            SELECT json_build_object(
-                'type', 'FeatureCollection',
-                'features', json_agg(
-                    json_build_object(
-                        'type', 'Feature',
-                        'geometry', ST_AsGeoJSON(b.geom)::json,
-                        'properties', json_build_object(
-                            'POPULATION', b.pop_total,    -- Keeping generic name for compatibility if needed
-                            'POP_ADULT', b.pop_18_plus,
-                            'GEOID', b.geoid
-                        )
-                    )
+        var sql = lite
+            ? @"
+                WITH target_county_geom AS (
+                    SELECT COALESCE(geom_simplified, geom) as geom
+                    FROM tiger_counties
+                    WHERE geoid = @fips
+                ),
+                search_area AS (
+                    -- Marker zones top out at 20 miles; use a slightly larger buffer for safety.
+                    SELECT ST_Buffer(geom::geography, 40233.6)::geometry as geom
+                    FROM target_county_geom
+                ),
+                county_stats AS (
+                    SELECT
+                        COALESCE(SUM(pop_total), 0) as county_total,
+                        COALESCE(SUM(pop_18_plus), 0) as county_adults
+                    FROM census_block_groups
+                    WHERE geoid LIKE @fips || '%'
                 )
-            )
-            FROM census_block_groups b, search_area s
-            WHERE ST_Intersects(b.geom, s.geom);
-        ";
+                SELECT json_build_object(
+                    'fips', @fips,
+                    'lite', true,
+                    'county_total', (SELECT county_total FROM county_stats),
+                    'county_adults', (SELECT county_adults FROM county_stats),
+                    'points', COALESCE(json_agg(
+                        json_build_array(
+                            ST_X(ST_PointOnSurface(b.geom)),
+                            ST_Y(ST_PointOnSurface(b.geom)),
+                            b.pop_18_plus
+                        )
+                    ), '[]'::json)
+                )::text
+                FROM census_block_groups b, search_area s
+                WHERE ST_Intersects(b.geom, s.geom) AND b.pop_18_plus > 0;
+            "
+            : @"
+                SELECT json_build_object(
+                    'type', 'FeatureCollection',
+                    'lite', false,
+                    'features', COALESCE(json_agg(
+                        json_build_object(
+                            'type', 'Feature',
+                            'geometry', ST_AsGeoJSON(COALESCE(b.geom_simplified, b.geom))::json,
+                            'properties', json_build_object(
+                                'POPULATION', b.pop_total,
+                                'POP_ADULT', b.pop_18_plus,
+                                'GEOID', b.geoid,
+                                'CX', ST_X(ST_PointOnSurface(b.geom)),
+                                'CY', ST_Y(ST_PointOnSurface(b.geom))
+                            )
+                        )
+                    ), '[]'::json)
+                )::text
+                FROM census_block_groups b
+                WHERE b.geoid LIKE @fips || '%';
+            ";
 
         await using var cmd = new NpgsqlCommand(sql, conn);
-        // Ensure FIPS is 5 digits. If user passed '003' (Allen partial), we might need to handle. 
-        // But map.js uses '003' for Allen in 'IndianaCounties'. The ingestion used full state FIPS (18) + County (003). 
-        // For robustness, let's assume the FIPS passed is '18003' or construct it if needed. 
-        // Map.js 'currentCountyId' is '003', but we know Indiana is '18'. 
-        // Actually, map.js passes what? 
-        // Let's assume the client will now pass the full '18003' or we fix it here.
-        // Indiana is 18.
-        var targetFips = fips.Length == 3 ? "18" + fips : fips;
+        cmd.Parameters.AddWithValue("fips", fips);
 
-        cmd.Parameters.AddWithValue("fips", targetFips);
-
+        _logger.LogInformation($"[ImpactController] 3. Executing SQL... ({sw.ElapsedMilliseconds}ms)");
         // ExecuteScalar returns the JSON string directly
         var jsonResult = await cmd.ExecuteScalarAsync();
         
-        if (jsonResult == null || jsonResult == DBNull.Value) 
-            return NotFound();
+        sw.Stop();
+        _logger.LogInformation($"[ImpactController] 4. Query finished in {sw.ElapsedMilliseconds}ms");
 
-        return Content(jsonResult.ToString(), "application/json");
+        if (jsonResult == null || jsonResult == DBNull.Value) 
+        {
+            _logger.LogWarning($"[ImpactController] No data found for {fips}");
+            return NotFound();
+        }
+
+        var jsonString = jsonResult.ToString();
+        _logger.LogInformation($"[ImpactController] 5. JSON String Length: {jsonString.Length}");
+        
+        var bytes = System.Text.Encoding.UTF8.GetBytes(jsonString);
+        _logger.LogInformation($"[ImpactController] 6. Bytes Converted: {bytes.Length}");
+
+        // Use File result to ensure proper headers and flushing
+        _logger.LogInformation($"[ImpactController] 7. Returning File Result.");
+        return File(bytes, "application/json");
     }
 }

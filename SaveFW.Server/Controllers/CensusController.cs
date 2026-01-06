@@ -85,7 +85,7 @@ namespace SaveFW.Server.Controllers
                         'features', COALESCE(json_agg(
                             json_build_object(
                                 'type', 'Feature',
-                                'geometry', ST_AsGeoJSON(geom)::json,
+                                'geometry', ST_AsGeoJSON(COALESCE(geom_simplified, geom))::json,
                                 'properties', json_build_object(
                                     'geoid', geoid,
                                     'name', name,
@@ -127,22 +127,32 @@ namespace SaveFW.Server.Controllers
                 await conn.OpenAsync();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
+                    WITH county_pop AS (
+                        SELECT substring(geoid, 1, 5) AS county_geoid,
+                               SUM(pop_total) AS pop_total,
+                               SUM(pop_18_plus) AS pop_adult
+                        FROM census_block_groups
+                        GROUP BY 1
+                    )
                     SELECT json_build_object(
                         'type', 'FeatureCollection',
                         'features', COALESCE(json_agg(
                             json_build_object(
                                 'type', 'Feature',
-                                'geometry', ST_AsGeoJSON(geom)::json,
+                                'geometry', ST_AsGeoJSON(COALESCE(geom_simplified, geom))::json,
                                 'properties', json_build_object(
                                     'geoid', geoid,
                                     'name', name,
-                                    'state_fp', state_fp
+                                    'state_fp', state_fp,
+                                    'pop_total', COALESCE(cp.pop_total, 0),
+                                    'pop_adult', COALESCE(cp.pop_adult, 0)
                                 )
                             )
                         ), '[]'::json)
                     )::text
-                    FROM tiger_counties
-                    WHERE state_fp = @fips;
+                    FROM tiger_counties tc
+                    LEFT JOIN county_pop cp ON cp.county_geoid = tc.geoid
+                    WHERE tc.state_fp = @fips;
                 ";
                 
                 var p = cmd.CreateParameter();

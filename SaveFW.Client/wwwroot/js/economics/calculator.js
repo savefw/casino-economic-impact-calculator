@@ -3,7 +3,7 @@ window.EconomicCalculator = (function ()
     // Track initialization state
     let isInitialized = false;
 
-    const getCountyData = () => window.CurrentCountyList || window.IndianaCounties || [];
+    const getCountyData = () => window.CurrentCountyList || [];
 
     let currentPop = 0;
 
@@ -96,8 +96,10 @@ window.EconomicCalculator = (function ()
         {
             const opt = document.createElement('option');
             opt.value = '';
-            opt.textContent = 'Select a county';
+            opt.textContent = 'Select a state first';
             els.inCounty.appendChild(opt);
+            const display = document.getElementById('county-display');
+            if (display) display.textContent = 'Select a state first';
             renderCustomOptions([]);
             return;
         }
@@ -127,10 +129,16 @@ window.EconomicCalculator = (function ()
             return;
         }
 
-        data.forEach(c =>
+        const sorted = [...data].sort((a, b) =>
+        {
+            if (sortMode === 'pop') return (b.pop || 0) - (a.pop || 0);
+            return (a.name || '').localeCompare(b.name || '');
+        });
+
+        sorted.forEach(c =>
         {
             const div = document.createElement('div');
-            div.className = "px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors flex items-center justify-between group";
+            div.className = "px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-blue-300 cursor-pointer transition-colors flex items-center justify-between group";
             div.innerHTML = `
                                         <span class="font-medium">${c.name}</span>
                                         <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${c.pop ? c.pop.toLocaleString() : ''}</span>
@@ -147,14 +155,15 @@ window.EconomicCalculator = (function ()
     function selectCounty(name, geoid, pop)
     {
         // 1. Update Native Select
-        if (geoid) els.inCounty.value = geoid;
+        const didChange = !!(geoid && els.inCounty && els.inCounty.value !== geoid);
+        if (didChange) els.inCounty.value = geoid;
 
         // 2. Update Display
         const display = document.getElementById('county-display');
         if (display) display.textContent = pop ? `${name} (${pop.toLocaleString()})` : name;
 
         // 3. Trigger Calculation
-        els.inCounty.dispatchEvent(new Event('change'));
+        if (didChange) els.inCounty.dispatchEvent(new Event('change'));
 
         // 4. Close Menu
         toggleMenu(false);
@@ -164,7 +173,10 @@ window.EconomicCalculator = (function ()
     let trigger = null;
     let menu = null;
     let searchInput = null;
+    let sortAlphaBtn = null;
+    let sortPopBtn = null;
     let isOpen = false;
+    let sortMode = 'alpha';
 
     function toggleMenu(show)
     {
@@ -199,12 +211,15 @@ window.EconomicCalculator = (function ()
         trigger = document.getElementById('county-trigger');
         menu = document.getElementById('county-menu');
         searchInput = document.getElementById('county-search');
+        sortAlphaBtn = document.getElementById('county-sort-alpha');
+        sortPopBtn = document.getElementById('county-sort-pop');
 
         if (trigger)
         {
             trigger.onclick = (e) =>
             {
                 e.preventDefault(); // Prevent form submission if in form
+                if (!getCountyData().length) return;
                 toggleMenu(!isOpen);
             };
         }
@@ -217,6 +232,25 @@ window.EconomicCalculator = (function ()
                 const term = e.target.value.toLowerCase();
                 const filtered = getCountyData().filter(c => c.name.toLowerCase().includes(term));
                 renderCustomOptions(filtered);
+            };
+        }
+
+        if (sortAlphaBtn)
+        {
+            sortAlphaBtn.onclick = (e) =>
+            {
+                e.preventDefault();
+                sortMode = 'alpha';
+                renderCustomOptions(getCountyData());
+            };
+        }
+        if (sortPopBtn)
+        {
+            sortPopBtn.onclick = (e) =>
+            {
+                e.preventDefault();
+                sortMode = 'pop';
+                renderCustomOptions(getCountyData());
             };
         }
 

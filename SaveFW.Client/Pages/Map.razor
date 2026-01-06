@@ -37,10 +37,28 @@
                 <label class="text-base font-bold text-slate-300 mb-2 block">Assessed State</label>
 
                 <div class="relative mb-4">
-                    <select id="input-state"
-                        class="w-full bg-slate-700 border border-slate-500 text-white rounded-xl px-4 py-3 shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select a state</option>
+                    <select id="input-state" class="hidden">
+                        <!-- Options populated by JS -->
                     </select>
+
+                    <button id="state-trigger"
+                        class="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group">
+                        <span class="font-medium flex items-center gap-2">
+                            <span
+                                class="material-symbols-outlined text-slate-400 group-hover:text-blue-400 transition-colors">map</span>
+                            <span id="state-display">Select a state</span>
+                        </span>
+                        <span
+                            class="material-symbols-outlined text-slate-400 group-focus:rotate-180 transition-transform duration-300">expand_more</span>
+                    </button>
+
+                    <div id="state-menu"
+                        class="hidden absolute top-full left-0 w-full mt-2 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl overflow-hidden transform origin-top transition-all duration-200 opacity-0 scale-95 z-[200]">
+                        <div id="state-options"
+                            class="max-h-60 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
                 </div>
 
                 <label class="text-base font-bold text-slate-300 mb-2 block">Assessed County</label>
@@ -52,10 +70,10 @@
                     </select>
 
                     <button id="county-trigger"
-                        class="w-full bg-slate-700 border border-slate-500 text-white rounded-xl px-4 py-3 flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group">
+                        class="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group">
                         <span class="font-medium flex items-center gap-2">
                             <span
-                                class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors">location_on</span>
+                                class="material-symbols-outlined text-slate-400 group-hover:text-blue-400 transition-colors">location_on</span>
                             <span id="county-display">Select a county</span>
                         </span>
                         <span
@@ -63,17 +81,27 @@
                     </button>
 
                     <div id="county-menu"
-                        class="hidden absolute top-full left-0 w-full mt-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden transform origin-top transition-all duration-200 opacity-0 scale-95 z-[200]">
-                        <div class="p-3 border-b border-slate-200 dark:border-slate-700">
+                        class="hidden absolute top-full left-0 w-full mt-2 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl overflow-hidden transform origin-top transition-all duration-200 opacity-0 scale-95 z-[200]">
+                        <div class="p-3 border-b border-slate-700">
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
                                 <input type="text" id="county-search" placeholder="Search counties..."
-                                    class="w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400 dark:placeholder-slate-500">
+                                    class="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500">
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                <button id="county-sort-alpha"
+                                    class="flex-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800">
+                                    Sort A-Z
+                                </button>
+                                <button id="county-sort-pop"
+                                    class="flex-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800">
+                                    Sort Pop
+                                </button>
                             </div>
                         </div>
                         <div id="county-options"
-                            class="max-h-60 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent">
+                            class="max-h-60 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
                             <!-- Populated by JS -->
                         </div>
                     </div>
