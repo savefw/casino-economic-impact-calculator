@@ -87,17 +87,17 @@ For users who want to explore "What If" scenarios, the Simulator provides a guid
 <br /><br />
 
 ## Interactive Slot Machine
-A visual metaphor for the deceptive marketing tactics used to sell the casino project. The digital slot machine demonstrates the "Near Miss" psychological effect—where "JOBS" appears just one click away from "ADDICTION"—highlighting how promises of economic prosperity are often just a facade for wealth extraction. This tool is designed to educate the public on the intentional design of gambling environments and their linguistic framing in political discourse.
+A visual metaphor for the marketing strategies used to sell the casino project. The digital slot machine demonstrates the "Near Miss" psychological effect—where "JOBS" appears just one click away from "ADDICTION"—highlighting how promises of economic prosperity are often just a mechanism for revenue generation. This tool is designed to educate the public on the intentional design of gambling environments and their linguistic framing in political discourse.
 <br /><br />
 
 ## Impact Zone Visualizer
-This Leaflet.js-based geospatial tool visualizes the "blast radius" of problem gambling. It maps high-risk (0-10 miles), elevated-risk (10-20 miles), and baseline risk zones, dynamically calculating the number of affected households based on 2020 Census block group data. By dragging the casino marker to different locations, users can immediately see how many families fall within the primary impact zones, providing a clear visual representation of the community's exposure.
+This Leaflet.js-based geospatial tool currently visualizes the geographic scope of problem gambling using standard radius zones (0-10 miles for high risk, 10-20 miles for elevated risk). While this provides a baseline estimate, work is underway to integrate **Valhalla** to generate precise drive-time polygons (isochrones). Future updates will transition to a **1-hour drive time** impact zone, widely cited in academic literature (Grinols, 2011 & 2016) as the primary catchment area for local problem gambling prevalence.
 <br /><br />
 <img src="docs/examples/Casino-Impact-Zone-Visualizer-Example.png" alt="Map Visualizer" width="600" />
 <br /><br />
 
-## Decoding the Spin
-A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"). This section uses a "Bait vs. Hook" format, supported by direct links to independent studies and government data, to help citizens see past the polished PR campaigns and understand the systemic risks.
+## Analyzing the Claims
+A direct, side-by-side comparison of the marketing claims ("Economic Engine," "World-Class Destination") versus the documented reality found in similar markets ("Substitution Effect," "Market Saturation"). This section uses a "Claim vs. Reality" format, supported by direct links to independent studies and government data, to help citizens see past the promotional campaigns and understand the systemic risks.
 
 ## Detailed Demographics
 The platform integrates granular population data for all 92 Indiana counties, allowing the impact model to be applied specifically to the local demographics of Allen County and its neighbors. This ensures that the analysis isn't just a generic statewide average, but a tailored report based on the specific socio-economic profile of the affected region.
