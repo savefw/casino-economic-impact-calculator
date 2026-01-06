@@ -6,6 +6,7 @@ window.EconomicCalculator = (function ()
     const getCountyData = () => window.CurrentCountyList || [];
 
     let currentPop = 0;
+    let lastImpactBreakdown = null;
 
     // DOM element references - populated by init()
     let els = {};
@@ -1087,6 +1088,162 @@ window.EconomicCalculator = (function ()
             analysisHTML += '</ul>';
             analysisEl.innerHTML = analysisHTML;
         }
+
+        renderRegionalSpilloverTable({
+            subjectCountyName: countyName,
+            totalRevenue,
+            baselineRate: rate,
+            perVictimCosts: {
+                crime: cCrime,
+                business: cBusiness,
+                bankruptcy: cBankruptcy,
+                illness: cIllness,
+                services: cServices,
+                abused: cAbused
+            }
+        });
+    }
+
+    function renderRegionalSpilloverTable(options)
+    {
+        const container = document.getElementById('regional-cost-table');
+        if (!container) return;
+
+        const noteEl = document.getElementById('regional-cost-note');
+        const fmtM = (v) => '$' + (v / 1000000).toFixed(1) + 'MM';
+        const fmtDiff = (v) =>
+        {
+            const sign = v >= 0 ? '+' : '-';
+            return `${sign}${fmtM(Math.abs(v))}`;
+        };
+
+        const baselineRateCandidate = Number((lastImpactBreakdown && lastImpactBreakdown.baselineRate) || (options && options.baselineRate) || 2.3);
+        const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
+        const r1 = (baselineRate * 2.0) / 100;
+        const r2 = (baselineRate * 1.5) / 100;
+
+        const impacted = (lastImpactBreakdown && Array.isArray(lastImpactBreakdown.byCounty)) ? lastImpactBreakdown.byCounty : [];
+        if (!impacted.length)
+        {
+            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see spillover cost distribution.</div>`;
+            if (noteEl) noteEl.textContent = "";
+            return;
+        }
+
+        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
+
+        const counties = impacted
+            .map(c =>
+            {
+                const fips = String(c.fips || "");
+                const t1Adults = Number(c.t1Pop || 0);
+                const t2Adults = Number(c.t2Pop || 0);
+                const adultsWithin20 = t1Adults + t2Adults;
+                const victimsWithin20 = (t1Adults * r1) + (t2Adults * r2);
+                const name = countyIndex.get(fips) || fips;
+                return { fips, name, t1Adults, t2Adults, adultsWithin20, victimsWithin20 };
+            })
+            .filter(c => c.fips && c.adultsWithin20 > 0);
+
+        if (!counties.length)
+        {
+            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">No regional spillover detected within 20 miles.</div>`;
+            if (noteEl) noteEl.textContent = "";
+            return;
+        }
+
+        const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || "");
+        counties.sort((a, b) =>
+        {
+            const aIsSubject = a.fips === subjectCountyFips ? 1 : 0;
+            const bIsSubject = b.fips === subjectCountyFips ? 1 : 0;
+            if (aIsSubject !== bIsSubject) return bIsSubject - aIsSubject;
+            return b.adultsWithin20 - a.adultsWithin20;
+        });
+
+        const totalRevenue = Number(options && options.totalRevenue) || 0;
+        const costs = (options && options.perVictimCosts) ? options.perVictimCosts : {};
+        const costRows = [
+            { key: 'health', label: 'Public Health', perVictim: Number(costs.illness || 0) },
+            { key: 'crime', label: 'Law Enforcement', perVictim: Number(costs.crime || 0) },
+            { key: 'social', label: 'Social Services', perVictim: Number(costs.services || 0) },
+            { key: 'legal', label: 'Civil Legal', perVictim: Number(costs.bankruptcy || 0) },
+            { key: 'abused', label: 'Abused Dollars', perVictim: Number(costs.abused || 0) },
+            { key: 'employment', label: 'Lost Employment', perVictim: Number(costs.business || 0) }
+        ];
+
+        const countyTotals = {};
+        for (const c of counties)
+        {
+            const totalPerVictim = costRows.reduce((sum, r) => sum + r.perVictim, 0);
+            countyTotals[c.fips] = {
+                victims: c.victimsWithin20,
+                totalCost: c.victimsWithin20 * totalPerVictim
+            };
+        }
+
+        const headerCells = counties.map(c => `<th class="px-3 py-2 text-right whitespace-nowrap">${c.name}</th>`).join('');
+
+        let bodyRows = "";
+        for (const row of costRows)
+        {
+            let rowTotal = 0;
+            const cells = counties.map(c =>
+            {
+                const cost = c.victimsWithin20 * row.perVictim;
+                rowTotal += cost;
+                return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap">${fmtM(cost)}</td>`;
+            }).join('');
+            bodyRows += `
+                <tr class="border-t border-slate-800/60">
+                    <td class="px-3 py-2 whitespace-nowrap text-slate-200 font-semibold">${row.label}</td>
+                    ${cells}
+                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-slate-200">${fmtM(rowTotal)}</td>
+                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur text-slate-500">—</td>
+                </tr>
+            `;
+        }
+
+        let totalCostAll = 0;
+        const totalCells = counties.map(c =>
+        {
+            const cost = countyTotals[c.fips].totalCost;
+            totalCostAll += cost;
+            return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap font-bold text-slate-100">${fmtM(cost)}</td>`;
+        }).join('');
+
+        const netAll = totalRevenue - totalCostAll;
+        const netClass = netAll >= 0 ? 'text-emerald-400' : 'text-red-500';
+
+        const table = `
+            <table class="min-w-max w-full text-xs">
+                <thead>
+                    <tr class="border-b border-slate-700 bg-slate-900/60">
+                        <th class="px-3 py-2 text-left whitespace-nowrap">Cost Category</th>
+                        ${headerCells}
+                        <th class="px-3 py-2 text-right whitespace-nowrap">Total</th>
+                        <th class="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur">Net Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${bodyRows}
+                    <tr class="border-t-2 border-slate-600 bg-slate-900/40">
+                        <td class="px-3 py-2 whitespace-nowrap font-bold text-white">Total (Within 20 Miles)</td>
+                        ${totalCells}
+                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap font-bold text-white">${fmtM(totalCostAll)}</td>
+                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur font-black ${netClass}">${fmtDiff(netAll)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+
+        container.innerHTML = table;
+
+        if (noteEl)
+        {
+            const stateFips = String((lastImpactBreakdown && lastImpactBreakdown.stateFips) || "");
+            noteEl.textContent = `Baseline rate: ${baselineRate.toFixed(1)}%. Regional totals include same-state counties within 20 miles (state FIPS ${stateFips || "—"}). Net Balance = Total Tax Revenue − Total Spillover Cost (public + private).`;
+        }
     }
 
     // Initialize sliders with tick marks - called during init()
@@ -1218,6 +1375,11 @@ window.EconomicCalculator = (function ()
         window.addEventListener('county-selected-map', (e) =>
         {
             selectCounty(e.detail.name, e.detail.geoid, e.detail.pop);
+        });
+
+        window.addEventListener('impact-breakdown-updated', (e) =>
+        {
+            lastImpactBreakdown = (e && e.detail) ? e.detail : null;
         });
     }
 

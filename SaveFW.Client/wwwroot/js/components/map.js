@@ -907,8 +907,9 @@ window.ImpactMap = (function ()
                                 const lng = Number(p[0]);
                                 const lat = Number(p[1]);
                                 const popAdult = Number(p[2] || 0);
+                                const countyFips = (p.length >= 4 && p[3] != null) ? String(p[3]) : "";
                                 if (!Number.isFinite(lng) || !Number.isFinite(lat) || popAdult <= 0) continue;
-                                calcFeatures.push({ lng, lat, popAdult });
+                                calcFeatures.push({ lng, lat, popAdult, countyFips });
                             }
                         } else
                         {
@@ -947,13 +948,13 @@ window.ImpactMap = (function ()
                                 // Prefer server-provided point-on-surface to avoid expensive turf.centroid calls.
                                 if (Number.isFinite(cx) && Number.isFinite(cy) && (cx !== 0 || cy !== 0))
                                 {
-                                    calcFeatures.push({ lng: cx, lat: cy, popAdult });
+                                    calcFeatures.push({ lng: cx, lat: cy, popAdult, countyFips: fips });
                                 } else if (f.geometry)
                                 {
                                     try
                                     {
                                         const coords = turf.centroid(f).geometry.coordinates;
-                                        if (coords && coords.length === 2) calcFeatures.push({ lng: coords[0], lat: coords[1], popAdult });
+                                        if (coords && coords.length === 2) calcFeatures.push({ lng: coords[0], lat: coords[1], popAdult, countyFips: fips });
                                     } catch { }
                                 }
                             }
@@ -1162,35 +1163,67 @@ window.ImpactMap = (function ()
                     return earthRadiusMiles * c;
                 }
 
-                let t1Pop = 0;
-                let t2Pop = 0;
+                let t1PopCounty = 0;
+                let t2PopCounty = 0;
+                let t1PopRegional = 0;
+                let t2PopRegional = 0;
+                const byCounty = {};
                 const countyAdults = currentCountyTotals.adults || 0;
                 const countyTotal = currentCountyTotals.total || 0;
+                const stateFips = String(currentCountyFips || "").substring(0, 2);
 
                 for (let i = 0; i < currentCalcFeatures.length; i++)
                 {
                     const entry = currentCalcFeatures[i];
+                    if (!entry) continue;
+                    const popAdult = Number(entry.popAdult || 0);
+                    if (!Number.isFinite(popAdult) || popAdult <= 0) continue;
+
+                    const entryCountyFips = String(entry.countyFips || "");
+                    const effectiveCountyFips = entryCountyFips || currentCountyFips;
+                    const isSameCounty = effectiveCountyFips === currentCountyFips;
+                    const isSameState = !stateFips || effectiveCountyFips.substring(0, 2) === stateFips;
+                    if (!isSameState) continue;
+
                     const dist = distanceMiles(centerLng, centerLat, entry.lng, entry.lat);
-                    if (dist <= 10) t1Pop += entry.popAdult;
-                    else if (dist <= 20) t2Pop += entry.popAdult;
+                    if (dist <= 10)
+                    {
+                        t1PopRegional += popAdult;
+                        if (isSameCounty) t1PopCounty += popAdult;
+
+                        const bucket = byCounty[effectiveCountyFips] || (byCounty[effectiveCountyFips] = { fips: effectiveCountyFips, t1Pop: 0, t2Pop: 0 });
+                        bucket.t1Pop += popAdult;
+                    } else if (dist <= 20)
+                    {
+                        t2PopRegional += popAdult;
+                        if (isSameCounty) t2PopCounty += popAdult;
+
+                        const bucket = byCounty[effectiveCountyFips] || (byCounty[effectiveCountyFips] = { fips: effectiveCountyFips, t1Pop: 0, t2Pop: 0 });
+                        bucket.t2Pop += popAdult;
+                    }
                 }
 
-                let t3Pop = Math.max(0, countyAdults - t1Pop - t2Pop);
+                const regionalAdultsWithin20 = t1PopRegional + t2PopRegional;
+                const t3PopCounty = Math.max(0, countyAdults - t1PopCounty - t2PopCounty);
 
                 const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
-                const v1 = t1Pop * (r1 / 100); const v2 = t2Pop * (r2 / 100); const v3 = t3Pop * (r3 / 100);
-                const totalVictims = v1 + v2 + v3;
+                const v1County = t1PopCounty * (r1 / 100);
+                const v2County = t2PopCounty * (r2 / 100);
+                const v3County = t3PopCounty * (r3 / 100);
+                const totalVictimsCounty = v1County + v2County + v3County;
+                const totalVictimsRegionalWithin20 = (t1PopRegional * (r1 / 100)) + (t2PopRegional * (r2 / 100));
 
-                animateValue(els.t1, t1Pop); animateValue(els.t2, t2Pop);
+                animateValue(els.t1, t1PopCounty);
+                animateValue(els.t2, t2PopCounty);
                 const labelT3 = document.getElementById('label-t3');
-                if (t3Pop === 0 && countyAdults > 0)
+                if (t3PopCounty === 0 && countyAdults > 0)
                 {
                     els.t3.textContent = "Fully Captured";
                     els.t3.classList.remove('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.add('text-xs', 'font-bold', 'text-white', 'uppercase');
                     if (labelT3) labelT3.textContent = "by Preceding Impact Zones";
                 } else
                 {
-                    animateValue(els.t3, t3Pop);
+                    animateValue(els.t3, t3PopCounty);
                     els.t3.classList.add('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.remove('text-xs', 'font-bold', 'uppercase');
                     if (labelT3) labelT3.textContent = "Adult Population"; // More specific label
                 }
@@ -1198,22 +1231,22 @@ window.ImpactMap = (function ()
                 if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
                 if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
                 if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
-                if (els.vicT1) els.vicT1.textContent = Math.round(v1).toLocaleString();
-                if (els.vicT2) els.vicT2.textContent = Math.round(v2).toLocaleString();
-                if (els.vicT3) els.vicT3.textContent = Math.round(v3).toLocaleString();
-                if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictims).toLocaleString();
+                if (els.vicT1) els.vicT1.textContent = Math.round(v1County).toLocaleString();
+                if (els.vicT2) els.vicT2.textContent = Math.round(v2County).toLocaleString();
+                if (els.vicT3) els.vicT3.textContent = Math.round(v3County).toLocaleString();
+                if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictimsCounty).toLocaleString();
 
                 const lblHigh = document.getElementById('label-high');
                 const lblElevated = document.getElementById('label-elevated');
                 const lblBaseline = document.getElementById('label-baseline');
-                if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1Pop).toLocaleString()}`;
-                if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2Pop).toLocaleString()}`;
-                if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3Pop).toLocaleString()}`;
+                if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1PopCounty).toLocaleString()}`;
+                if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2PopCounty).toLocaleString()}`;
+                if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3PopCounty).toLocaleString()}`;
 
                 const calcRes = document.getElementById('calc-result');
                 const calcGamblers = document.getElementById('calc-gamblers');
-                if (calcRes) calcRes.textContent = Math.round(totalVictims).toLocaleString();
-                if (calcGamblers) calcGamblers.textContent = Math.round(totalVictims).toLocaleString();
+                if (calcRes) calcRes.textContent = Math.round(totalVictimsCounty).toLocaleString();
+                if (calcGamblers) calcGamblers.textContent = Math.round(totalVictimsCounty).toLocaleString();
 
                 const dispPop = document.getElementById('disp-pop-impact-zones');
                 const dispPopAdults = document.getElementById('disp-pop-adults');
@@ -1236,16 +1269,53 @@ window.ImpactMap = (function ()
                 if (dispRateAdult)
                 {
                     // UPDATED: Calculate effective rate based on Adult Population (18+)
-                    const effectiveRate = countyAdults > 0 ? (totalVictims / countyAdults) * 100 : 0;
+                    const effectiveRate = countyAdults > 0 ? (totalVictimsCounty / countyAdults) * 100 : 0;
                     dispRateAdult.textContent = effectiveRate.toFixed(2) + '%';
                 }
 
                 if (dispRateTotal)
                 {
                     // UPDATED: Calculate effective rate based on Total Population (All Ages) as secondary metric
-                    const effectiveRate = countyTotal > 0 ? (totalVictims / countyTotal) * 100 : 0;
+                    const effectiveRate = countyTotal > 0 ? (totalVictimsCounty / countyTotal) * 100 : 0;
                     dispRateTotal.textContent = effectiveRate.toFixed(2) + '%';
                 }
+
+                const dispRegionalAdults20 = document.getElementById('disp-pop-regional-20');
+                if (dispRegionalAdults20) dispRegionalAdults20.textContent = Math.round(regionalAdultsWithin20).toLocaleString();
+                const dispRegionalVictims20 = document.getElementById('disp-victims-regional-20');
+                if (dispRegionalVictims20) dispRegionalVictims20.textContent = Math.round(totalVictimsRegionalWithin20).toLocaleString();
+
+                const impactedCounties = Object.values(byCounty)
+                    .filter(c => c && (c.t1Pop + c.t2Pop) > 0)
+                    .sort((a, b) => (b.t1Pop + b.t2Pop) - (a.t1Pop + a.t2Pop));
+                const dispRegionalCounties = document.getElementById('disp-regional-counties');
+                if (dispRegionalCounties) dispRegionalCounties.textContent = impactedCounties.length.toLocaleString();
+
+                try
+                {
+                    window.dispatchEvent(new CustomEvent('impact-breakdown-updated', {
+                        detail: {
+                            countyFips: currentCountyFips,
+                            stateFips,
+                            baselineRate,
+                            county: {
+                                adults: countyAdults,
+                                total: countyTotal,
+                                t1Adults: t1PopCounty,
+                                t2Adults: t2PopCounty,
+                                t3Adults: t3PopCounty,
+                                victims: { t1: v1County, t2: v2County, t3: v3County, total: totalVictimsCounty }
+                            },
+                            regional: {
+                                adultsWithin20: regionalAdultsWithin20,
+                                t1Adults: t1PopRegional,
+                                t2Adults: t2PopRegional,
+                                victimsWithin20: totalVictimsRegionalWithin20
+                            },
+                            byCounty: impactedCounties
+                        }
+                    }));
+                } catch { }
 
                 const triggerInput = document.getElementById('input-revenue');
                 if (triggerInput) triggerInput.dispatchEvent(new Event('input'));

@@ -142,6 +142,7 @@ public class ImpactController : ControllerBase
                 )
                 SELECT json_build_object(
                     'fips', @fips,
+                    'state_fips', SUBSTRING(@fips, 1, 2),
                     'lite', true,
                     'county_total', (SELECT county_total FROM county_stats),
                     'county_adults', (SELECT county_adults FROM county_stats),
@@ -149,12 +150,16 @@ public class ImpactController : ControllerBase
                         json_build_array(
                             ST_X(ST_PointOnSurface(b.geom)),
                             ST_Y(ST_PointOnSurface(b.geom)),
-                            b.pop_18_plus
+                            b.pop_18_plus,
+                            SUBSTRING(b.geoid, 1, 5)
                         )
                     ), '[]'::json)
                 )::text
                 FROM census_block_groups b, search_area s
-                WHERE ST_Intersects(b.geom, s.geom) AND b.pop_18_plus > 0;
+                WHERE
+                    ST_Intersects(b.geom, s.geom)
+                    AND b.pop_18_plus > 0
+                    AND SUBSTRING(b.geoid, 1, 2) = SUBSTRING(@fips, 1, 2);
             "
             : @"
                 SELECT json_build_object(

@@ -12,16 +12,12 @@
                     ECONOMIC <span class="text-blue-500">IMPACT</span> CALCULATOR
                 </h2>
                 <p class="mt-4 text-xl italic text-slate-400 font-medium max-w-2xl mx-auto">
-                    Interactive modeling of the social and financial impact on Indiana counties, with default set to
-                    Allen County.
+                    Interactive modeling of the social and financial impact on counties and states.
                 </p>
             </div>
 
-
-
             <!-- Refactored Map Component -->
             <Map />
-
 
             <!-- Calculator Grid -->
             <div class="flex flex-col gap-12 mb-16">
@@ -1081,13 +1077,32 @@
                                 <div class="text-right text-emerald-400 font-bold font-mono" id="bal-total-rev">-</div>
                                 <div class="text-right text-red-400 font-mono" id="bal-total-cost">-</div>
                                 <div class="text-right text-red-400 font-mono" id="bal-total-net">-</div>
-                            </div>
-                        </div>
+	                            </div>
+	                        </div>
 
-                        <!-- Progress Bar -->
-                        <div class="relative z-10 mt-8 mb-4">
-                            <div class="flex justify-between text-base font-bold mb-2">
-                                <span class="text-emerald-500">Revenue Covered</span>
+	                        <!-- Regional (State) Spillover Costs (Within 20 miles) -->
+	                        <div class="mt-8 pt-6 border-t border-slate-700">
+	                            <div class="text-xs text-slate-200 uppercase tracking-widest font-bold mb-2 text-center">
+	                                Regional (State) Spillover Costs
+	                            </div>
+	                            <p class="text-sm text-slate-400 leading-relaxed mb-4 text-center px-4">
+	                                Costs are allocated to impacted counties within 20 miles (same state). Scroll
+	                                horizontally; the rightmost Net Balance column is sticky.
+	                            </p>
+	                            <div class="overflow-x-auto rounded-xl border border-slate-700 bg-slate-950/40">
+	                                <div id="regional-cost-table" class="min-w-max">
+	                                    <div class="p-4 text-sm text-slate-500 italic text-center">
+	                                        Select a county on the map to see spillover cost distribution.
+	                                    </div>
+	                                </div>
+	                            </div>
+	                            <p class="mt-2 text-[11px] text-slate-500 italic text-center" id="regional-cost-note"></p>
+	                        </div>
+
+	                        <!-- Progress Bar -->
+	                        <div class="relative z-10 mt-8 mb-4">
+	                            <div class="flex justify-between text-base font-bold mb-2">
+	                                <span class="text-emerald-500">Revenue Covered</span>
                                 <span class="text-red-500">Uncovered Cost</span>
                             </div>
                             <div class="w-full bg-red-500/60 rounded-full h-4 overflow-hidden border border-slate-700">
