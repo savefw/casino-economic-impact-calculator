@@ -1360,6 +1360,9 @@ window.EconomicCalculator = (function ()
 	        const countyHeaderText = subjectCountyName
 	            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
 	            : 'County Costs';
+	        const countyNetHeaderText = subjectCountyName
+	            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Net Balance` : `${subjectCountyName} County Net Balance`)
+	            : 'County Net Balance';
 	        const otherHeaderText = `Other Counties Costs${otherCounties.length ? ` (${otherCounties.length})` : ''}`;
 	        const toggleButton = otherCounties.length
 	            ? `<button type="button" onclick="window.EconomicCalculator && window.EconomicCalculator.toggleOtherCounties && window.EconomicCalculator.toggleOtherCounties()" class="ml-2 px-2 py-0.5 rounded border border-slate-600 text-[10px] uppercase tracking-widest text-slate-200 hover:bg-slate-800 transition-colors">${expanded ? 'Collapse' : 'Expand'}</button>`
@@ -1377,17 +1380,18 @@ window.EconomicCalculator = (function ()
 	            : '';
 	
 	        const thead = `
-	            <thead>
-	                <tr class="border-b border-slate-700 bg-slate-900/60">
-	                    <th class="px-3 py-2 text-left whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur">Group</th>
-	                    <th class="px-3 py-2 text-right whitespace-nowrap">Revenue</th>
-	                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(countyHeaderText.toUpperCase())}</th>
-	                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(otherHeaderText.toUpperCase())}${toggleButton}</th>
-	                    ${headerExtra}
-	                    <th class="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur">Net Balance</th>
-	                </tr>
-	            </thead>
-	        `;
+		            <thead>
+		                <tr class="border-b border-slate-700 bg-slate-900/60">
+		                    <th class="px-3 py-2 text-left whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur">Group</th>
+		                    <th class="px-3 py-2 text-right whitespace-nowrap">Revenue</th>
+		                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(countyHeaderText.toUpperCase())}</th>
+		                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(countyNetHeaderText.toUpperCase())}</th>
+		                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(otherHeaderText.toUpperCase())}${toggleButton}</th>
+		                    ${headerExtra}
+		                    <th class="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur">Total Net Balance</th>
+		                </tr>
+		            </thead>
+		        `;
 	
 	        let tbody = '<tbody>';
 	        for (const row of rows)
@@ -1395,13 +1399,15 @@ window.EconomicCalculator = (function ()
 	            const kind = String(row.kind || 'detail');
 	            const rowKey = String(row.key || "");
 	
-	            const rowRevenue = Number(row.revenue || 0);
-	            const rowCountyCost = Number(row.countyCost || 0);
-	            const rowOtherCost = Number(row.otherCost || 0);
-	            const rowBalance = Number(row.countyBalance || 0);
-	
-	            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : 'text-slate-600';
-	            const balanceClass = rowBalance >= 0 ? 'text-emerald-400' : 'text-red-500';
+		            const rowRevenue = Number(row.revenue || 0);
+		            const rowCountyCost = Number(row.countyCost || 0);
+		            const rowOtherCost = Number(row.otherCost || 0);
+		            const rowCountyBalance = Number(row.countyBalance || (rowRevenue - rowCountyCost));
+		            const rowTotalBalance = rowCountyBalance - rowOtherCost;
+		
+		            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : 'text-slate-600';
+		            const countyBalanceClass = rowCountyBalance >= 0 ? 'text-emerald-400' : 'text-red-500';
+		            const totalBalanceClass = rowTotalBalance >= 0 ? 'text-emerald-400' : 'text-red-500';
 	
 	            const rowBgClass = kind === 'total'
 	                ? 'bg-slate-800/60 border-t-2 border-slate-500'
@@ -1448,16 +1454,17 @@ window.EconomicCalculator = (function ()
 	                }).join('')
 	                : '';
 	
-	            tbody += `
-	                <tr class="${rowBgClass}">
-	                    ${labelCell}
-	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${revenueClass}">${fmtM(rowRevenue)}</td>
-	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-red-400">${fmtM(rowCountyCost)}</td>
-	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-amber-300">${fmtM(rowOtherCost)}</td>
-	                    ${otherExtraCells}
-	                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur ${rowFontClass} ${balanceClass}">${fmtDiffM(rowBalance)}</td>
-	                </tr>
-	            `;
+		            tbody += `
+		                <tr class="${rowBgClass}">
+		                    ${labelCell}
+		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${revenueClass}">${fmtM(rowRevenue)}</td>
+		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-red-400">${fmtM(rowCountyCost)}</td>
+		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${rowFontClass} ${countyBalanceClass}">${fmtDiffM(rowCountyBalance)}</td>
+		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-amber-300">${fmtM(rowOtherCost)}</td>
+		                    ${otherExtraCells}
+		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur ${rowFontClass} ${totalBalanceClass}">${fmtDiffM(rowTotalBalance)}</td>
+		                </tr>
+		            `;
 	        }
 	        tbody += '</tbody>';
 	
@@ -1470,7 +1477,7 @@ window.EconomicCalculator = (function ()
 	
 	        if (noteEl)
 	        {
-	            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. Net Balance reflects subject-county revenue minus subject-county costs. “Other Counties Costs” totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
+	            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. County Net Balance = County Revenue − County Costs. Total Net Balance = County Revenue − (County Costs + Other Counties Costs). Other Counties Costs totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
 	        }
 	    }
 
