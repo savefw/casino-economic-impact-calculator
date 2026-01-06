@@ -129,8 +129,8 @@ public class ImpactController : ControllerBase
                     WHERE geoid = @fips
                 ),
                 search_area AS (
-                    -- Marker zones top out at 20 miles; use a slightly larger buffer for safety.
-                    SELECT ST_Buffer(geom::geography, 40233.6)::geometry as geom
+                    -- Marker zones top out at 50 miles; buffer the county so any in-county marker is covered.
+                    SELECT ST_Buffer(geom::geography, 80467.2)::geometry as geom
                     FROM target_county_geom
                 ),
                 county_stats AS (

@@ -297,62 +297,86 @@
                     <div
                         class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                         2.0x Risk</div>
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles
-                            (High Risk)</div>
-                        <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
-                        <div class="text-xs text-slate-500 mb-3">Adult Population (18+)</div>
-                    </div>
-                    <div class="bg-black/20 rounded-lg p-2 border border-blue-900/30">
-                        <div class="flex justify-between items-center text-xs mb-1"><span
-                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
-                                id="rate-t1">-</span></div>
-                        <div class="flex justify-between items-center border-t border-blue-800 pt-1"><span
-                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
-                                class="font-mono font-black text-white text-sm" id="victims-t1">-</span></div>
-                    </div>
-                </div>
+	                    <div class="flex-1">
+	                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles
+	                            (High Risk)</div>
+	                        <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
+	                        <div class="text-xs text-slate-500 mb-2">Adult Population (18+) — State Total</div>
+	                        <div class="text-[10px] text-slate-400 leading-tight mb-2">
+	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="val-t1-county">-</span></div>
+	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="val-t1-other">-</span></div>
+	                        </div>
+	                    </div>
+	                    <div class="bg-black/20 rounded-lg p-2 border border-blue-900/30">
+	                        <div class="flex justify-between items-center text-xs mb-1"><span
+	                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
+	                                id="rate-t1">-</span></div>
+	                        <div class="flex justify-between items-center border-t border-blue-800 pt-1"><span
+	                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
+	                                class="font-mono font-black text-white text-sm" id="victims-t1">-</span></div>
+	                        <div class="mt-1 text-[10px] text-slate-400 leading-tight">
+	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="victims-t1-county">-</span></div>
+	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="victims-t1-other">-</span></div>
+	                        </div>
+	                    </div>
+	                </div>
                 <div
                     class="p-4 bg-red-900/20 rounded-xl border border-red-800 relative overflow-hidden group flex flex-col">
                     <div
                         class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                         1.5x Risk</div>
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
-                            (Elevated)</div>
-                        <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
-                        <div class="text-xs text-slate-500 mb-3">Adult Population (18+)</div>
-                    </div>
-                    <div class="bg-black/20 rounded-lg p-2 border border-red-900/30">
-                        <div class="flex justify-between items-center text-xs mb-1"><span
-                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
-                                id="rate-t2">-</span></div>
-                        <div class="flex justify-between items-center border-t border-red-800 pt-1"><span
-                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
-                                class="font-mono font-black text-white text-sm" id="victims-t2">-</span></div>
-                    </div>
-                </div>
+	                    <div class="flex-1">
+	                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
+	                            (Elevated)</div>
+	                        <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
+	                        <div class="text-xs text-slate-500 mb-2">Adult Population (18+) — State Total</div>
+	                        <div class="text-[10px] text-slate-400 leading-tight mb-2">
+	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="val-t2-county">-</span></div>
+	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="val-t2-other">-</span></div>
+	                        </div>
+	                    </div>
+	                    <div class="bg-black/20 rounded-lg p-2 border border-red-900/30">
+	                        <div class="flex justify-between items-center text-xs mb-1"><span
+	                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
+	                                id="rate-t2">-</span></div>
+	                        <div class="flex justify-between items-center border-t border-red-800 pt-1"><span
+	                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
+	                                class="font-mono font-black text-white text-sm" id="victims-t2">-</span></div>
+	                        <div class="mt-1 text-[10px] text-slate-400 leading-tight">
+	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="victims-t2-county">-</span></div>
+	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="victims-t2-other">-</span></div>
+	                        </div>
+	                    </div>
+	                </div>
                 <div
                     class="p-4 bg-orange-900/20 rounded-xl border border-orange-800 relative overflow-hidden group flex flex-col">
                     <div
                         class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                         1.0x Risk</div>
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">>20 Miles
-                            (Baseline)</div>
-                        <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
-                        <div class="text-xs text-slate-500 mb-3" id="label-t3">Adult Population (18+)</div>
-                    </div>
-                    <div class="bg-black/20 rounded-lg p-2 border border-orange-800">
-                        <div class="flex justify-between items-center text-xs mb-1"><span
-                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
-                                id="rate-t3">-</span></div>
-                        <div class="flex justify-between items-center border-t border-orange-600 pt-1"><span
-                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
-                                class="font-mono font-black text-white text-sm" id="victims-t3">-</span></div>
-                    </div>
-                </div>
-            </div>
+	                    <div class="flex-1">
+	                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">20-50 Miles
+	                            (Baseline)</div>
+	                        <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
+	                        <div class="text-xs text-slate-500 mb-2" id="label-t3">Adult Population (18+) — State Total</div>
+	                        <div class="text-[10px] text-slate-400 leading-tight mb-2">
+	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="val-t3-county">-</span></div>
+	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="val-t3-other">-</span></div>
+	                        </div>
+	                    </div>
+	                    <div class="bg-black/20 rounded-lg p-2 border border-orange-800">
+	                        <div class="flex justify-between items-center text-xs mb-1"><span
+	                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
+	                                id="rate-t3">-</span></div>
+	                        <div class="flex justify-between items-center border-t border-orange-600 pt-1"><span
+	                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
+	                                class="font-mono font-black text-white text-sm" id="victims-t3">-</span></div>
+	                        <div class="mt-1 text-[10px] text-slate-400 leading-tight">
+	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="victims-t3-county">-</span></div>
+	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="victims-t3-other">-</span></div>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
 
             <!-- Total Summary -->
             <!-- Total Impact Summary -->
@@ -447,7 +471,7 @@
 
 	                <div class="h-px bg-slate-700 my-3"></div>
 
-	                <!-- Regional (State) Summary (Within 20 miles) -->
+	                <!-- Regional (State) Summary (Within 50 miles) -->
 	                <div class="flex flex-col sm:flex-row items-center justify-between py-1">
 	                    <div class="flex items-center gap-3 mb-2 sm:mb-0">
 	                        <div class="p-2 bg-slate-500/20 rounded-full text-slate-300">
@@ -455,11 +479,11 @@
 	                        </div>
 	                        <div class="text-left">
 	                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Regional Adults
-	                                (Within 20 Miles)</div>
+	                                (Within 50 Miles)</div>
 	                            <div class="text-sm text-slate-500">Same-state spillover</div>
 	                        </div>
 	                    </div>
-	                    <div class="text-xl font-mono text-slate-200 text-right" id="disp-pop-regional-20">-</div>
+	                    <div class="text-xl font-mono text-slate-200 text-right" id="disp-pop-regional-50">-</div>
 	                </div>
 
 	                <div class="flex flex-col sm:flex-row items-center justify-between py-1 border-t border-slate-800/50 mt-1 pt-2">
@@ -470,10 +494,10 @@
 	                        <div class="text-left">
 	                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Regional New Problem
 	                                Gamblers*</div>
-	                            <div class="text-sm text-slate-500">Within 20 miles (same state)</div>
+	                            <div class="text-sm text-slate-500">Within 50 miles (same state)</div>
 	                        </div>
 	                    </div>
-	                    <div class="text-xl font-mono text-red-200 text-right" id="disp-victims-regional-20">-</div>
+	                    <div class="text-xl font-mono text-red-200 text-right" id="disp-victims-regional-50">-</div>
 	                </div>
 
 	                <div class="flex flex-col sm:flex-row items-center justify-between py-1 border-t border-slate-800/50 mt-1 pt-2">
@@ -484,7 +508,7 @@
 	                        <div class="text-left">
 	                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Impacted Counties*
 	                            </div>
-	                            <div class="text-sm text-slate-500">Within 20 miles (same state)</div>
+	                            <div class="text-sm text-slate-500">Within 50 miles (same state)</div>
 	                        </div>
 	                    </div>
 	                    <div class="text-xl font-mono text-blue-200 text-right" id="disp-regional-counties">-</div>
@@ -492,7 +516,7 @@
 	            </div>
 	            <p class="mt-3 text-sm text-slate-400 italic leading-relaxed">
 	                * County totals reflect residents within the assessed county limits. Regional totals reflect residents
-	                within 20 miles across the assessed state (spillover into neighboring counties); out-of-state impacts
+	                within 50 miles across the assessed state (spillover into neighboring counties); out-of-state impacts
 	                are excluded.
 	            </p>
 	        </div>

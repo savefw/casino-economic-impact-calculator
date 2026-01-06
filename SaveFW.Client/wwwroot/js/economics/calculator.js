@@ -917,9 +917,22 @@ window.EconomicCalculator = (function ()
 
             const countyInfo = getCountyData().find(c => c.pop === currentPop) || { name: "Selected", pop: currentPop };
             const baselineRateVal = parseFloat(els.inRate.value);
-            const t1Pop = document.getElementById('val-t1').textContent;
-            const t2Pop = document.getElementById('val-t2').textContent;
-            const t3Pop = document.getElementById('val-t3').textContent;
+
+            function readInt(id)
+            {
+                const el = document.getElementById(id);
+                if (!el) return 0;
+                return parseInt(String(el.textContent || "").replace(/,/g, '')) || 0;
+            }
+
+            const countyBreakdown = (lastImpactBreakdown && lastImpactBreakdown.county) ? lastImpactBreakdown.county : null;
+            const t1AdultsCounty = countyBreakdown && Number.isFinite(countyBreakdown.t1Adults) ? countyBreakdown.t1Adults : readInt('val-t1-county');
+            const t2AdultsCounty = countyBreakdown && Number.isFinite(countyBreakdown.t2Adults) ? countyBreakdown.t2Adults : readInt('val-t2-county');
+            const t3AdultsCounty = countyBreakdown && Number.isFinite(countyBreakdown.t3Adults) ? countyBreakdown.t3Adults : readInt('val-t3-county');
+
+            const t1Pop = Math.round(t1AdultsCounty).toLocaleString();
+            const t2Pop = Math.round(t2AdultsCounty).toLocaleString();
+            const t3Pop = Math.round(t3AdultsCounty).toLocaleString();
             const t1Rate = document.getElementById('rate-t1').textContent;
             const t2Rate = document.getElementById('rate-t2').textContent;
             const t3Rate = document.getElementById('rate-t3').textContent;
@@ -959,7 +972,7 @@ window.EconomicCalculator = (function ()
             analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Analysis</div>`;
             analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
             analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population data is sourced directly from the <a href="https://www.census.gov/data/developers/data-sets/decennial-census.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">U.S. Census Bureau's 2020 Decennial Census API</a>, seeded into the SaveFW database in January 2026. Geographic boundaries utilize high-precision 2020 TIGER/Line Shapefiles processed via PostGIS.</li>`;
-            analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The current version of the Economic Impact Calculator limits its analysis to the singular county being assessed. It does not factor spillover impact to neighboring counties in Indiana or neighboring states when the impact radius extends beyond county limits.</li>`;
+            analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The primary balance-sheet results model fiscal exposure for the assessed county. A separate spillover section estimates how impacts may distribute to other same-state counties within a 50-mile radius (out-of-state excluded).</li>`;
 
             // updated specific bullet point with adult pop
             let adultPopStr = adultPop > 0 ? adultPop.toLocaleString() : "Unknown";
@@ -988,16 +1001,16 @@ window.EconomicCalculator = (function ()
                                                 <li><strong class="text-white">High Risk Zone (0-10 miles):</strong> ${t1Pop} residents are subject to a ${t1Rate} prevalence rate due to immediate proximity.</li>
                                                 <li><strong class="text-white">Elevated Risk Zone (10-20 miles):</strong> ${t2Pop} residents are subject to a ${t2Rate} prevalence rate.</li>`;
 
-            if (t3Pop === 'Fully Captured' || t3Pop === '0')
+            if (Math.round(t3AdultsCounty) <= 0)
             {
-                analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> The High and Elevated Risk zones encompass the entire county population, leaving effectively zero residents in the baseline risk category.</li>`;
+                analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (20-50 miles):</strong> The county has effectively zero residents in the baseline band under the 50-mile model cutoff.</li>`;
             } else
             {
-                analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> ${t3Pop} residents are subject to the baseline ${t3Rate} rate.</li>`;
+                analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (20-50 miles):</strong> ${t3Pop} residents are subject to the baseline ${t3Rate} rate.</li>`;
             }
             analysisHTML += `</ul></li>`;
             // Updated conclusion to be clearer
-            analysisHTML += `<li><strong class="text-white">Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate is ${effRateDisplay} (of the adult population), projecting ${victims.toLocaleString()} new problem gamblers within the county.</li>`;
+            analysisHTML += `<li><strong class="text-white">Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate is ${effRateDisplay} (of the adult population), projecting ${victims.toLocaleString()} new problem gamblers within the county (within 50 miles of the site).</li>`;
             analysisHTML += `</ul>`;
 
             // 4. Analysis (Split into sections)
@@ -1121,6 +1134,7 @@ window.EconomicCalculator = (function ()
         const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
         const r1 = (baselineRate * 2.0) / 100;
         const r2 = (baselineRate * 1.5) / 100;
+        const r3 = (baselineRate * 1.0) / 100;
 
         const impacted = (lastImpactBreakdown && Array.isArray(lastImpactBreakdown.byCounty)) ? lastImpactBreakdown.byCounty : [];
         if (!impacted.length)
@@ -1138,16 +1152,17 @@ window.EconomicCalculator = (function ()
                 const fips = String(c.fips || "");
                 const t1Adults = Number(c.t1Pop || 0);
                 const t2Adults = Number(c.t2Pop || 0);
-                const adultsWithin20 = t1Adults + t2Adults;
-                const victimsWithin20 = (t1Adults * r1) + (t2Adults * r2);
+                const t3Adults = Number(c.t3Pop || 0);
+                const adultsWithin50 = t1Adults + t2Adults + t3Adults;
+                const victimsWithin50 = (t1Adults * r1) + (t2Adults * r2) + (t3Adults * r3);
                 const name = countyIndex.get(fips) || fips;
-                return { fips, name, t1Adults, t2Adults, adultsWithin20, victimsWithin20 };
+                return { fips, name, t1Adults, t2Adults, t3Adults, adultsWithin50, victimsWithin50 };
             })
-            .filter(c => c.fips && c.adultsWithin20 > 0);
+            .filter(c => c.fips && c.adultsWithin50 > 0);
 
         if (!counties.length)
         {
-            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">No regional spillover detected within 20 miles.</div>`;
+            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">No regional spillover detected within 50 miles.</div>`;
             if (noteEl) noteEl.textContent = "";
             return;
         }
@@ -1158,7 +1173,7 @@ window.EconomicCalculator = (function ()
             const aIsSubject = a.fips === subjectCountyFips ? 1 : 0;
             const bIsSubject = b.fips === subjectCountyFips ? 1 : 0;
             if (aIsSubject !== bIsSubject) return bIsSubject - aIsSubject;
-            return b.adultsWithin20 - a.adultsWithin20;
+            return b.adultsWithin50 - a.adultsWithin50;
         });
 
         const totalRevenue = Number(options && options.totalRevenue) || 0;
@@ -1177,8 +1192,8 @@ window.EconomicCalculator = (function ()
         {
             const totalPerVictim = costRows.reduce((sum, r) => sum + r.perVictim, 0);
             countyTotals[c.fips] = {
-                victims: c.victimsWithin20,
-                totalCost: c.victimsWithin20 * totalPerVictim
+                victims: c.victimsWithin50,
+                totalCost: c.victimsWithin50 * totalPerVictim
             };
         }
 
@@ -1190,7 +1205,7 @@ window.EconomicCalculator = (function ()
             let rowTotal = 0;
             const cells = counties.map(c =>
             {
-                const cost = c.victimsWithin20 * row.perVictim;
+                const cost = c.victimsWithin50 * row.perVictim;
                 rowTotal += cost;
                 return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap">${fmtM(cost)}</td>`;
             }).join('');
@@ -1228,7 +1243,7 @@ window.EconomicCalculator = (function ()
                 <tbody>
                     ${bodyRows}
                     <tr class="border-t-2 border-slate-600 bg-slate-900/40">
-                        <td class="px-3 py-2 whitespace-nowrap font-bold text-white">Total (Within 20 Miles)</td>
+                        <td class="px-3 py-2 whitespace-nowrap font-bold text-white">Total (Within 50 Miles)</td>
                         ${totalCells}
                         <td class="px-3 py-2 text-right font-mono whitespace-nowrap font-bold text-white">${fmtM(totalCostAll)}</td>
                         <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur font-black ${netClass}">${fmtDiff(netAll)}</td>
@@ -1242,7 +1257,7 @@ window.EconomicCalculator = (function ()
         if (noteEl)
         {
             const stateFips = String((lastImpactBreakdown && lastImpactBreakdown.stateFips) || "");
-            noteEl.textContent = `Baseline rate: ${baselineRate.toFixed(1)}%. Regional totals include same-state counties within 20 miles (state FIPS ${stateFips || "—"}). Net Balance = Total Tax Revenue − Total Spillover Cost (public + private).`;
+            noteEl.textContent = `Baseline rate: ${baselineRate.toFixed(1)}%. Regional totals include same-state counties within 50 miles (state FIPS ${stateFips || "—"}). Net Balance = Total Tax Revenue − Total Spillover Cost (public + private).`;
         }
     }
 
