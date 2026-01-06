@@ -1357,7 +1357,9 @@ window.EconomicCalculator = (function ()
 	        const baselineRateDisplay = Number.isFinite(baselineRate) ? baselineRate.toFixed(1) : "—";
 	
 	        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
-	        const countyHeaderText = subjectCountyName ? `${subjectCountyName} County Costs` : 'County Costs';
+	        const countyHeaderText = subjectCountyName
+	            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
+	            : 'County Costs';
 	        const otherHeaderText = `Other Counties Costs${otherCounties.length ? ` (${otherCounties.length})` : ''}`;
 	        const toggleButton = otherCounties.length
 	            ? `<button type="button" onclick="window.EconomicCalculator && window.EconomicCalculator.toggleOtherCounties && window.EconomicCalculator.toggleOtherCounties()" class="ml-2 px-2 py-0.5 rounded border border-slate-600 text-[10px] uppercase tracking-widest text-slate-200 hover:bg-slate-800 transition-colors">${expanded ? 'Collapse' : 'Expand'}</button>`
