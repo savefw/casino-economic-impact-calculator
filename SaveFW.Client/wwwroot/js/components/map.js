@@ -7,12 +7,19 @@ window.ImpactMap = (function ()
     const cache = {};
 
     return {
-        init: function (elementId)
-        {
-            let currentGeoJSON = null;
-            let currentStateFips = null;
-            let currentCountyFips = null;
-            let stateLayer = null;
+	        init: function (elementId)
+	        {
+	            function normalizeCountyFips(value)
+	            {
+	                const s = String(value == null ? "" : value).trim();
+	                if (!s) return "";
+	                return /^\d+$/.test(s) ? s.padStart(5, '0') : s;
+	            }
+
+	            let currentGeoJSON = null;
+	            let currentStateFips = null;
+	            let currentCountyFips = null;
+	            let stateLayer = null;
             let selectedStateLayer = null;
             let countyLayer = null;
             let highlightLayer = null;
@@ -69,8 +76,8 @@ window.ImpactMap = (function ()
                 updateLayerVisibility();
             }
 
-            function updateLayerVisibility()
-            {
+	            function updateLayerVisibility()
+	            {
                 // Zones
                 if (layersVisible.zones)
                 {
@@ -137,15 +144,17 @@ window.ImpactMap = (function ()
                         if (map.hasLayer(tractLayer)) map.removeLayer(tractLayer);
                     }
                 }
-                // Top ordering
-                if (layersVisible.zones)
-                {
-                    if (circle50) circle50.bringToFront();
-                    if (circle20) circle20.bringToFront();
-                    if (circle10) circle10.bringToFront();
-                }
-                if (stateLayer) stateLayer.bringToBack();
-            }
+	                // Top ordering
+	                if (layersVisible.zones)
+	                {
+	                    if (circle50) circle50.bringToFront();
+	                    if (circle20) circle20.bringToFront();
+	                    if (circle10) circle10.bringToFront();
+	                }
+	                if (tractLayer && layersVisible.tracts) tractLayer.bringToFront();
+	                if (highlightLayer && layersVisible.overlay) highlightLayer.bringToFront();
+	                if (stateLayer) stateLayer.bringToBack();
+	            }
 
             function getHeatMapStyle(feature)
             {
@@ -391,10 +400,10 @@ window.ImpactMap = (function ()
                 }
             }
 
-            async function loadStateCounties(stateFips)
-            {
-                toggleLoading(true);
-                const textEl = document.getElementById('map-loading-text');
+	            async function loadStateCounties(stateFips)
+	            {
+	                toggleLoading(true);
+	                const textEl = document.getElementById('map-loading-text');
                 if (textEl) textEl.textContent = "Loading County Boundaries...";
                 try
                 {
@@ -442,18 +451,18 @@ window.ImpactMap = (function ()
                     }
                     const res = await fetch(`/api/census/counties/${normalizedFips}`);
                     const apiData = await res.json();
-                    if (apiData && Array.isArray(apiData.features))
-                    {
-                        apiData.features.forEach(f =>
-                        {
-                            if (!f.properties) f.properties = {};
-                            const geoid = f.properties.geoid || f.properties.GEOID || "";
-                            if (!f.properties.NAME) f.properties.NAME = f.properties.name || f.properties.NAME || "";
-                            if (!f.properties.COUNTY && geoid.length >= 5) f.properties.COUNTY = geoid.slice(-3);
-                            if (!f.properties.GEOID) f.properties.GEOID = geoid;
-                            if (!f.properties.POP_TOTAL) f.properties.POP_TOTAL = f.properties.pop_total || 0;
-                        });
-                    }
+	                    if (apiData && Array.isArray(apiData.features))
+	                    {
+	                        apiData.features.forEach(f =>
+	                        {
+	                            if (!f.properties) f.properties = {};
+	                            const geoid = normalizeCountyFips(f.properties.geoid || f.properties.GEOID || "");
+	                            if (!f.properties.NAME) f.properties.NAME = f.properties.name || f.properties.NAME || "";
+	                            if (!f.properties.COUNTY && geoid.length >= 5) f.properties.COUNTY = geoid.slice(-3);
+	                            f.properties.GEOID = geoid;
+	                            if (!f.properties.POP_TOTAL) f.properties.POP_TOTAL = f.properties.pop_total || 0;
+	                        });
+	                    }
                     countyData = apiData;
                     window.CurrentCountyList = (apiData && Array.isArray(apiData.features))
                         ? apiData.features.map(f => ({
@@ -600,12 +609,13 @@ window.ImpactMap = (function ()
                 }
             }
 
-            async function loadCounty(countyFips, skipMarkerMove = false)
-            {
-                if (!countyFips) return;
-
-                const textEl = document.getElementById('map-loading-text');
-                if (textEl) textEl.textContent = "Loading Lite Data...";
+	            async function loadCounty(countyFips, skipMarkerMove = false)
+	            {
+	                countyFips = normalizeCountyFips(countyFips);
+	                if (!countyFips) return;
+	
+	                const textEl = document.getElementById('map-loading-text');
+	                if (textEl) textEl.textContent = "Loading Lite Data...";
                 try
                 {
                     // 1. Load Calculation Context (buffered point data for zones)
@@ -637,10 +647,10 @@ window.ImpactMap = (function ()
 
             // ... (keep surrounding code) ...
 
-            function highlightCountyVisuals(countyFips, contextData, skipMarkerMove = false)
-            {
-                if (!countyData) 
-                {
+	            function highlightCountyVisuals(countyFips, contextData, skipMarkerMove = false)
+	            {
+	                if (!countyData) 
+	                {
                     console.warn("highlightCountyVisuals: countyData is missing.");
                     return;
                 }
@@ -649,14 +659,24 @@ window.ImpactMap = (function ()
                 {
                     console.warn(`highlightCountyVisuals: Feature not found for ${countyFips}`);
                 }
-
-                if (highlightLayer) map.removeLayer(highlightLayer);
-                if (countyFeature)
-                {
-                    highlightLayer = L.geoJSON(countyFeature, { style: { color: '#f97316', weight: 3, fillColor: '#7c2d12', fillOpacity: 0.2, dashArray: '4, 4' }, interactive: false });
-                }
-                if (blockGroupLayer)
-                {
+	
+	                if (highlightLayer) map.removeLayer(highlightLayer);
+	                if (countyFeature)
+	                {
+	                    highlightLayer = L.geoJSON(countyFeature, {
+	                        style: {
+	                            color: '#ffffff',
+	                            weight: 3,
+	                            fillOpacity: 0,
+	                            dashArray: '1, 7',
+	                            lineCap: 'round',
+	                            lineJoin: 'round'
+	                        },
+	                        interactive: false
+	                    });
+	                }
+	                if (blockGroupLayer)
+	                {
                     if (map.hasLayer(blockGroupLayer)) map.removeLayer(blockGroupLayer);
                     blockGroupLayer = null;
                 }
@@ -667,22 +687,22 @@ window.ImpactMap = (function ()
                 }
 
                 if (countyFeature && !skipMarkerMove)
-                {
-                    const bounds = L.geoJSON(countyFeature).getBounds();
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                    const latLng = bounds.getCenter();
+	                {
+	                    const bounds = L.geoJSON(countyFeature).getBounds();
+	                    map.fitBounds(bounds, { padding: [50, 50] });
+	                    const latLng = bounds.getCenter();
 
-                    if (!marker)
-                    {
-                        marker = L.marker(latLng, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
-                        circle20 = L.circle(latLng, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
-                        circle10 = L.circle(latLng, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
-                        circle50 = L.circle(latLng, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0, weight: 2, dashArray: '2, 6', radius: 80467.2 }).addTo(map);
-
-                        marker.on('drag', () =>
-                        {
-                            const pos = marker.getLatLng();
-                            circle10.setLatLng(pos); circle20.setLatLng(pos); if (circle50) circle50.setLatLng(pos);
+	                    if (!marker)
+	                    {
+	                        marker = L.marker(latLng, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
+	                        circle20 = L.circle(latLng, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
+	                        circle10 = L.circle(latLng, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
+	                        circle50 = L.circle(latLng, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.12, weight: 2, dashArray: '2, 6', radius: 80467.2 }).addTo(map);
+	
+	                        marker.on('drag', () =>
+	                        {
+	                            const pos = marker.getLatLng();
+	                            circle10.setLatLng(pos); circle20.setLatLng(pos); if (circle50) circle50.setLatLng(pos);
                             if (countyData)
                             {
                                 const pt = turf.point([pos.lng, pos.lat]);
@@ -754,12 +774,15 @@ window.ImpactMap = (function ()
             let activeContextLoad = null;
             let contextLoadSeq = 0;
 
-            async function loadCountyContext(fips, lite = false)
-            {
-                if (contextCache[fips])
-                {
-                    const cached = contextCache[fips];
-                    if (!(!lite && cached.isLite))
+	            async function loadCountyContext(fips, lite = false)
+	            {
+	                fips = normalizeCountyFips(fips);
+	                if (!fips) return false;
+
+	                if (contextCache[fips])
+	                {
+	                    const cached = contextCache[fips];
+	                    if (!(!lite && cached.isLite))
                     {
                         currentContextGeoJSON = cached.geojson;
                         currentCalcFeatures = cached.calcFeatures;
@@ -1115,14 +1138,14 @@ window.ImpactMap = (function ()
                     marker = L.marker(center, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
                     circle20 = L.circle(center, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
                     circle10 = L.circle(center, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
-                    circle50 = L.circle(center, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0, weight: 2, dashArray: '2, 6', radius: 80467.2 }).addTo(map);
+                    circle50 = L.circle(center, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.12, weight: 2, dashArray: '2, 6', radius: 80467.2 }).addTo(map);
                 } else
                 {
                     marker.setLatLng(center); circle10.setLatLng(center); circle20.setLatLng(center); if (circle50) circle50.setLatLng(center);
                 }
-                map.setView(center, 11);
-                calculateImpact();
-            }).addTo(map);
+	                map.setView(center, 11);
+	                calculateImpact();
+	            }).addTo(map);
 
             const searchContainer = document.getElementById('map-search-container');
             const geocoderNode = geocoder.getContainer();
@@ -1325,11 +1348,15 @@ window.ImpactMap = (function ()
                 const dispRegionalVictims50 = document.getElementById('disp-victims-regional-50');
                 if (dispRegionalVictims50) dispRegionalVictims50.textContent = Math.round(totalVictimsRegionalWithin50).toLocaleString();
 
-                const impactedCounties = Object.values(byCounty)
-                    .filter(c => c && (c.t1Pop + c.t2Pop + c.t3Pop) > 0)
-                    .sort((a, b) => (b.t1Pop + b.t2Pop + b.t3Pop) - (a.t1Pop + a.t2Pop + a.t3Pop));
-                const dispRegionalCounties = document.getElementById('disp-regional-counties');
-                if (dispRegionalCounties) dispRegionalCounties.textContent = impactedCounties.length.toLocaleString();
+	                const impactedCounties = Object.values(byCounty)
+	                    .filter(c => c && (c.t1Pop + c.t2Pop + c.t3Pop) > 0)
+	                    .sort((a, b) => (b.t1Pop + b.t2Pop + b.t3Pop) - (a.t1Pop + a.t2Pop + a.t3Pop));
+	                const dispRegionalCounties = document.getElementById('disp-regional-counties');
+	                if (dispRegionalCounties) dispRegionalCounties.textContent = impactedCounties.length.toLocaleString();
+	
+	                const impactedCounties20 = impactedCounties.filter(c => c && (c.t1Pop + c.t2Pop) > 0);
+	                const dispRegionalCounties20 = document.getElementById('disp-regional-counties-20');
+	                if (dispRegionalCounties20) dispRegionalCounties20.textContent = `≤20 mi: ${impactedCounties20.length.toLocaleString()}`;
 
                 try
                 {
