@@ -22,6 +22,7 @@ window.SlotMachine = (function ()
     let currentRotation = [0, 0, 0]; // Track rotation per reel
     let isAtFront = true; // State to toggle between index 0 and 8
     let isSpinning = false;
+    let isSirenActive = false;
     let lightAnimationId = null;
     let sirenTimeout = null;
 
@@ -149,35 +150,62 @@ window.SlotMachine = (function ()
         const animate = () =>
         {
             const now = Date.now();
-            // Logic: 1200ms ON, 1200ms OFF => 2400ms period.
-            // Stagger offset: group * 400ms.
 
-            for (let i = 0; i < bulbs.length; i++)
+            if (isSirenActive)
             {
-                const li = bulbs[i];
-                const group = parseInt(li.dataset.group);
-                const index = parseInt(li.dataset.index);
-
-                const offset = group * 400;
-                const tEff = now - offset;
-                const phase = Math.floor(tEff / 1200);
-
-                // Initial state logic from original: i % 2 === 0 starts OFF
-                const initialIsOff = (index % 2 === 0);
-                let isOff = initialIsOff;
-
-                // Flip state every 1200ms phase
-                if (phase % 2 !== 0)
+                // Synchronous fast blinking (Panic Mode)
+                const isPhaseOn = Math.floor(now / 150) % 2 === 0;
+                for (let i = 0; i < bulbs.length; i++)
                 {
-                    isOff = !isOff;
+                    const li = bulbs[i];
+                    if (isPhaseOn) li.classList.remove('bulb-off');
+                    else li.classList.add('bulb-off');
                 }
+            } else if (isSpinning)
+            {
+                // Sequential Chase (Running Light)
+                const speed = 20; // Lower is faster
+                const totalBulbs = bulbs.length;
+                const activeIndex = Math.floor(now / speed) % totalBulbs;
 
-                if (isOff)
+                for (let i = 0; i < totalBulbs; i++)
                 {
-                    li.classList.add('bulb-off');
-                } else
+                    // Simple dot mode
+                    if (i === activeIndex) bulbs[i].classList.remove('bulb-off');
+                    else bulbs[i].classList.add('bulb-off');
+                }
+            } else
+            {
+                // Idle / Attract Mode (Original Logic)
+                // Logic: 1200ms ON, 1200ms OFF => 2400ms period.
+                // Stagger offset: group * 400ms.
+                for (let i = 0; i < bulbs.length; i++)
                 {
-                    li.classList.remove('bulb-off');
+                    const li = bulbs[i];
+                    const group = parseInt(li.dataset.group);
+                    const index = parseInt(li.dataset.index);
+
+                    const offset = group * 400;
+                    const tEff = now - offset;
+                    const phase = Math.floor(tEff / 1200);
+
+                    // Initial state logic from original: i % 2 === 0 starts OFF
+                    const initialIsOff = (index % 2 === 0);
+                    let isOff = initialIsOff;
+
+                    // Flip state every 1200ms phase
+                    if (phase % 2 !== 0)
+                    {
+                        isOff = !isOff;
+                    }
+
+                    if (isOff)
+                    {
+                        li.classList.add('bulb-off');
+                    } else
+                    {
+                        li.classList.remove('bulb-off');
+                    }
                 }
             }
 
@@ -297,6 +325,7 @@ window.SlotMachine = (function ()
 
     function resetSiren()
     {
+        isSirenActive = false;
         const siren = document.getElementById('siren');
         if (siren) siren.classList.remove('siren-active');
         if (sirenTimeout) clearTimeout(sirenTimeout);
@@ -325,10 +354,12 @@ window.SlotMachine = (function ()
             if (siren)
             {
                 siren.classList.add('siren-active');
+                isSirenActive = true;
 
                 sirenTimeout = setTimeout(() =>
                 {
                     siren.classList.remove('siren-active');
+                    isSirenActive = false;
                 }, 5000);
             }
         }, 6500);
