@@ -29,9 +29,18 @@
             <div class="mb-6 pb-4 relative z-[150]">
                 <!-- Methodology Button -->
                 <button onclick="openMethodologyModal()"
-                    class="w-full mb-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all active:scale-95">
-                    <span class="material-symbols-outlined">science</span>
-                    View Methodology
+                    class="w-full mb-6 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/20 border border-blue-400/30 flex items-center justify-between group transition-all transform active:scale-95">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-2 rounded-lg">
+                            <span class="material-symbols-outlined text-white">science</span>
+                        </div>
+                        <div class="text-left">
+                            <div class="uppercase tracking-wide text-xs font-bold text-blue-100 mb-0.5">Science</div>
+                            <div class="text-lg leading-none">View Methodology</div>
+                        </div>
+                    </div>
+                    <span
+                        class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
 
                 <label class="text-base font-bold text-slate-300 mb-2 block">Assessed State</label>
@@ -300,21 +309,21 @@
 	                    <div class="flex-1">
 	                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles
 	                            (High Risk)</div>
-	                        <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
-	                        <div class="text-xs text-slate-500 mb-2">Adult Population (18+) — State Total</div>
-	                        <div class="text-[10px] text-slate-400 leading-tight mb-2">
+	                        <div class="text-lg font-black text-white mb-1" id="val-t1">-</div>
+	                        <div class="text-[10px] text-slate-500 mb-2">Adult Population (18+) — State Total</div>
+	                        <div class="text-[9px] text-slate-400 leading-tight mb-2">
 	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="val-t1-county">-</span></div>
 	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="val-t1-other">-</span></div>
 	                        </div>
 	                    </div>
 	                    <div class="bg-black/20 rounded-lg p-2 border border-blue-900/30">
-	                        <div class="flex justify-between items-center text-xs mb-1"><span
+	                        <div class="flex justify-between items-center text-[10px] mb-1"><span
 	                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
 	                                id="rate-t1">-</span></div>
 	                        <div class="flex justify-between items-center border-t border-blue-800 pt-1"><span
-	                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
-	                                class="font-mono font-black text-white text-sm" id="victims-t1">-</span></div>
-	                        <div class="mt-1 text-[10px] text-slate-400 leading-tight">
+	                                class="text-white font-bold uppercase text-[9px]">New Addicts</span><span
+	                                class="font-mono font-black text-white text-xs" id="victims-t1">-</span></div>
+	                        <div class="mt-1 text-[9px] text-slate-400 leading-tight">
 	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="victims-t1-county">-</span></div>
 	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="victims-t1-other">-</span></div>
 	                        </div>
@@ -328,21 +337,21 @@
 	                    <div class="flex-1">
 	                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
 	                            (Elevated)</div>
-	                        <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
-	                        <div class="text-xs text-slate-500 mb-2">Adult Population (18+) — State Total</div>
-	                        <div class="text-[10px] text-slate-400 leading-tight mb-2">
+	                        <div class="text-lg font-black text-white mb-1" id="val-t2">-</div>
+	                        <div class="text-[10px] text-slate-500 mb-2">Adult Population (18+) — State Total</div>
+	                        <div class="text-[9px] text-slate-400 leading-tight mb-2">
 	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="val-t2-county">-</span></div>
 	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="val-t2-other">-</span></div>
 	                        </div>
 	                    </div>
 	                    <div class="bg-black/20 rounded-lg p-2 border border-red-900/30">
-	                        <div class="flex justify-between items-center text-xs mb-1"><span
+	                        <div class="flex justify-between items-center text-[10px] mb-1"><span
 	                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
 	                                id="rate-t2">-</span></div>
 	                        <div class="flex justify-between items-center border-t border-red-800 pt-1"><span
-	                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
-	                                class="font-mono font-black text-white text-sm" id="victims-t2">-</span></div>
-	                        <div class="mt-1 text-[10px] text-slate-400 leading-tight">
+	                                class="text-white font-bold uppercase text-[9px]">New Addicts</span><span
+	                                class="font-mono font-black text-white text-xs" id="victims-t2">-</span></div>
+	                        <div class="mt-1 text-[9px] text-slate-400 leading-tight">
 	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="victims-t2-county">-</span></div>
 	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="victims-t2-other">-</span></div>
 	                        </div>
@@ -356,21 +365,21 @@
 	                    <div class="flex-1">
 	                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">20-50 Miles
 	                            (Baseline)</div>
-	                        <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
-	                        <div class="text-xs text-slate-500 mb-2" id="label-t3">Adult Population (18+) — State Total</div>
-	                        <div class="text-[10px] text-slate-400 leading-tight mb-2">
+	                        <div class="text-lg font-black text-white mb-1" id="val-t3">-</div>
+	                        <div class="text-[10px] text-slate-500 mb-2" id="label-t3">Adult Population (18+) — State Total</div>
+	                        <div class="text-[9px] text-slate-400 leading-tight mb-2">
 	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="val-t3-county">-</span></div>
 	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="val-t3-other">-</span></div>
 	                        </div>
 	                    </div>
 	                    <div class="bg-black/20 rounded-lg p-2 border border-orange-800">
-	                        <div class="flex justify-between items-center text-xs mb-1"><span
+	                        <div class="flex justify-between items-center text-[10px] mb-1"><span
 	                                class="text-white">Rate:</span><span class="font-mono font-bold text-white"
 	                                id="rate-t3">-</span></div>
 	                        <div class="flex justify-between items-center border-t border-orange-600 pt-1"><span
-	                                class="text-white font-bold uppercase text-[10px]">New Addicts</span><span
-	                                class="font-mono font-black text-white text-sm" id="victims-t3">-</span></div>
-	                        <div class="mt-1 text-[10px] text-slate-400 leading-tight">
+	                                class="text-white font-bold uppercase text-[9px]">New Addicts</span><span
+	                                class="font-mono font-black text-white text-xs" id="victims-t3">-</span></div>
+	                        <div class="mt-1 text-[9px] text-slate-400 leading-tight">
 	                            <div class="flex justify-between gap-2"><span>County</span><span class="font-mono text-slate-200" id="victims-t3-county">-</span></div>
 	                            <div class="flex justify-between gap-2"><span>Other Counties</span><span class="font-mono text-slate-200" id="victims-t3-other">-</span></div>
 	                        </div>

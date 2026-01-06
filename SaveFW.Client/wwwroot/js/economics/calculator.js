@@ -28,7 +28,7 @@ window.EconomicCalculator = (function ()
     function fmtDiffM(value)
     {
         const v = Number(value) || 0;
-        const sign = v >= 0 ? '+' : '-';
+        const sign = v < 0 ? '-' : '';
         return `${sign}${fmtM(Math.abs(v))}`;
     }
 
@@ -793,6 +793,7 @@ window.EconomicCalculator = (function ()
         const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || (els.inCounty && els.inCounty.value) || "");
         const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
         const subjectCountyName = countyIndex.get(subjectCountyFips) || subjectCountyFips || "Subject County";
+        const subjectStateName = String((lastImpactBreakdown && lastImpactBreakdown.stateName) || "").trim();
 
         const otherCosts = computeOtherCountyCosts({
             impactBreakdown: lastImpactBreakdown,
@@ -825,7 +826,7 @@ window.EconomicCalculator = (function ()
                 key: 'health_human',
                 kind: 'detail',
                 label: 'Public Health (Humanitarian)',
-                labelClass: 'text-purple-400',
+                labelClass: '',
                 tooltip: 'Addiction treatment, counseling, and prevention programs funded specifically by the Humanitarian Fund allocation.',
                 revenue: revHealthPool,
                 countyCost: revHealthAllocated,
@@ -836,7 +837,7 @@ window.EconomicCalculator = (function ()
                 key: 'health_tax',
                 kind: 'detail',
                 label: 'Public Health (Taxpayer)',
-                labelClass: 'text-purple-400',
+                labelClass: '',
                 tooltip: 'Excess public health costs falling on the general taxpayer after Humanitarian funds are exhausted.',
                 revenue: revHealthFromGen,
                 countyCost: healthUncovered,
@@ -847,7 +848,7 @@ window.EconomicCalculator = (function ()
                 key: 'health_sub',
                 kind: 'subtotal',
                 label: 'Subtotal: Public Health',
-                labelClass: 'text-purple-400',
+                labelClass: '',
                 revenue: subHealthRev,
                 countyCost: subHealthCost,
                 countyBalance: subHealthNet,
@@ -857,7 +858,7 @@ window.EconomicCalculator = (function ()
                 key: 'crime',
                 kind: 'detail',
                 label: 'Law Enforcement',
-                labelClass: 'text-blue-400',
+                labelClass: '',
                 tooltip: 'Police response, investigations, and incarceration costs related to gambling-related crimes (theft, fraud, domestic disturbances).',
                 revenue: revCrime,
                 countyCost: totalCostCrime,
@@ -868,7 +869,7 @@ window.EconomicCalculator = (function ()
                 key: 'social',
                 kind: 'detail',
                 label: 'Social Services',
-                labelClass: 'text-blue-400',
+                labelClass: '',
                 tooltip: 'Unemployment benefits, welfare support, and child protective services for families destabilized by gambling addiction.',
                 revenue: revSocial,
                 countyCost: totalCostSocial,
@@ -879,7 +880,7 @@ window.EconomicCalculator = (function ()
                 key: 'legal',
                 kind: 'detail',
                 label: 'Civil Legal',
-                labelClass: 'text-blue-400',
+                labelClass: '',
                 tooltip: 'Court costs for bankruptcy proceedings, divorce filings, and civil lawsuits associated with gambling debts.',
                 revenue: revLegal,
                 countyCost: totalCostLegal,
@@ -890,7 +891,7 @@ window.EconomicCalculator = (function ()
                 key: 'gen_sub',
                 kind: 'subtotal',
                 label: 'Subtotal: General Taxpayer Services',
-                labelClass: 'text-blue-400',
+                labelClass: '',
                 revenue: subGenRev,
                 countyCost: subGenCost,
                 countyBalance: subGenNet,
@@ -900,7 +901,7 @@ window.EconomicCalculator = (function ()
                 key: 'public_sub',
                 kind: 'subtotal',
                 label: 'Subtotal: Public Sector Impact',
-                labelClass: 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400',
+                labelClass: '',
                 revenue: subPublicRev,
                 countyCost: subPublicCost,
                 countyBalance: subPublicNet,
@@ -910,7 +911,7 @@ window.EconomicCalculator = (function ()
                 key: 'abused',
                 kind: 'detail',
                 label: 'Abused Dollars',
-                labelClass: 'text-orange-400',
+                labelClass: '',
                 tooltip: 'Household spending diverted from local goods/services to gambling losses, reducing local consumer demand.',
                 revenue: 0,
                 countyCost: totalCostAbused,
@@ -921,7 +922,7 @@ window.EconomicCalculator = (function ()
                 key: 'employment',
                 kind: 'detail',
                 label: 'Lost Employment',
-                labelClass: 'text-orange-400',
+                labelClass: '',
                 tooltip: 'Productivity losses for local businesses due to employee absenteeism, distraction, and turnover related to gambling.',
                 revenue: 0,
                 countyCost: totalCostEmployment,
@@ -932,7 +933,7 @@ window.EconomicCalculator = (function ()
                 key: 'private_sub',
                 kind: 'subtotal',
                 label: 'Subtotal: Private Sector Impact',
-                labelClass: 'text-orange-400',
+                labelClass: '',
                 revenue: 0,
                 countyCost: totalCostPrivate,
                 countyBalance: -totalCostPrivate,
@@ -950,14 +951,15 @@ window.EconomicCalculator = (function ()
             }
         ];
 
-	        renderNetEconomicImpactTable({
-	            subjectCountyName,
-	            subjectCountyFips,
-	            baselineRate: rate,
-	            rows: netImpactRows,
-	            otherCounties: otherCosts ? otherCosts.counties : [],
-	            expanded: otherCountiesExpanded
-	        });
+		        renderNetEconomicImpactTable({
+		            subjectCountyName,
+		            subjectCountyFips,
+		            subjectStateName,
+		            baselineRate: rate,
+		            rows: netImpactRows,
+		            otherCounties: otherCosts ? otherCosts.counties : [],
+		            expanded: otherCountiesExpanded
+		        });
 
 	        const hasImpact = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
 	        const otherVictimsRaw = otherCosts && Array.isArray(otherCosts.counties)
@@ -1343,143 +1345,150 @@ window.EconomicCalculator = (function ()
 	        }
 	    }
 	
-	    function renderNetEconomicImpactTable(model)
-	    {
-	        const container = document.getElementById('net-impact-table');
-	        if (!container) return;
-	
-	        const noteEl = document.getElementById('net-impact-note');
-	
-	        const rows = (model && Array.isArray(model.rows)) ? model.rows : [];
-	        const otherCounties = (model && Array.isArray(model.otherCounties)) ? model.otherCounties : [];
-	        const expanded = !!(model && model.expanded && otherCounties.length > 0);
-	        const baselineRate = Number(model && model.baselineRate);
-	        const baselineRateDisplay = Number.isFinite(baselineRate) ? baselineRate.toFixed(1) : "—";
-	
-	        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
-	        const countyHeaderText = subjectCountyName
-	            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
-	            : 'County Costs';
-	        const countyNetHeaderText = subjectCountyName
-	            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Net Balance` : `${subjectCountyName} County Net Balance`)
-	            : 'County Net Balance';
-	        const otherHeaderText = `Other Counties Costs${otherCounties.length ? ` (${otherCounties.length})` : ''}`;
-	        const toggleButton = otherCounties.length
-	            ? `<button type="button" onclick="window.EconomicCalculator && window.EconomicCalculator.toggleOtherCounties && window.EconomicCalculator.toggleOtherCounties()" class="ml-2 px-2 py-0.5 rounded border border-slate-600 text-[10px] uppercase tracking-widest text-slate-200 hover:bg-slate-800 transition-colors">${expanded ? 'Collapse' : 'Expand'}</button>`
-	            : '';
-	
-	        if (!rows.length)
-	        {
-	            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see cost distribution.</div>`;
-	            if (noteEl) noteEl.textContent = "";
-	            return;
-	        }
-	
-	        const headerExtra = expanded
-	            ? otherCounties.map(c => `<th class="px-3 py-2 text-right whitespace-nowrap text-slate-300">${escapeHtml(c.name)}</th>`).join('')
-	            : '';
-	
-	        const thead = `
-		            <thead>
-		                <tr class="border-b border-slate-700 bg-slate-900/60">
-		                    <th class="px-3 py-2 text-left whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur">Group</th>
-		                    <th class="px-3 py-2 text-right whitespace-nowrap">Revenue</th>
-		                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(countyHeaderText.toUpperCase())}</th>
-		                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(countyNetHeaderText.toUpperCase())}</th>
-		                    <th class="px-3 py-2 text-right whitespace-nowrap">${escapeHtml(otherHeaderText.toUpperCase())}${toggleButton}</th>
-		                    ${headerExtra}
-		                    <th class="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-slate-950/90 backdrop-blur">Total Net Balance</th>
-		                </tr>
-		            </thead>
-		        `;
-	
-	        let tbody = '<tbody>';
-	        for (const row of rows)
-	        {
-	            const kind = String(row.kind || 'detail');
-	            const rowKey = String(row.key || "");
-	
-		            const rowRevenue = Number(row.revenue || 0);
-		            const rowCountyCost = Number(row.countyCost || 0);
-		            const rowOtherCost = Number(row.otherCost || 0);
-		            const rowCountyBalance = Number(row.countyBalance || (rowRevenue - rowCountyCost));
-		            const rowTotalBalance = rowCountyBalance - rowOtherCost;
-		
-		            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : 'text-slate-600';
-		            const countyBalanceClass = rowCountyBalance >= 0 ? 'text-emerald-400' : 'text-red-500';
-		            const totalBalanceClass = rowTotalBalance >= 0 ? 'text-emerald-400' : 'text-red-500';
-	
-	            const rowBgClass = kind === 'total'
-	                ? 'bg-slate-800/60 border-t-2 border-slate-500'
-	                : kind === 'subtotal'
-	                    ? 'bg-slate-800/30 border-t border-slate-600'
-	                    : 'border-t border-slate-800/60';
-	
-	            const rowFontClass = kind === 'total'
-	                ? 'font-black'
-	                : kind === 'subtotal'
-	                    ? 'font-bold'
-	                    : 'font-semibold';
-	
-	            const tooltip = row.tooltip
-	                ? `
-	                    <div class="group relative flex items-center">
-	                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors">info</span>
-	                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 font-normal">
-	                            ${escapeHtml(row.tooltip)}
-	                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
-	                        </div>
-	                    </div>
-	                `
-	                : '';
-	
-	            const labelHtml = kind === 'total'
-	                ? `<div class="uppercase tracking-wider">${escapeHtml(row.label || '')}</div>`
-	                : escapeHtml(row.label || '');
-	
-	            const labelCell = `
-	                <td class="px-3 py-2 whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur ${rowFontClass} ${row.labelClass || ''}">
-	                    <div class="flex items-center gap-1">
-	                        <span>${labelHtml}</span>
-	                        ${tooltip}
-	                    </div>
-	                </td>
-	            `;
-	
-	            const otherExtraCells = expanded
-	                ? otherCounties.map(c =>
-	                {
-	                    const val = getOtherCountyCostForRow(rowKey, c.costs);
-	                    return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap text-amber-200">${fmtM(val)}</td>`;
-	                }).join('')
-	                : '';
-	
-		            tbody += `
-		                <tr class="${rowBgClass}">
-		                    ${labelCell}
-		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${revenueClass}">${fmtM(rowRevenue)}</td>
-		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-red-400">${fmtM(rowCountyCost)}</td>
-		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${rowFontClass} ${countyBalanceClass}">${fmtDiffM(rowCountyBalance)}</td>
-		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-amber-300">${fmtM(rowOtherCost)}</td>
-		                    ${otherExtraCells}
-		                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur ${rowFontClass} ${totalBalanceClass}">${fmtDiffM(rowTotalBalance)}</td>
-		                </tr>
+		    function renderNetEconomicImpactTable(model)
+		    {
+		        const container = document.getElementById('net-impact-table');
+		        if (!container) return;
+
+		        const noteEl = document.getElementById('net-impact-note');
+
+		        const rows = (model && Array.isArray(model.rows)) ? model.rows : [];
+		        const otherCounties = (model && Array.isArray(model.otherCounties)) ? model.otherCounties : [];
+		        const expanded = !!(model && model.expanded && otherCounties.length > 0);
+		        const baselineRate = Number(model && model.baselineRate);
+		        const baselineRateDisplay = Number.isFinite(baselineRate) ? baselineRate.toFixed(1) : "—";
+
+		        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
+		        const subjectStateName = String((model && model.subjectStateName) || "").trim();
+		        const countyHeaderText = subjectCountyName
+		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
+		            : 'County Costs';
+		        const countyNetHeaderText = subjectCountyName
+		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Net Balance` : `${subjectCountyName} County Net Balance`)
+		            : 'County Net Balance';
+		        const stateNetHeaderText = subjectStateName ? `${subjectStateName} Net Balance` : 'Total Net Balance';
+		        const otherHeaderText = `Other Counties Costs${otherCounties.length ? ` (${otherCounties.length})` : ''}`;
+		        const toggleButton = otherCounties.length
+		            ? `<button type="button" onclick="window.EconomicCalculator && window.EconomicCalculator.toggleOtherCounties && window.EconomicCalculator.toggleOtherCounties()" class="ml-2 px-2 py-0.5 rounded border border-slate-600 text-[10px] uppercase tracking-widest text-slate-200 hover:bg-slate-800 transition-colors">${expanded ? 'Collapse' : 'Expand'}</button>`
+		            : '';
+
+		        if (!rows.length)
+		        {
+		            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see cost distribution.</div>`;
+		            if (noteEl) noteEl.textContent = "";
+		            return;
+		        }
+
+		        const headerExtra = expanded
+		            ? otherCounties.map(c => `<th class="px-3 py-2 text-right text-slate-200 max-w-[120px]">${escapeHtml(c.name)}</th>`).join('')
+		            : '';
+
+		        const thead = `
+			            <thead>
+			                <tr class="border-b border-slate-700 bg-slate-900/60 text-slate-200">
+			                    <th class="px-3 py-2 text-left sticky left-0 bg-slate-950/90 backdrop-blur max-w-[100px]">GROUP</th>
+			                    <th class="px-3 py-2 text-right max-w-[100px]">REVENUE</th>
+			                    <th class="px-3 py-2 text-right max-w-[150px]">${escapeHtml(countyHeaderText.toUpperCase())}</th>
+			                    <th class="px-3 py-2 text-right max-w-[150px]">${escapeHtml(countyNetHeaderText.toUpperCase())}</th>
+			                    <th class="px-3 py-2 text-right max-w-[180px]">${escapeHtml(otherHeaderText.toUpperCase())}${toggleButton}</th>
+			                    ${headerExtra}
+			                    <th class="px-3 py-2 text-right sticky right-0 bg-slate-950/90 backdrop-blur max-w-[150px]">${escapeHtml(stateNetHeaderText.toUpperCase())}</th>
+			                </tr>
+			            </thead>
+			        `;
+
+		        let tbody = '<tbody>';
+		        for (const row of rows)
+		        {
+		            const kind = String(row.kind || 'detail');
+		            const rowKey = String(row.key || "");
+
+			            const rowRevenue = Number(row.revenue || 0);
+			            const rowCountyCost = Number(row.countyCost || 0);
+			            const rowOtherCost = Number(row.otherCost || 0);
+			            const rowCountyBalance = Number(row.countyBalance || (rowRevenue - rowCountyCost));
+			            const rowTotalBalance = rowCountyBalance - rowOtherCost;
+			
+			            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : (rowRevenue < 0 ? 'text-red-500' : 'text-slate-200');
+			            const countyCostClass = rowCountyCost !== 0 ? 'text-red-400' : 'text-slate-200';
+			            const countyBalanceClass = rowCountyBalance > 0 ? 'text-emerald-400' : (rowCountyBalance < 0 ? 'text-red-500' : 'text-slate-200');
+                        const otherCostClass = rowOtherCost !== 0 ? 'text-red-400' : 'text-slate-200';
+			            const totalBalanceClass = rowTotalBalance > 0 ? 'text-emerald-400' : (rowTotalBalance < 0 ? 'text-red-500' : 'text-slate-200');
+
+                        const fmtVal = (val, fmtFn) => (Math.abs(val) < 0.01) ? '-' : fmtFn(val);
+
+		            const rowBgClass = kind === 'total'
+		                ? 'bg-slate-800/60 border-t-2 border-slate-500'
+		                : kind === 'subtotal'
+		                    ? 'bg-slate-800/30 border-t border-slate-600'
+		                    : 'border-t border-slate-800/60';
+
+		            const rowFontClass = kind === 'total'
+		                ? 'font-black'
+		                : kind === 'subtotal'
+		                    ? 'font-bold'
+		                    : 'font-semibold';
+
+		            const tooltip = row.tooltip
+		                ? `
+		                    <div class="group relative flex items-center">
+		                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors">info</span>
+		                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 font-normal">
+		                            ${escapeHtml(row.tooltip)}
+		                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
+		                        </div>
+		                    </div>
+		                `
+		                : '';
+
+		            const labelHtml = kind === 'total'
+		                ? `<div class="uppercase tracking-wider">${escapeHtml(row.label || '')}</div>`
+		                : escapeHtml(row.label || '');
+
+		            const labelCell = `
+		                <td class="px-3 py-2 whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur text-slate-200 ${rowFontClass} ${row.labelClass || ''}">
+		                    <div class="flex items-center gap-1">
+		                        <span>${labelHtml}</span>
+		                        ${tooltip}
+		                    </div>
+		                </td>
 		            `;
-	        }
-	        tbody += '</tbody>';
-	
-	        container.innerHTML = `
-	            <table class="min-w-max w-full text-xs">
-	                ${thead}
-	                ${tbody}
-	            </table>
-	        `;
-	
-	        if (noteEl)
-	        {
-	            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. County Net Balance = County Revenue − County Costs. Total Net Balance = County Revenue − (County Costs + Other Counties Costs). Other Counties Costs totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
-	        }
-	    }
+
+		            const otherExtraCells = expanded
+		                ? otherCounties.map(c =>
+		                {
+		                    const val = getOtherCountyCostForRow(rowKey, c.costs);
+                            const cellClass = val !== 0 ? 'text-red-400' : 'text-slate-200';
+		                    return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap ${cellClass}">${fmtVal(val, fmtM)}</td>`;
+		                }).join('')
+		                : '';
+
+			            tbody += `
+			                <tr class="${rowBgClass}">
+			                    ${labelCell}
+			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${revenueClass}">${fmtVal(rowRevenue, fmtM)}</td>
+			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${countyCostClass}">${fmtVal(rowCountyCost, fmtM)}</td>
+			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${rowFontClass} ${countyBalanceClass}">${fmtVal(rowCountyBalance, fmtDiffM)}</td>
+			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${otherCostClass}">${fmtVal(rowOtherCost, fmtM)}</td>
+			                    ${otherExtraCells}
+			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur ${rowFontClass} ${totalBalanceClass}">${fmtVal(rowTotalBalance, fmtDiffM)}</td>
+			                </tr>
+			            `;
+		        }
+		        tbody += '</tbody>';
+
+		        container.innerHTML = `
+		            <table class="w-full text-xs">
+		                ${thead}
+		                ${tbody}
+		            </table>
+		        `;
+
+		        if (noteEl)
+		        {
+		            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. ${countyNetHeaderText} = County Revenue − County Costs. ${stateNetHeaderText} = County Revenue − (County Costs + Other Counties Costs). Other Counties Costs totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
+		        }
+		    }
 
 	    // Initialize sliders with tick marks - called during init()
 	    function initSliders()

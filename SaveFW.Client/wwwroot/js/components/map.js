@@ -689,7 +689,6 @@ window.ImpactMap = (function ()
                 if (countyFeature && !skipMarkerMove)
 	                {
 	                    const bounds = L.geoJSON(countyFeature).getBounds();
-	                    map.fitBounds(bounds, { padding: [50, 50] });
 	                    const latLng = bounds.getCenter();
 
 	                    if (!marker)
@@ -725,6 +724,14 @@ window.ImpactMap = (function ()
                     {
                         marker.setLatLng(latLng); circle10.setLatLng(latLng); circle20.setLatLng(latLng); if (circle50) circle50.setLatLng(latLng);
                     }
+
+                    if (circle50)
+                    {
+                        map.fitBounds(circle50.getBounds(), { padding: [20, 20] });
+                    } else
+                    {
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    }
                 }
                 updateLayerVisibility();
                 const cInfo = getCountyReference().find(c => c.geoid === countyFips);
@@ -742,20 +749,6 @@ window.ImpactMap = (function ()
             {
                 try {
                     console.log(msg);
-                    
-                    // 1. Update UI Overlay
-                    let logBox = document.getElementById('debug-log-overlay');
-                    if (!logBox)
-                    {
-                        logBox = document.createElement('div');
-                        logBox.id = 'debug-log-overlay';
-                        logBox.className = 'fixed bottom-0 right-0 w-96 h-64 bg-black/80 text-green-400 font-mono text-xs p-4 overflow-y-auto z-[9999] pointer-events-none border-t-2 border-green-500';
-                        document.body.appendChild(logBox);
-                    }
-                    const entry = document.createElement('div');
-                    entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-                    logBox.appendChild(entry);
-                    logBox.scrollTop = logBox.scrollHeight;
                 } catch(e) {
                     console.error("Logging failed", e);
                 }
@@ -1352,18 +1345,45 @@ window.ImpactMap = (function ()
 	                    .filter(c => c && (c.t1Pop + c.t2Pop + c.t3Pop) > 0)
 	                    .sort((a, b) => (b.t1Pop + b.t2Pop + b.t3Pop) - (a.t1Pop + a.t2Pop + a.t3Pop));
 	                const dispRegionalCounties = document.getElementById('disp-regional-counties');
-	                if (dispRegionalCounties) dispRegionalCounties.textContent = impactedCounties.length.toLocaleString();
+		                if (dispRegionalCounties) dispRegionalCounties.textContent = impactedCounties.length.toLocaleString();
 	
-	                const impactedCounties20 = impactedCounties.filter(c => c && (c.t1Pop + c.t2Pop) > 0);
-	                const dispRegionalCounties20 = document.getElementById('disp-regional-counties-20');
-	                if (dispRegionalCounties20) dispRegionalCounties20.textContent = `≤20 mi: ${impactedCounties20.length.toLocaleString()}`;
+		                const impactedCounties20 = impactedCounties.filter(c => c && (c.t1Pop + c.t2Pop) > 0);
+		                const dispRegionalCounties20 = document.getElementById('disp-regional-counties-20');
+		                if (dispRegionalCounties20) dispRegionalCounties20.textContent = `≤20 mi: ${impactedCounties20.length.toLocaleString()}`;
 
                 try
                 {
+                    const stateName = (() =>
+                    {
+                        try
+                        {
+                            const normalized = String(stateFips || "").padStart(2, '0');
+                            if (stateData && Array.isArray(stateData.features))
+                            {
+                                const stateFeature = stateData.features.find(f =>
+                                {
+                                    const geoid = f && f.properties ? (f.properties.GEOID || f.properties.geoid || "") : "";
+                                    return String(geoid).padStart(2, '0') === normalized;
+                                });
+                                const name = stateFeature && stateFeature.properties ? (stateFeature.properties.NAME || stateFeature.properties.name || "") : "";
+                                if (name) return String(name).trim();
+                            }
+
+                            const fromDisplay = els && els.stateDisplay ? String(els.stateDisplay.textContent || "").trim() : "";
+                            if (fromDisplay) return fromDisplay;
+
+                            return normalized;
+                        } catch
+                        {
+                            return String(stateFips || "").trim();
+                        }
+                    })();
+
                     window.dispatchEvent(new CustomEvent('impact-breakdown-updated', {
                         detail: {
                             countyFips: currentCountyFips,
                             stateFips,
+                            stateName,
                             baselineRate,
                             county: {
                                 adults: countyAdults,
