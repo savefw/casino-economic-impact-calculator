@@ -1029,12 +1029,11 @@ window.ImpactMap = (function ()
 
                 if (layersVisible.blocks || layersVisible.heatmap)
                 {
-                    const heatPoints = [];
                     let maxPop = 0;
 
                     turf.featureEach(countyGeoJSON, (f) =>
                     {
-                        const p = f.properties.POP_ADULT || 0;
+                        const p = Number((f && f.properties && f.properties.POP_ADULT) || 0);
                         if (p > maxPop) maxPop = p;
                     });
 
@@ -1042,17 +1041,10 @@ window.ImpactMap = (function ()
 
                     turf.featureEach(countyGeoJSON, (f) =>
                     {
-                        const p = f.properties.POP_ADULT || 0;
-                        if (p > 0)
-                        {
-                            const cx = f.properties.CX;
-                            const cy = f.properties.CY;
-                            const centroid = (cx && cy) ? [cx, cy] : turf.centroid(f).geometry.coordinates;
-                            const lat = centroid[1];
-                            const lng = centroid[0];
-                            const intensity = (p / maxPop);
-                            heatPoints.push([lat, lng, intensity]);
-                        }
+                        if (!f.properties) f.properties = {};
+                        const p = Number(f.properties.POP_ADULT || 0);
+                        f.properties._density = p;
+                        f.properties._maxDensity = maxPop;
                     });
 
                     if (blockGroupLayer)
@@ -1061,22 +1053,7 @@ window.ImpactMap = (function ()
                         blockGroupLayer = null;
                     }
 
-                    if (heatPoints.length > 0)
-                    {
-                        try
-                        {
-                            blockGroupLayer = L.heatLayer(heatPoints, {
-                                radius: 30,
-                                blur: 20,
-                                maxZoom: 13,
-                                max: 1.0,
-                                gradient: { 0.2: 'blue', 0.4: 'lime', 0.6: 'yellow', 0.9: 'orange', 1.0: 'red' }
-                            });
-                        } catch (e)
-                        {
-                            console.warn("Leaflet.heat not loaded?", e);
-                        }
-                    }
+                    blockGroupLayer = L.geoJSON(countyGeoJSON, { style: getHeatMapStyle, interactive: false });
                 }
 
                 if (layersVisible.tracts)
@@ -1091,6 +1068,13 @@ window.ImpactMap = (function ()
                 try
                 {
                     const clone = JSON.parse(JSON.stringify(geoJSON));
+                    for (let i = 0; i < clone.features.length; i++)
+                    {
+                        const f = clone.features[i];
+                        if (!f || !f.properties) continue;
+                        const geoid = String(f.properties.GEOID || "");
+                        if (geoid.length >= 11) f.properties.TRACTCE = geoid.substring(5, 11);
+                    }
                     const dissolved = turf.dissolve(clone, { propertyName: 'TRACTCE' });
                     return L.geoJSON(dissolved, { style: { color: '#1e293b', weight: 2, fillOpacity: 0, dashArray: '2, 4' }, interactive: false });
                 } catch (e) { console.error("Tract gen failed", e); return null; }
