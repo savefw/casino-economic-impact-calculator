@@ -517,8 +517,16 @@ window.EconomicCalculator = (function ()
         els.valCostAbused.textContent = '$' + cAbused.toLocaleString();
 
         // Logic
-        // Logic
         currentPop = parseInt(els.inCounty.value);
+
+        // Retrieve Adult Population from Map DOM (populated by map.js)
+        let adultPop = currentPop; // Fallback
+        const adultPopEl = document.getElementById('disp-pop-adults');
+        if (adultPopEl)
+        {
+            const val = parseInt(adultPopEl.textContent.replace(/,/g, ''));
+            if (!isNaN(val) && val > 0) adultPop = val;
+        }
 
         // REFACTORED: We now rely on the Map Logic to calculate true victim count.
         // However, `calculate` runs when inputs change.
@@ -539,8 +547,9 @@ window.EconomicCalculator = (function ()
         // No, map loads fast.
 
         // Calculate Effective Rate for display purposes (This is 'Problem Gambler Growth' rate, distinct from tax rate)
+        // UPDATED: Use Adult Population as denominator per user request
         let gamblerGrowthRate = 0;
-        if (currentPop > 0) gamblerGrowthRate = (victims / currentPop) * 100;
+        if (adultPop > 0) gamblerGrowthRate = (victims / adultPop) * 100;
         els.calcRate.textContent = gamblerGrowthRate.toFixed(2) + '%';
 
         // --- 5-GROUP COST CALCULATIONS ---
@@ -819,7 +828,7 @@ window.EconomicCalculator = (function ()
         els.calcAllocGenVal.textContent = fmtM(revGeneralPool);
 
         // Update Calculation Breakdown 1
-        els.calcPop.textContent = currentPop.toLocaleString();
+        els.calcPop.textContent = adultPop.toLocaleString(); // Display Adult Pop as reference in the breakdown
         els.calcRate.textContent = gamblerGrowthRate.toFixed(2) + '%';
         els.calcResult.textContent = victims.toLocaleString();
 
@@ -898,7 +907,10 @@ window.EconomicCalculator = (function ()
             analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
             analysisHTML += `<li><strong class="text-white">Geospatial Data:</strong> Population and boundary data aggregated via <a href="https://censusreporter.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">CensusReporter.org</a> (Source: U.S. Census Bureau, 2020 Decennial Block Groups). Data files were processed, merged, and simplified using <a href="https://mapshaper.org" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Mapshaper.org</a>.</li>`;
             analysisHTML += `<li><strong class="text-white">Scope of Analysis:</strong> The current version of the Economic Impact Calculator limits its analysis to the singular county being assessed. It does not factor spillover impact to neighboring counties in Indiana or neighboring states when the impact radius extends beyond county limits.</li>`;
-            analysisHTML += `<li><strong class="text-white">Assessed Area:</strong> This analysis focuses on ${countyInfo.name} County, with a total population of ${countyInfo.pop.toLocaleString()}.</li>`;
+
+            // updated specific bullet point with adult pop
+            let adultPopStr = adultPop > 0 ? adultPop.toLocaleString() : "Unknown";
+            analysisHTML += `<li><strong class="text-white">Assessed Area:</strong> This analysis focuses on ${countyInfo.name} County, with a total population of ${countyInfo.pop.toLocaleString()}. <strong> The Adult Population (18+) for this area is ${adultPopStr}.</strong></li>`;
 
             // Proximity Model with programmatic Baseline details
             let baselineDesc = '';
@@ -931,7 +943,8 @@ window.EconomicCalculator = (function ()
                 analysisHTML += `<li><strong class="text-white">Baseline Risk Zone (>20 miles):</strong> ${t3Pop} residents are subject to the baseline ${t3Rate} rate.</li>`;
             }
             analysisHTML += `</ul></li>`;
-            analysisHTML += `<li><strong class="text-white">Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate is ${effRateDisplay}, projecting ${victims.toLocaleString()} new problem gamblers within the county.</li>`;
+            // Updated conclusion to be clearer
+            analysisHTML += `<li><strong class="text-white">Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate is ${effRateDisplay} (of the adult population), projecting ${victims.toLocaleString()} new problem gamblers within the county.</li>`;
             analysisHTML += `</ul>`;
 
             // 4. Analysis (Split into sections)

@@ -349,50 +349,111 @@ window.ImpactMap = (function ()
                 }
             });
 
+            // Loading Overlay
+            function toggleLoading(show)
+            {
+                const mapEl = els.map;
+                let overlay = document.getElementById('map-loading-overlay');
+                if (!overlay && show)
+                {
+                    overlay = document.createElement('div');
+                    overlay.id = 'map-loading-overlay';
+                    overlay.className = 'absolute inset-0 z-[500] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300';
+                    overlay.innerHTML = `
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                            <div class="text-white font-bold text-shadow-sm">Loading Regional Data...</div>
+                        </div>
+                    `;
+                    mapEl.parentElement.appendChild(overlay);
+                }
+                if (overlay)
+                {
+                    overlay.style.opacity = show ? '1' : '0';
+                    overlay.style.pointerEvents = show ? 'auto' : 'none';
+                }
+            }
+
             async function loadCounty(countyId, skipMarkerMove = false)
             {
                 if (!countyId) return;
-                if (cache[countyId])
-                {
-                    currentGeoJSON = cache[countyId];
-                    currentCountyId = countyId;
-                    highlightCountyVisuals(countyId, skipMarkerMove);
-                    calculateImpact();
-                    return;
-                }
+                // Check cache for standard county shape (visualization) AND context (data)
+                // Actually, we'll just fetch the context now as it serves both purposes if we want
+                // But for now, let's keep the visualization `cache` separate or merge them.
+                // The existing `cache` stores specific county GeoJSONs for the "Highlight Layer" (visual boundary).
+                // The new `contextCache` will store the 50-mile buffer features for CALCULATION.
+
+                // 1. Load Visual Boundary (Legacy flow, fast, keeps map looking good)
                 try
                 {
-                    const res = await fetch(`./data/counties/${countyId}.json`);
-                    if (!res.ok) throw new Error('County data not found');
+                    if (!cache[countyId])
+                    {
+                        const res = await fetch(`./data/counties/${countyId}.json`);
+                        if (res.ok)
+                        {
+                            const data = await res.json();
+                            cache[countyId] = data;
+                        }
+                    }
+                    if (cache[countyId])
+                    {
+                        // highlightCountyVisuals uses `cache[countyId]` for the orange boundary
+                        // We set generic `currentGeoJSON` to this for the visual heatmaps, 
+                        // BUT we will use `currentContextGeoJSON` for calculations.
+                        currentGeoJSON = cache[countyId];
+                        currentCountyId = countyId;
+                        highlightCountyVisuals(countyId, skipMarkerMove);
+                    }
+                } catch (e) { console.error("Visual load error", e); }
+
+                // 2. Load Calculation Context (The 50 mile buffer data)
+                await loadCountyContext(countyId); // This updates `currentContextGeoJSON`
+
+                calculateImpact(); // Trigger calc after data load
+            }
+
+            let currentContextGeoJSON = null;
+            let contextCache = {};
+
+            async function loadCountyContext(fips)
+            {
+                if (contextCache[fips])
+                {
+                    currentContextGeoJSON = contextCache[fips];
+                    return;
+                }
+                toggleLoading(true);
+                try
+                {
+                    // Use a slightly larger timeout or retry if needed, but PostGIS is fast
+                    // Ensure FIPS is correct length. Client uses '003', server expects '18003' or handles it.
+                    // We'll pass '003' and let server logic (added previously) handle prefix.
+                    const res = await fetch(`/api/Impact/county-context/${fips}`);
+                    if (!res.ok) throw new Error("Context fetch failed");
                     const data = await res.json();
-                    preprocessPopulation(data, countyId);
-                    cache[countyId] = data;
-                    currentGeoJSON = data;
-                    currentCountyId = countyId;
-                    highlightCountyVisuals(countyId, skipMarkerMove);
-                    calculateImpact();
-                } catch (e) { console.error("Map Error:", e); }
+
+                    // Pre-process for Turf if needed (ensure numeric props)
+                    turf.featureEach(data, (f) =>
+                    {
+                        f.properties.POP_ADULT = Number(f.properties.POP_ADULT || 0);
+                        f.properties.POPULATION = Number(f.properties.POPULATION || 0);
+                    });
+
+                    contextCache[fips] = data;
+                    currentContextGeoJSON = data;
+                } catch (e)
+                {
+                    console.error("Context Load Error", e);
+                } finally
+                {
+                    toggleLoading(false);
+                }
             }
 
             function preprocessPopulation(geoJSON, countyId)
             {
-                const countyInfo = getCountyReference().find(c => c.id === countyId);
-                const totalPop = countyInfo ? countyInfo.pop : 0;
-                let hasPopProp = false; let totalArea = 0;
-                turf.featureEach(geoJSON, (feature) =>
-                {
-                    if (feature.properties.POPULATION !== undefined || feature.properties.POP !== undefined) hasPopProp = true;
-                    totalArea += (feature.properties.ALAND || 0);
-                });
-                if (!hasPopProp && totalArea > 0)
-                {
-                    turf.featureEach(geoJSON, (feature) =>
-                    {
-                        const area = feature.properties.ALAND || 0;
-                        const estimated = (area / totalArea) * totalPop;
-                        feature.properties._estPop = estimated;
-                    });
-                }
+                // Legacy visual-only helper, kept for heatmap if needed on the visual layer
+                // No changes needed, as highlightCountyVisuals uses `currentGeoJSON` (visual layer)
             }
 
             function generateTractLayer(geoJSON)
@@ -417,11 +478,18 @@ window.ImpactMap = (function ()
                 }
                 if (blockGroupLayer) map.removeLayer(blockGroupLayer);
                 if (tractLayer) map.removeLayer(tractLayer);
+
+                // Note: BlockGroupLayer (Heatmap) currently uses the VISUAL `currentGeoJSON` (the single county). 
+                // This is fine. The user didn't ask for a 50-mile heatmap, just calculation.
+                // If we want the heatmap to extend, we'd use `currentContextGeoJSON` here.
+                // Let's stick to single-county heatmap for clarity/performance unless requested.
                 if (currentGeoJSON)
                 {
                     let maxDensity = 0;
                     let hasRealData = false;
+                    // Check generic props
                     turf.featureEach(currentGeoJSON, (f) => { if (f.properties.POPULATION || f.properties.POP) hasRealData = true; });
+
                     turf.featureEach(currentGeoJSON, (f) =>
                     {
                         const a = f.properties.ALAND || 0; let density = 0;
@@ -434,6 +502,7 @@ window.ImpactMap = (function ()
                     blockGroupLayer = L.geoJSON(currentGeoJSON, { style: getHeatMapStyle, interactive: false });
                     tractLayer = generateTractLayer(currentGeoJSON);
                 }
+
                 if (countyFeature && !skipMarkerMove)
                 {
                     const bounds = L.geoJSON(countyFeature).getBounds();
@@ -442,7 +511,7 @@ window.ImpactMap = (function ()
                     marker.setLatLng(latLng); circle10.setLatLng(latLng); circle20.setLatLng(latLng);
                 }
                 updateLayerVisibility();
-                calculateImpact();
+                // calculateImpact(); // Removed duplicate call, loadCounty calls it
                 const cInfo = getCountyReference().find(c => c.id === countyId);
                 if (els.displayCounty && cInfo) els.displayCounty.textContent = cInfo.name;
             }
@@ -481,87 +550,125 @@ window.ImpactMap = (function ()
 
             function calculateImpact()
             {
-                if (!currentGeoJSON) return;
+                // CLIENT SIDE ONLY - No Fetch
+                if (!currentContextGeoJSON) return;
+
                 const baselineRate = parseFloat(els.inputRate ? els.inputRate.value : 2.3);
                 const markerLatLng = marker.getLatLng();
                 const centerPoint = turf.point([markerLatLng.lng, markerLatLng.lat]);
-                let t1Pop = 0; let t2Pop = 0; let t3Pop = 0;
+
+                // Get county info for context display
                 const countyInfo = getCountyReference().find(c => c.id === currentCountyId);
-                const totalCountyPop = countyInfo ? countyInfo.pop : 0;
+                const countyTotal = countyInfo ? countyInfo.pop : 0; // Displayed Total (All Ages)
 
-                // Server-side calculation using PostGIS and Census Data
-                fetch(`/api/Impact/calculate?lat=${markerLatLng.lat}&lon=${markerLatLng.lng}`)
-                    .then(r => r.json())
-                    .then(data =>
+                // Ideally we should calculate "County Adults" from the data too, 
+                // but `getCountyReference` only has total pop.
+                // We can sum the `POP_ADULT` of all features in the context matching the county code.
+                let countyAdults = 0;
+
+                let t1Pop = 0;
+                let t2Pop = 0;
+
+                // Iterate over the loaded 50-mile context
+                turf.featureEach(currentContextGeoJSON, (feature) =>
+                {
+                    const props = feature.properties;
+                    const popAdult = props.POP_ADULT || 0;
+
+                    // Sum for County Adults (based on FIPS match)
+                    // FIPS in data is often full '18003...', currentCountyId is '003'
+                    // Indiana FIPS = 18.
+                    const geoid = props.GEOID || "";
+                    if (geoid.startsWith("18" + currentCountyId))
                     {
-                        const t1Pop = data.t1 || 0;
-                        const t2Pop = data.t2 || 0;
-                        const countyTotal = data.county_total || totalCountyPop; // Fallback to JS if 0
-                        const countyAdults = data.county_adults || 0;
+                        countyAdults += popAdult;
+                    }
 
-                        // Baseline Adults: Total County Adults - Adults in Zone 1 - Adults in Zone 2
-                        // Clamp to 0
-                        let t3Pop = Math.max(0, countyAdults - t1Pop - t2Pop);
+                    // Spatial Summation
+                    // We use centroid distance for speed, or intersection area for precision?
+                    // Previous client code used centroid.
+                    // Server code used Intersection Area.
+                    // Client Intersection Area with Turf is slow for many polygons.
+                    // Let's use Centroid with a weighting factor or simple inclusion?
+                    // "Block Groups" are small enough that Centroid is "Okay" for a drag UI, 
+                    // BUT user noticed precision issues before.
+                    // OPTIMIZATION: Only check distance to centroid first.
 
-                        const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
-                        const v1 = t1Pop * (r1 / 100); const v2 = t2Pop * (r2 / 100); const v3 = t3Pop * (r3 / 100);
-                        const totalVictims = v1 + v2 + v3;
+                    // Fast Centroid approach:
+                    // Only accurate if block groups are small.
+                    // Let's try to stick to the logic that worked well before but client side if possible.
+                    // Actually, turf.distance is fast.
 
-                        animateValue(els.t1, t1Pop); animateValue(els.t2, t2Pop);
-                        const labelT3 = document.getElementById('label-t3');
-                        if (t3Pop === 0 && countyAdults > 0)
-                        {
-                            els.t3.textContent = "Fully Captured";
-                            els.t3.classList.remove('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.add('text-xs', 'font-bold', 'text-white', 'uppercase');
-                            if (labelT3) labelT3.textContent = "by Preceding Impact Zones";
-                        } else
-                        {
-                            animateValue(els.t3, t3Pop);
-                            els.t3.classList.add('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.remove('text-xs', 'font-bold', 'uppercase');
-                            if (labelT3) labelT3.textContent = "Adult Population"; // More specific label
-                        }
+                    const centerOfFeat = turf.centroid(feature);
+                    const dist = turf.distance(centerPoint, centerOfFeat, { units: 'miles' });
 
-                        if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
-                        if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
-                        if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
-                        if (els.vicT1) els.vicT1.textContent = Math.round(v1).toLocaleString();
-                        if (els.vicT2) els.vicT2.textContent = Math.round(v2).toLocaleString();
-                        if (els.vicT3) els.vicT3.textContent = Math.round(v3).toLocaleString();
-                        if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictims).toLocaleString();
+                    if (dist <= 10)
+                    {
+                        t1Pop += popAdult;
+                    } else if (dist <= 20)
+                    {
+                        t2Pop += popAdult;
+                    }
+                });
 
-                        const lblHigh = document.getElementById('label-high');
-                        const lblElevated = document.getElementById('label-elevated');
-                        const lblBaseline = document.getElementById('label-baseline');
-                        if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1Pop).toLocaleString()}`;
-                        if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2Pop).toLocaleString()}`;
-                        if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3Pop).toLocaleString()}`;
+                // Baseline Adults
+                let t3Pop = Math.max(0, countyAdults - t1Pop - t2Pop);
 
-                        const calcRes = document.getElementById('calc-result');
-                        const calcGamblers = document.getElementById('calc-gamblers');
-                        if (calcRes) calcRes.textContent = Math.round(totalVictims).toLocaleString();
-                        if (calcGamblers) calcGamblers.textContent = Math.round(totalVictims).toLocaleString();
+                const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
+                const v1 = t1Pop * (r1 / 100); const v2 = t2Pop * (r2 / 100); const v3 = t3Pop * (r3 / 100);
+                const totalVictims = v1 + v2 + v3;
 
-                        const dispPop = document.getElementById('disp-pop-impact-zones');
-                        const dispRate = document.getElementById('disp-effective-rate');
+                animateValue(els.t1, t1Pop); animateValue(els.t2, t2Pop);
+                const labelT3 = document.getElementById('label-t3');
+                if (t3Pop === 0 && countyAdults > 0)
+                {
+                    els.t3.textContent = "Fully Captured";
+                    els.t3.classList.remove('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.add('text-xs', 'font-bold', 'text-white', 'uppercase');
+                    if (labelT3) labelT3.textContent = "by Preceding Impact Zones";
+                } else
+                {
+                    animateValue(els.t3, t3Pop);
+                    els.t3.classList.add('text-xl', 'font-black', 'text-white', 'mb-1'); els.t3.classList.remove('text-xs', 'font-bold', 'uppercase');
+                    if (labelT3) labelT3.textContent = "Adult Population"; // More specific label
+                }
 
-                        // DISPLAY TOTAL POPULATION (ALL AGES) AS REQUESTED
-                        if (dispPop) dispPop.textContent = countyTotal.toLocaleString();
+                if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
+                if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
+                if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
+                if (els.vicT1) els.vicT1.textContent = Math.round(v1).toLocaleString();
+                if (els.vicT2) els.vicT2.textContent = Math.round(v2).toLocaleString();
+                if (els.vicT3) els.vicT3.textContent = Math.round(v3).toLocaleString();
+                if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictims).toLocaleString();
 
-                        if (dispRate)
-                        {
-                            // "Effective Rate" is usually Victims / Total Population (or Total Adults?)
-                            // Standard convention is usually per capita (Total), but strictly speaking
-                            // betting prevalence is usually cited for adults.
-                            // If the user wants "Total Population" shown, let's divide by Total to be consistent with the "displayed divisor".
-                            const effectiveRate = countyTotal > 0 ? (totalVictims / countyTotal) * 100 : 0;
-                            dispRate.textContent = effectiveRate.toFixed(2) + '%';
-                        }
+                const lblHigh = document.getElementById('label-high');
+                const lblElevated = document.getElementById('label-elevated');
+                const lblBaseline = document.getElementById('label-baseline');
+                if (lblHigh) lblHigh.textContent = `High Risk: ${Math.round(t1Pop).toLocaleString()}`;
+                if (lblElevated) lblElevated.textContent = `Elevated Risk: ${Math.round(t2Pop).toLocaleString()}`;
+                if (lblBaseline) lblBaseline.textContent = `Baseline: ${Math.round(t3Pop).toLocaleString()}`;
 
-                        const triggerInput = document.getElementById('input-revenue');
-                        if (triggerInput) triggerInput.dispatchEvent(new Event('input'));
-                    })
-                    .catch(console.error);
+                const calcRes = document.getElementById('calc-result');
+                const calcGamblers = document.getElementById('calc-gamblers');
+                if (calcRes) calcRes.textContent = Math.round(totalVictims).toLocaleString();
+                if (calcGamblers) calcGamblers.textContent = Math.round(totalVictims).toLocaleString();
 
+                const dispPop = document.getElementById('disp-pop-impact-zones');
+                const dispPopAdults = document.getElementById('disp-pop-adults');
+                const dispRate = document.getElementById('disp-effective-rate');
+
+                // DISPLAY TOTAL POPULATION (ALL AGES) AS REQUESTED
+                if (dispPop) dispPop.textContent = countyTotal.toLocaleString();
+                // DISPLAY ADULT POPULATION (18+)
+                if (dispPopAdults) dispPopAdults.textContent = countyAdults.toLocaleString();
+
+                if (dispRate)
+                {
+                    const effectiveRate = countyTotal > 0 ? (totalVictims / countyTotal) * 100 : 0;
+                    dispRate.textContent = effectiveRate.toFixed(2) + '%';
+                }
+
+                const triggerInput = document.getElementById('input-revenue');
+                if (triggerInput) triggerInput.dispatchEvent(new Event('input'));
             }
 
             function animateValue(el, val) { if (!el) return; el.textContent = Math.round(val).toLocaleString(); }
@@ -570,6 +677,7 @@ window.ImpactMap = (function ()
             {
                 const pos = marker.getLatLng();
                 circle10.setLatLng(pos); circle20.setLatLng(pos);
+                // State highlighting check (fast enough to keep)
                 if (stateData)
                 {
                     const pt = turf.point([pos.lng, pos.lat]);

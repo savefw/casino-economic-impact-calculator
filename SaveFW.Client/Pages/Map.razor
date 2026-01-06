@@ -251,7 +251,7 @@
                         <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles
                             (High Risk)</div>
                         <div class="text-xl font-black text-white mb-1" id="val-t1">-</div>
-                        <div class="text-xs text-slate-500 mb-3">Population</div>
+                        <div class="text-xs text-slate-500 mb-3">Adult Population (18+)</div>
                     </div>
                     <div class="bg-black/20 rounded-lg p-2 border border-blue-900/30">
                         <div class="flex justify-between items-center text-xs mb-1"><span
@@ -271,7 +271,7 @@
                         <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
                             (Elevated)</div>
                         <div class="text-xl font-black text-white mb-1" id="val-t2">-</div>
-                        <div class="text-xs text-slate-500 mb-3">Population</div>
+                        <div class="text-xs text-slate-500 mb-3">Adult Population (18+)</div>
                     </div>
                     <div class="bg-black/20 rounded-lg p-2 border border-red-900/30">
                         <div class="flex justify-between items-center text-xs mb-1"><span
@@ -291,7 +291,7 @@
                         <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">>20 Miles
                             (Baseline)</div>
                         <div class="text-xl font-black text-white mb-1" id="val-t3">-</div>
-                        <div class="text-xs text-slate-500 mb-3" id="label-t3">Population</div>
+                        <div class="text-xs text-slate-500 mb-3" id="label-t3">Adult Population (18+)</div>
                     </div>
                     <div class="bg-black/20 rounded-lg p-2 border border-orange-800">
                         <div class="flex justify-between items-center text-xs mb-1"><span
@@ -316,13 +316,28 @@
                             <span class="material-symbols-outlined">location_city</span>
                         </div>
                         <div class="text-left">
-                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">County
+                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Total County
                                 Population*
                             </div>
-                            <div class="text-sm text-slate-500">Within Impact Zones</div>
+                            <div class="text-sm text-slate-500">(All Ages)</div>
                         </div>
                     </div>
                     <div class="text-xl font-mono text-slate-200 text-right" id="disp-pop-impact-zones">-</div>
+                </div>
+
+                <!-- 1b. County Adult Population -->
+                <div class="flex flex-col sm:flex-row items-center justify-between py-1 border-t border-slate-800/50 mt-1 pt-2">
+                    <div class="flex items-center gap-3 mb-2 sm:mb-0">
+                        <div class="p-2 bg-indigo-500/20 rounded-full text-indigo-400">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Adult Population
+                            </div>
+                            <div class="text-sm text-slate-500">(18+ Only)</div>
+                        </div>
+                    </div>
+                    <div class="text-xl font-mono text-indigo-300 text-right" id="disp-pop-adults">-</div>
                 </div>
 
                 <div class="h-px bg-slate-700 my-3"></div>
