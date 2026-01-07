@@ -4,12 +4,9 @@ This instruction file is meant to be handed to **Gemini CLI** while it has a loc
 
 - `https://github.com/savefw/casino-economic-impact-calculator`
 
-## What I could and could not verify here
+## What was verified locally
 
-GitHub’s web UI for this repo is intermittently returning an “error while loading” shell for individual file bodies, so I could reliably confirm **repo structure** and the **high-level architecture from README**, but not the full `docker-compose.yml` contents from the browser view. The plan below is therefore written so Gemini **must** open and adapt to the real file bodies in your working tree.
-
-From the README, the repo has (at minimum): `SaveFW.Client`, `SaveFW.Server`, `SaveFW.Shared`, `docs`, a root `Dockerfile`, and a root `docker-compose.yml`. The stack is .NET 10 + Blazor WASM + PostgreSQL 18 + Docker + Leaflet. The server project has a `Data` folder for DbContext + seeding.  
-Source: repo README + file listing. citeturn15view2turn15view3
+This plan was updated after scanning the local repo in `/root/SaveFW`. It reflects the current code layout and the existing Valhalla, TIGER, and PostGIS wiring.
 
 ---
 
@@ -32,6 +29,32 @@ Source: repo README + file listing. citeturn15view2turn15view3
 - Real-time traffic modeling (Valhalla’s default “free-flow” speeds are fine for comparative siting).
 - Adding QGIS or desktop GIS workflows.
 - Producing statewide results in this patch (we build the pipeline and an example “Allen County run”).
+
+---
+
+# 0.5) Repo reality check (observed locally)
+
+This repo already has several pieces in place:
+
+- `SaveFW.Server/Services/Valhalla/ValhallaClient.cs` exists and calls `/isochrone` with a single contour.
+- `SaveFW.Server/Controllers/ValhallaController.cs` exposes `GET /api/valhalla/isochrone`.
+- `SaveFW.Server/Workers/ScoringWorker.cs` exists but is **not** registered (commented out in `Program.cs`).
+- EF spatial is enabled via `UseNetTopologySuite()` and entity tables exist for:
+  - `counties`, `block_groups`, `isochrone_cache`, `site_scores`
+- TIGER ingestion currently writes to **different tables**:
+  - `tiger_states`, `tiger_counties`, `census_block_groups`
+
+This means we should decide one of these paths before we implement scoring:
+1) Update EF entities to map to `tiger_counties` + `census_block_groups`, or
+2) Create views (or migrations) so `counties`/`block_groups` reflect TIGER tables.
+
+---
+
+# 0.6) What "Valhalla tiles" means (not county lines)
+
+Valhalla "tiles" are **routing graph tiles** built from OSM PBF data. They are not county boundaries.  
+On first run, Valhalla downloads PBFs (if `tile_urls` is set) and builds these graph tiles.  
+That build can take a long time, but after tiles exist, isochrone requests are much faster.
 
 ---
 
@@ -144,10 +167,10 @@ Gemini instructions:
 
 - [x] 1. In `SaveFW.Server` find your DbContext (README says `SaveFW.Server/Data` contains DbContext and seeding). citeturn15view2
 - [x] 2. Ensure EF Core is already used (README says EF Core). citeturn15view2
-- [x] 3. Add/confirm spatial mapping:
+- [x] 3. Spatial mapping already exists:
    - `Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite`
 
-- [x] 4. Add these tables (names can be adjusted to your conventions):
+- [x] 4. The repo already defines EF entities for these tables (names can be adjusted to your conventions):
 
 ### `counties`
 - `id` (int / uuid)
@@ -186,6 +209,9 @@ Recommended:
 Indexes:
 - `GIST (geom)`
 - unique constraint above
+
+**Important:** TIGER ingestion currently writes to `tiger_counties` and `census_block_groups`.  
+Pick one schema (either map EF entities to TIGER tables, or add views/migrations).
 
 ### `site_scores`
 - `id`
@@ -261,8 +287,8 @@ Use Valhalla’s isochrone service contract:
 
 - [x] Implement:
 
-- method `Task<GeoJsonFeatureCollection> GetIsochroneAsync(double lat, double lon, int minutes, CancellationToken ct)`
-- POST to `/isochrone` (use JSON body form, not querystring, unless you already standardize on querystring)
+- method `Task<string?> GetIsochroneJsonAsync(double lat, double lon, int[] minutes, CancellationToken ct)` that supports multiple contours
+- POST to `/isochrone` with a `contours` array like `[{time:60},{time:90}]` in one request
 - include `polygons=true`
 
 - [x] Also implement basic resiliency:
@@ -301,7 +327,7 @@ Recommendation: **B** once this gets heavy.
 1. Generate candidate points (SQL grid → centroids).
 2. For each point:
    - check `isochrone_cache` for `(lat_round, lon_round, minutes, source_hash)`
-   - if miss: call Valhalla isochrone, store geometry
+   - if miss: call Valhalla isochrone once with contours `[60, 90]`, store two geometries
 3. Compute overlays in SQL:
    - population inside polygon (area-weighted estimate when pop is per block group)
 4. Compute score:
@@ -330,6 +356,8 @@ Key functions:
 - `ST_Intersection` to compute overlap geometry
 - `ST_Area(…::geography)` to measure in meters² on geodesic surface
 
+If you use TIGER tables, replace `block_groups` with `census_block_groups` and use `pop_total` (or `pop_18_plus`) instead of `population`.
+
 (These are standard PostGIS patterns; if you want to hard-source each function definition, Gemini can reference PostGIS docs.)
 
 ## 4.3 Scheduling
@@ -340,6 +368,47 @@ If you want “annual updates”:
 
 - [x] Also add a `source_hash` concept:
 - When you update your census data / GeoJSON / tiles, bump a `DATASET_REVISION` setting so cached isochrones + scores can be recomputed cleanly.
+
+---
+
+# 4.4) Allen County test plan (planning mode)
+
+Recommended defaults for a first run:
+
+- Grid type: square
+- Grid size: 10,000 meters
+- Contours per request: `[60, 90]` in one Valhalla call
+- Cache: two rows per point (60 + 90)
+
+Why 10,000 meters?
+- Much faster to cover counties end-to-end with a coarse grid.
+- Allen County is ~1,700 km^2, so expect ~15–25 points after boundary trimming.
+
+Exact point count (run in PostGIS):
+
+```sql
+WITH county AS (
+  SELECT ST_Transform(geom, 26916) AS g
+  FROM tiger_counties
+  WHERE name = 'Allen' AND state_fp = '18'
+),
+grid AS (
+  SELECT (ST_SquareGrid(10000, (SELECT g FROM county))).geom AS cell
+)
+SELECT COUNT(*) AS point_count
+FROM grid
+WHERE ST_Intersects(cell, (SELECT g FROM county));
+```
+
+If you use `counties` instead of `tiger_counties`, swap the table and column names.
+
+Runtime estimate (4 CPU threads, 10GB RAM, after tiles are built):
+- Valhalla isochrones: ~0.5–2.0s per point typical
+- Total for ~20 points with 4 threads: ~0.2–1.0 minutes
+- PostGIS overlay + writes: add ~1–5 minutes
+- End-to-end for Allen County: ~2–10 minutes
+
+If tiles are not built yet, the initial Valhalla build can take much longer.
 
 ---
 
