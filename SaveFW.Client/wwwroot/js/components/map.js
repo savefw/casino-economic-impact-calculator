@@ -147,13 +147,14 @@ window.ImpactMap = (function ()
 	                // Top ordering
 	                if (layersVisible.zones)
 	                {
-	                    if (circle50) circle50.bringToFront();
-	                    if (circle20) circle20.bringToFront();
-	                    if (circle10) circle10.bringToFront();
+	                    if (circle50) { circle50.bringToBack(); }
+	                    if (circle20) { circle20.bringToBack(); }
+	                    if (circle10) { circle10.bringToBack(); }
 	                }
 	                if (tractLayer && layersVisible.tracts) tractLayer.bringToFront();
 	                if (highlightLayer && layersVisible.overlay) highlightLayer.bringToFront();
 	                if (stateLayer) stateLayer.bringToBack();
+                    if (countyLayer) countyLayer.bringToFront();
 	            }
 
             function getHeatMapStyle(feature)
@@ -694,9 +695,9 @@ window.ImpactMap = (function ()
 	                    if (!marker)
 	                    {
 	                        marker = L.marker(latLng, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
-	                        circle20 = L.circle(latLng, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
-	                        circle10 = L.circle(latLng, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
-	                        circle50 = L.circle(latLng, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.12, weight: 2, dashArray: '2, 6', radius: 80467.2 }).addTo(map);
+	                        circle20 = L.circle(latLng, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9, interactive: false }).addTo(map);
+	                        circle10 = L.circle(latLng, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4, interactive: false }).addTo(map);
+	                        circle50 = L.circle(latLng, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.12, weight: 2, dashArray: '2, 6', radius: 80467.2, interactive: false }).addTo(map);
 	
 	                        marker.on('drag', () =>
 	                        {
@@ -1129,9 +1130,9 @@ window.ImpactMap = (function ()
                 if (!marker)
                 {
                     marker = L.marker(center, { draggable: true, autoPan: false, icon: casinoPin }).addTo(map);
-                    circle20 = L.circle(center, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9 }).addTo(map);
-                    circle10 = L.circle(center, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4 }).addTo(map);
-                    circle50 = L.circle(center, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.12, weight: 2, dashArray: '2, 6', radius: 80467.2 }).addTo(map);
+                    circle20 = L.circle(center, { color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.35, weight: 2, dashArray: '5, 5', radius: 32186.9, interactive: false }).addTo(map);
+                    circle10 = L.circle(center, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2, radius: 16093.4, interactive: false }).addTo(map);
+                    circle50 = L.circle(center, { color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.12, weight: 2, dashArray: '2, 6', radius: 80467.2, interactive: false }).addTo(map);
                 } else
                 {
                     marker.setLatLng(center); circle10.setLatLng(center); circle20.setLatLng(center); if (circle50) circle50.setLatLng(center);

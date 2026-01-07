@@ -46,15 +46,19 @@ namespace SaveFW.Server.Data
             }
 
             // 2. Check if Counties exist
-            // 2. Check if Counties exist
-            if (!await HasData(conn, "tiger_counties"))
+            using (var cmd = conn.CreateCommand())
             {
-                _logger.LogInformation("TigerSeeder: No counties found. Seeding National Counties...");
-                await _ingestionService.IngestNationalCounties();
-            }
-             else
-            {
-                _logger.LogInformation("TigerSeeder: Counties already seeded.");
+                cmd.CommandText = "SELECT COUNT(*) FROM tiger_counties";
+                var count = Convert.ToInt32(await cmd.ExecuteScalarAsync() ?? 0);
+                if (count < 3000) // US has ~3143 counties
+                {
+                    _logger.LogInformation($"TigerSeeder: Found {count} counties. Seeding/Updating National Counties...");
+                    await _ingestionService.IngestNationalCounties();
+                }
+                else
+                {
+                    _logger.LogInformation("TigerSeeder: Counties already seeded (count > 3000).");
+                }
             }
 
             // 3. Check if Block Groups exist (checking specifically if any data exists, simplistic for now)

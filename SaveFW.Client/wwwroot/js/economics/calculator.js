@@ -1051,7 +1051,7 @@ window.EconomicCalculator = (function ()
         {
             const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || (els.inCounty && els.inCounty.value) || "");
             const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
-            const subjectCountyName = countyIndex.get(subjectCountyFips) || "Subject County";
+            const subjectCountyName = countyIndex.get(subjectCountyFips) || "Selected";
             const subjectStateName = String((lastImpactBreakdown && lastImpactBreakdown.stateName) || "Indiana").trim();
 
             const costRatio = totalRevenue > 0 ? (totalCost / totalRevenue).toFixed(2) : "N/A";
@@ -1089,68 +1089,143 @@ window.EconomicCalculator = (function ()
 
             let analysisHTML = '';
 
-            // 1. Disclaimers
+            // 1. Disclaimer (Sub-header + Bullet)
             analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Disclaimers</div>`;
             analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
-            analysisHTML += `<li><strong>Open-Source Transparency:</strong> In an effort to encourage community involvement and transparency, SaveFW has published the source code for this Economic Impact Calculator as free and open-source software (FOSS) under the AGPL-3.0 License, available at <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">https://github.com/savefw/casino-economic-impact-calculator</a>.</li>`;
-            analysisHTML += `<li><strong>Economic Multipliers:</strong> This model currently excludes positive economic multipliers (the "Economic Engine" model). SaveFW is evaluating the methodological appropriateness of such multipliers in a "convenience casino" context. The State's Spectrum Study (2025) indicates that approximately 95% of projected revenue for a Northeast Indiana location is sourced from the primary catchment area (residents within a 90-minute radius), suggesting a reallocation of local capital rather than an introduction of external tourism capital.</li>`;
-            analysisHTML += `<li><strong>Methodological Limitations:</strong> Independent research indicates that regional "convenience" casinos may yield multipliers as low as 0.5–0.7 when retail cannibalization is factored in. Systemic reviews suggest that while destination gambling can introduce new capital, convenience gambling often serves as a substitute for other local industries (retail and merchandise).</li>`;
-            analysisHTML += `<li><strong>Programmatic Determinism:</strong> This tool provides a deterministic, rule-based analysis based on fixed-logic inputs and peer-reviewed data. Unlike probabilistic AI models, this ensures exact reproducibility based on predefined causal relationships.</li>`;
+            analysisHTML += `<li><strong>Open-Source Transparency:</strong> In an effort to encourage community involvement and transparency, SaveFW has published the source code for this Economic Impact Calculator as free and open-source software (FOSS) under the AGPL-3.0 License, available on GitHub at <a href="https://github.com/savefw/casino-economic-impact-calculator" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">https://github.com/savefw/casino-economic-impact-calculator</a>.</li>`;
+            analysisHTML += `<li><strong>Economic Multipliers:</strong> SaveFW's Economic Impact Calculator does not currently include positive economic multipliers often cited by proponents (the "Economic Engine" model). SaveFW is currently evaluating the methodological appropriateness of such multipliers in a "convenience casino" market context. This classification is corroborated by the State's Spectrum Study (2025), which indicates that for a Northeast Indiana location, approximately 95% of projected revenue is sourced from the primary catchment area (residents within a 90-minute radius). This metric suggests that the project primarily facilitates a reallocation of local capital to external corporate entities, rather than introducing new capital via external tourism. Given this context, SaveFW is assessing academic literature before making a determination regarding:
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-3">
+                                                <li><strong>Leakage Rates:</strong> The extent to which revenue is retained locally versus exported to external corporate entities. Research from the <a href="https://www.civiceconomics.com/indie-impact.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Civic Economics "Indie Impact" Series</a> establishes that national corporate chains often return significantly less revenue to the local economy (approx. 14%) compared to independent local businesses (approx. 48%).</li>
+                                                <li><strong>Multiplier Magnitudes:</strong> Determining accurate local multipliers for gaming revenues. While independent local businesses typically generate multipliers of <a href="https://www.civiceconomics.com/indie-impact.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">~1.7–2.0</a> (recirculating ~$48–$53 per $100 spent), research from the <a href="https://massgaming.com/wp-content/uploads/Social-and-Economic-Impacts-of-Casino-Introduction-to-Massachusetts_Report.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Massachusetts Gaming Commission</a> indicates that regional "convenience" casinos may yield multipliers as low as 0.5–0.7 in scenarios where local retail cannibalization is factored into the economic model.</li>
+                                                <li><strong>Net Fiscal Impact:</strong> The necessity of balancing indirect tax revenue against local expenditure substitution. Systematic reviews such as <a href="https://www.greo.ca/Modules/EvidenceCentre/Details/social-and-economic-impacts-gambling" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">The Social and Economic Impacts of Gambling (2011)</a> and <a href="https://www.researchgate.net/publication/343114919_Does_Gambling_Harm_or_Benefit_Other_Industries_A_Systematic_Review" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">"Does Gambling Harm or Benefit Other Industries? A Systematic Review"</a> conclude that while destination gambling can be beneficial, "convenience" gambling often substitutes for other local industries (retail and merchandise) rather than introducing new capital into the market.</li>
+                                            </ul>
+                                        </li>`;
+            analysisHTML += `<li><strong>Programmatic Determinism:</strong> This tool provides a programmatic economic analysis based on deterministic, rule-based logic and peer-reviewed data, rather than an artificial intelligence (AI) model or probabilistic algorithm. Unlike AI, which can be unpredictable, this programmatic approach ensures that all results are derived from fixed, transparent formulas. Common usecases for deterministic analyses occur in highly regulated fields, such as banking. At a future date, SaveFW may include functionality to generate automated analyses utilizing more than the programmatic (deterministic) approach, as well as a blended approach which mitigates weaknesses of each. To provide clarity regarding the differences between the key methodologies in the pipeline, SaveFW has outlined the key distinctions below:
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-3">
+                                                <li><strong>Programmatic (Deterministic) Analysis:</strong> This methodology operates on fixed-logic inputs and rigid mathematical formulas where the relationship between variables is constant. Given a specific set of parameters, the model generates an identical output in every iteration. It is used to produce exact, reproducible figures based on predefined causal relationships (e.g., $Revenue = P \times Q$).</li>
+                                                <li><strong>Probabilistic (Stochastic) Analysis:</strong> This approach treats variables as probability distributions rather than static integers to account for market volatility. By employing random sampling and statistical techniques like Monte Carlo simulations, the model calculates a range of potential outcomes and the statistical likelihood of each, typically expressed as a confidence interval.</li>
+                                                <li><strong>AI (Machine Learning) Analysis:</strong> This paradigm utilizes algorithms that identify non-linear correlations within high-dimensional datasets by developing internal weightings through training. Unlike rule-based systems, the logic is derived from statistical pattern recognition rather than human-coded formulas, allowing the model to adapt its predictive weightings as it processes new information.</li>
+                                            </ul>
+                                        </li>`;
+            analysisHTML += `<li><strong>Model Responsibility:</strong> Individuals and entities should recognize that all economic models are projections subject to data limitations and inherent variability. The responsibility for any actions or decisions made based on this analysis rests solely with the individual or entity, and SaveFW assumes no liability for the application or interpretation of these results.</li>`;
             analysisHTML += `</ul>`;
 
-            // 2. Geographic Analysis
-            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Scope & Proximity Risk</div>`;
+            // 2. Assumptions (Sub-header + Bullets)
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Assumptions</div>`;
             analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
-            analysisHTML += `<li><strong>Geospatial Data:</strong> Population data is sourced from the 2020 Decennial Census API. Geographic boundaries utilize 2020 TIGER/Line Shapefiles processed via PostGIS for high-precision spatial analysis.</li>`;
-            analysisHTML += `<li><strong>Assessed Area:</strong> This analysis focuses on <strong class="text-white">${subjectCountyName}</strong>, with an adult population (18+) of <strong class="text-white">${adultPop.toLocaleString()}</strong>.</li>`;
-            analysisHTML += `<li><strong>Regional Footprint:</strong> The model identifies <strong class="text-white">${otherCountiesCount} adjacent counties</strong> within the 50-mile impact radius, representing a total regional adult population of <strong class="text-white">${regionalAdults.toLocaleString()}</strong>.</li>`;
-            analysisHTML += `<li><strong>Impact Distribution:</strong> Proximity-based risk modeling identifies three distinct exposure zones:
-                <ul class="list-[circle] pl-8 mt-2 space-y-1">
-                    <li><strong class="text-white">High Risk Zone (0-10 miles):</strong> ${t1Pop} county residents subject to a ${t1Rate} prevalence rate.</li>
-                    <li><strong class="text-white">Elevated Risk Zone (10-20 miles):</strong> ${t2Pop} county residents subject to a ${t2Rate} prevalence rate.</li>
-                    <li><strong class="text-white">Baseline Risk Zone (20-50 miles):</strong> ${t3Pop} county residents subject to the baseline ${t3Rate} rate.</li>
-                </ul>
-            </li>`;
-            analysisHTML += `<li><strong>Prevalence Outcome:</strong> The resulting effective problem gambler growth rate for the county is <strong class="text-white">${effRateDisplay}</strong>, projecting <strong class="text-white">${victims.toLocaleString()} new problem gamblers</strong>. Regionally, an additional <strong class="text-white">${Math.round(otherVictims).toLocaleString()} new problem gamblers</strong> are projected in adjacent counties.</li>`;
+            analysisHTML += `<li><strong>Prioritization:</strong> In the current iteration of this model, the Humanitarian Fund (${allocPct}%) is prioritized for Public Health expenditures. Future updates may include the functionality to define discrete allocations for various humanitarian initiatives.</li>`;
+            analysisHTML += `<li><strong>Private Sector Burden:</strong> The Local Economy category represents private sector losses (productivity, debt) borne directly by households and businesses.</li>`;
             analysisHTML += `</ul>`;
 
-            // 3. Fiscal & Social Cost Analysis
-            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Fiscal & Social Cost Analysis</div>`;
-            analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
-            analysisHTML += `<li><strong>Tax Revenue Structure:</strong> Based on an Adjusted Gross Revenue (AGR) of <strong class="text-white">${fmtM(agrM * 1000000)}</strong>, the calculated effective tax rate is <strong class="text-white">${taxEffRate.toFixed(2)}%</strong>, generating <strong class="text-white">${fmtM(totalRevenue)}</strong> in total tax revenue.</li>`;
-            analysisHTML += `<li><strong>Revenue Allocation:</strong> The model allocates ${allocPct}% (<strong class="text-white">${fmtM(revHealthPool)}</strong>) to the Humanitarian Fund and ${100 - allocPct}% (<strong class="text-white">${fmtM(revGeneralPool)}</strong>) to the General Fund. The General Fund is distributed pro-rata among Law Enforcement, Social Services, and Civil Legal.</li>`;
-            
-            // County Social Cost Detail
-            if (revHealthPool >= totalCostHealth)
+            // Geographic Analysis
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Geographic Analysis</div>`;
+            analysisHTML += `<ul class="list-disc pl-8 space-y-1 mb-4 text-slate-300">`;
+            analysisHTML += `<li><strong>Geospatial Data:</strong> Population data is sourced directly from the <a href="https://www.census.gov/data/developers/data-sets/decennial-census.html" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">U.S. Census Bureau's 2020 Decennial Census API</a>, seeded into the SaveFW database in January 2026. Geographic boundaries utilize high-precision 2020 TIGER/Line Shapefiles processed via PostGIS.</li>`;
+            analysisHTML += `<li><strong>Scope of Analysis:</strong> The primary balance-sheet results model fiscal exposure for the assessed county. The Net Economic Impact table also includes an Other Counties Costs column estimating how same-state impacts may distribute within a 50-mile radius (out-of-state excluded); use Expand to view the county-by-county breakout.</li>`;
+
+            // updated specific bullet point with adult pop
+            let adultPopStr = adultPop > 0 ? adultPop.toLocaleString() : "Unknown";
+            analysisHTML += `<li><strong>Assessed Area:</strong> This analysis focuses on ${subjectCountyName} County, with a total population of ${countyInfo.pop.toLocaleString()}. The Adult Population (18+) for this area is ${adultPopStr}.</li>`;
+            analysisHTML += `<li><strong>Regional Footprint:</strong> The model identifies ${otherCountiesCount} adjacent counties within the same state under the 50-mile impact radius, representing a total regional adult population of ${regionalAdults.toLocaleString()}.</li>`;
+
+            analysisHTML += `<li><strong>Impact Distribution:</strong> This distribution models the increased statistical likelihood of residents developing problem gambling behaviors (Gambling Disorder) based on their geographic proximity to the casino site.
+                                            <ul class="list-[circle] pl-8 mt-2 space-y-2">
+                                                <li><strong>High Risk Zone (0-10 miles):</strong> ${t1Pop} county residents are subject to a ${t1Rate} prevalence rate due to immediate proximity.</li>
+                                                <li><strong>Elevated Risk Zone (10-20 miles):</strong> ${t2Pop} county residents are subject to a ${t2Rate} prevalence rate.</li>`;
+
+            if (Math.round(t3AdultsCounty) <= 0)
             {
-                analysisHTML += `<li><strong>County Public Health:</strong> The Humanitarian allocation is sufficient to cover the projected <strong class="text-white">${fmtM(totalCostHealth)}</strong> in public health costs, leaving a surplus for recovery initiatives.</li>`;
+                analysisHTML += `<li><strong>Baseline Risk Zone (20-50 miles):</strong> The county has effectively zero residents in the baseline band under the 50-mile model cutoff.</li>`;
             } else
             {
-                analysisHTML += `<li><strong>County Public Health:</strong> Projected costs exceed the Humanitarian allocation, resulting in a funding gap for addiction treatment.</li>`;
+                analysisHTML += `<li><strong>Baseline Risk Zone (20-50 miles):</strong> ${t3Pop} county residents are subject to the baseline ${t3Rate} rate.</li>`;
             }
+            analysisHTML += `</ul></li>`;
+            // Updated conclusion to be clearer
+            analysisHTML += `<li><strong>Prevalence Outcome:</strong> The resulting net effective problem gambler growth rate for the county is ${effRateDisplay} (of the adult population), projecting ${victims.toLocaleString()} new problem gamblers within the county (within 50 miles of the site). Regionally, an additional ${Math.round(otherVictims).toLocaleString()} new problem gamblers are projected in adjacent counties.</li>`;
+            analysisHTML += `</ul>`;
 
-            analysisHTML += `<li><strong>County Sector Impacts:</strong> The county faces additional public sector burdens in Law Enforcement (<strong class="text-white">${fmtM(totalCostCrime)}</strong>), Social Services (<strong class="text-white">${fmtM(totalCostSocial)}</strong>), and Civil Legal (<strong class="text-white">${fmtM(totalCostLegal)}</strong>). The private sector (Local Economy) faces unmitigated losses of <strong class="text-white">${fmtM(totalCostPrivate)}</strong> due to diverted household spending and productivity losses.</li>`;
+            // 4. Analysis (Split into sections)
 
-            // Regional Spillover Summary
-            analysisHTML += `<li><strong>Regional Spillover:</strong> Adjacent counties within the same state face a combined social cost liability of <strong class="text-white">${fmtM(otherTotalCost)}</strong>. These regional costs receive zero direct revenue offsets from the subject county's tax receipts, representing a net fiscal export of social burden.</li>`;
+            // A. TAX REVENUE
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Tax Revenue Analysis</div>`;
+            analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
+            analysisHTML += `<li><strong>Adjusted Gross Revenue (AGR):</strong> The projected base of ${fmtM(agrM * 1000000)} represent the total wealth extracted from gamblers. Unlike standard sales or property taxes, gambling revenue is subject to a unique progressive structure in Indiana, utilizing a 3.5% supplemental tax and tiered brackets that scale based on volume.</li>`;
+            analysisHTML += `<li><strong>Effective Tax Rate:</strong> For this scenario, the calculated effective tax rate is ${taxEffRate.toFixed(2)}%, resulting in ${fmtM(totalRevenue)} in estimated public tax revenue.</li>`;
+            analysisHTML += `<li><strong>Revenue Allocation:</strong> The model directs ${allocPct}% (${fmtM(revHealthPool)}) to the Humanitarian Fund and ${100 - allocPct}% (${fmtM(revGeneralPool)}) to the General Fund. This General Fund portion is distributed pro rata (proportionally based on share of total cost) towards addressing remaining burdens: Law Enforcement, Social Services, and Civil Legal.</li>`;
             analysisHTML += '</ul>';
 
-            // 4. Net Economic Impact Conclusion
+            // B. SOCIAL COSTS
+            analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Social Cost Analysis</div>`;
+            analysisHTML += '<ul class="list-disc pl-8 space-y-3 mb-4 text-slate-300">';
+            analysisHTML += `<li><strong>Data Source:</strong> Baseline social cost valuations are derived from peer-reviewed research by <a href="https://www.senate.ga.gov/committees/Documents/HiddenCostsofGam.pdf" target="_blank" class="underline text-blue-400 hover:text-blue-300 transition-colors">Grinols</a> (2011), with values adjusted for 2025 inflation to reflect current economic conditions.</li>`;
+            // Public Health
+            if (revHealthPool >= totalCostHealth)
+            {
+                analysisHTML += `<li><strong>Public Health:</strong> The ${allocPct}% Humanitarian allocation is fully sufficient to cover the projected ${fmtM(totalCostHealth)} in Public Health costs. This surplus enables proactive recovery initiatives, which can stabilize vulnerable households and reduce long-term homelessness.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong>Public Health:</strong> The projected Public Health costs exceed the capacity of the ${allocPct}% Humanitarian allocation, leaving a funding gap for addiction and mental health treatments. This shortfall risks exacerbating homelessness and straining emergency medical services as untreated conditions escalate.</li>`;
+            }
+            // General Taxpayer Services Analysis (Dollar Amounts)
+
+            // Law Enforcement
+            const gapCrime = totalCostCrime - revCrime;
+            if (gapCrime > 0)
+            {
+                analysisHTML += `<li><strong>Law Enforcement:</strong> The department faces a projected deficit of ${fmtM(gapCrime)}, necessitating a reduction in operational throughput. This budgetary deficit is projected to result in increased response latencies, diminished clearance rates for property crimes, and a reduced capacity to manage the anticipated surge in domestic disturbance calls.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong>Law Enforcement:</strong> The department projects a budget surplus of ${fmtM(Math.abs(gapCrime))}, positioning it to maintain high operational readiness. This additional capacity enables the implementation of enhanced community policing initiatives and the establishment of specialized units dedicated to investigating complex financial crimes.</li>`;
+            }
+
+            // Social Services
+            const gapSocial = totalCostSocial - revSocial;
+            if (gapSocial > 0)
+            {
+                analysisHTML += `<li><strong>Social Services:</strong> This sector faces a projected deficit of ${fmtM(gapSocial)}, diminishing the programmatic efficacy of the regional social safety net. A deficit of this magnitude risks exceeding the throughput capacity of the foster care system and restricts the availability of essential support resources for households experiencing displacement or foreclosure.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong>Social Services:</strong> With a projected surplus of ${fmtM(Math.abs(gapSocial))}, the county can maintain a robust and stable safety net. This financial stability facilitates the expansion of proactive family stabilization programs and ensures adequate resource availability for food banks and emergency housing assistance.</li>`;
+            }
+
+            // Courts (Civil Legal)
+            const gapLegal = totalCostLegal - revLegal;
+            if (gapLegal > 0)
+            {
+                analysisHTML += `<li><strong>Civil Legal (Courts):</strong> The judicial system faces a projected deficit of ${fmtM(gapLegal)}, resulting in systemic administrative bottlenecks. This budgetary deficit is anticipated to generate substantial backlogs in bankruptcy proceedings, extended processing delays for divorce and custody hearings, and an inability to manage the projected volume of eviction cases efficiently.</li>`;
+            } else
+            {
+                analysisHTML += `<li><strong>Civil Legal (Courts):</strong> The system projects a budget surplus of ${fmtM(Math.abs(gapLegal))}, equipping it to maintain operational efficiency despite increased caseloads. This financial capacity facilitates the timely processing of civil matters and provides necessary funding for mediation services and diversion programs.</li>`;
+            }
+
+            // Private Sector (Local Economy) Breakout
+            analysisHTML += `<li><strong>Abused Dollars:</strong> The private sector faces a projected unmitigated loss of ${fmtM(totalCostAbused)}. This represents direct wealth extraction from households where financial resources are diverted from essential needs and savings to service gambling debts, reducing overall local purchasing power.</li>`;
+
+            analysisHTML += `<li><strong>Lost Employment:</strong> The local economy is projected to incur ${fmtM(totalCostEmployment)} in losses due to reduced workforce productivity. This includes costs associated with absenteeism, termination of problem gamblers, and the friction costs of rehiring and retraining, effectively operating as a hidden tax on local employers.</li>`;
+
+            // Regional Spillover Summary
+            analysisHTML += `<li><strong>Regional Spillover:</strong> Adjacent counties within ${subjectStateName} face a combined social cost liability of ${fmtM(otherTotalCost)}. These regional costs receive zero direct revenue offsets from the subject county's tax receipts, representing a net fiscal export of social burden.</li>`;
+
+            analysisHTML += '</ul>';
+
+            // C. NET ECONOMIC IMPACT
             analysisHTML += `<div class="font-bold text-white mb-2 uppercase tracking-wide text-sm underline">Net Economic Impact Analysis</div>`;
             analysisHTML += '<ul class="list-disc pl-8 space-y-3 text-slate-300">';
 
-            analysisHTML += `<li><strong>Subject County Fiscal Balance:</strong> When balancing tax revenue against direct social costs, ${subjectCountyName} County realizes a net impact of <strong class="text-white">${fmtDiffM(netTotalBalance)}</strong>.</li>`;
+            analysisHTML += `<li><strong>Sector Comparison:</strong> The Public Sector (government departments) projected impact is a ${fmtM(Math.abs(subPublicNet))} ${subPublicNet >= 0 ? 'surplus' : 'deficit'}. In comparison, the Private Sector (Local Economy) faces an unmitigated loss of ${fmtM(totalCostPrivate)}.</li>`;
 
-            analysisHTML += `<li><strong>State-Wide Fiscal Balance:</strong> Considering the cumulative impact on ${subjectStateName} (the subject county plus regional spillover within 50 miles), the total net economic impact is <strong class="text-white">${fmtDiffM(stateWideNetBalance)}</strong>. This metric represents the comprehensive fiscal result for state taxpayers.</li>`;
+            analysisHTML += `<li><strong>Subject County Fiscal Balance:</strong> When balancing tax revenue against direct social costs, ${subjectCountyName} County realizes a net impact of ${fmtDiffM(netTotalBalance)}.</li>`;
 
-            analysisHTML += `<li><strong>Cost-to-Benefit Ratio:</strong> For every $1.00 in tax revenue generated by the project, the broader state economy incurs <strong class="text-white">$${(stateWideSocialCost / Math.max(1, totalRevenue)).toFixed(2)}</strong> in social cost liabilities.</li>`;
+            analysisHTML += `<li><strong>State-Wide Fiscal Balance:</strong> Considering the cumulative impact on ${subjectStateName} (the subject county plus regional spillover within 50 miles), the total net economic impact is ${fmtDiffM(stateWideNetBalance)}. This metric represents the comprehensive fiscal result for state taxpayers.</li>`;
 
             if (stateWideNetBalance < 0)
             {
-                analysisHTML += `<li><strong>Fiscal Conclusion:</strong> Under this configuration, the project creates a net fiscal deficit for the state. The cumulative social costs (<strong class="text-white">${fmtM(stateWideSocialCost)}</strong>) exceed the total tax revenue (<strong class="text-white">${fmtM(totalRevenue)}</strong>), resulting in a net economic loss. To achieve a fiscal break-even point, proponents would need to demonstrate that unmodeled economic multipliers can generate at least <strong class="text-white">${fmtM(Math.abs(stateWideNetBalance))}</strong> in additional, non-substitutive value.</li>`;
+                analysisHTML += `<li><strong>Fiscal Conclusion:</strong> Under this configuration, the project creates a net fiscal deficit for the state. The cumulative social costs (${fmtM(stateWideSocialCost)}) exceed the total tax revenue (${fmtM(totalRevenue)}), resulting in a net economic loss. To achieve a fiscal break-even point, proponents would need to demonstrate that unmodeled economic multipliers can generate at least ${fmtM(Math.abs(stateWideNetBalance))} in additional, non-substitutive value.</li>`;
+                analysisHTML += `<li><strong>Cost-to-Benefit Ratio:</strong> For every $1 in tax revenue generated, the broader state economy is projected to incur $${(stateWideSocialCost / Math.max(1, totalRevenue)).toFixed(2)} in social costs (crime, bankruptcy, lost productivity).</li>`;
             } else
             {
-                analysisHTML += `<li><strong>Fiscal Conclusion:</strong> Under this configuration, the project generates a net fiscal surplus for the state. The total tax revenue exceeds the combined social cost liabilities of the subject and adjacent counties.</li>`;
+                analysisHTML += `<li><strong>Fiscal Conclusion:</strong> Under this specific configuration of variables, the casino generates a net fiscal surplus for the state. The projected revenue of ${fmtM(totalRevenue)} exceeds the estimated combined social cost liabilities of ${fmtM(stateWideSocialCost)}.</li>`;
             }
 
             analysisHTML += '</ul>';
@@ -1278,6 +1353,9 @@ window.EconomicCalculator = (function ()
 
 		        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
 		        const subjectStateName = String((model && model.subjectStateName) || "").trim();
+		        const countyRevenueHeaderText = subjectCountyName
+		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Revenue` : `${subjectCountyName} County Revenue`)
+		            : 'County Revenue';
 		        const countyHeaderText = subjectCountyName
 		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
 		            : 'County Costs';
@@ -1305,7 +1383,7 @@ window.EconomicCalculator = (function ()
 			            <thead>
 			                <tr class="border-b border-slate-700 bg-slate-900/60 text-slate-200">
 			                    <th class="px-3 py-2 text-left sticky left-0 bg-slate-950/90 backdrop-blur max-w-[100px]">GROUP</th>
-			                    <th class="px-3 py-2 text-right max-w-[100px]">REVENUE</th>
+			                    <th class="px-3 py-2 text-right max-w-[150px]">${escapeHtml(countyRevenueHeaderText.toUpperCase())}</th>
 			                    <th class="px-3 py-2 text-right max-w-[150px]">${escapeHtml(countyHeaderText.toUpperCase())}</th>
 			                    <th class="px-3 py-2 text-right max-w-[150px]">${escapeHtml(countyNetHeaderText.toUpperCase())}</th>
 			                    <th class="px-3 py-2 text-right max-w-[180px]">${escapeHtml(otherHeaderText.toUpperCase())}${toggleButton}</th>
@@ -1351,16 +1429,16 @@ window.EconomicCalculator = (function ()
 		                ? `
 		                    <div class="group relative flex items-center">
 		                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors">info</span>
-		                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 font-normal">
+		                        <div class="absolute bottom-full left-0 mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 font-normal whitespace-normal">
 		                            ${escapeHtml(row.tooltip)}
-		                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
+		                            <div class="absolute top-full left-2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
 		                        </div>
 		                    </div>
 		                `
 		                : '';
 
-		            const labelHtml = kind === 'total'
-		                ? `<div class="uppercase tracking-wider">${escapeHtml(row.label || '')}</div>`
+		            const labelHtml = (kind === 'total' || kind === 'subtotal')
+		                ? `<div class="uppercase tracking-wider ${kind === 'subtotal' ? 'pl-4' : ''}">${escapeHtml(row.label || '')}</div>`
 		                : escapeHtml(row.label || '');
 
 		            const labelCell = `
