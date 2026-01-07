@@ -202,6 +202,78 @@ window.ImpactMap = (function ()
 
             if (!els.map) return;
 
+            function resetImpactStats()
+            {
+                // Map Layers
+                if (marker) { map.removeLayer(marker); marker = null; }
+                if (circle10) { map.removeLayer(circle10); circle10 = null; }
+                if (circle20) { map.removeLayer(circle20); circle20 = null; }
+                if (circle50) { map.removeLayer(circle50); circle50 = null; }
+                if (highlightLayer) { map.removeLayer(highlightLayer); highlightLayer = null; }
+                if (blockGroupLayer) { map.removeLayer(blockGroupLayer); blockGroupLayer = null; }
+                if (tractLayer) { map.removeLayer(tractLayer); tractLayer = null; }
+
+                // Data Objects
+                currentContextGeoJSON = null;
+                currentCalcFeatures = null;
+                currentCountyTotals = null;
+
+                // UI Stats - Impact Zones
+                if (els.t1) els.t1.textContent = "0";
+                if (els.t2) els.t2.textContent = "0";
+                if (els.t3)
+                {
+                    els.t3.textContent = "0";
+                    els.t3.classList.remove('text-xl', 'font-black', 'text-white', 'mb-1');
+                    els.t3.classList.add('text-xs', 'font-bold', 'uppercase');
+                }
+                const labelT3 = document.getElementById('label-t3');
+                if (labelT3) labelT3.textContent = "Baseline (20-50 mi)";
+
+                // UI Stats - Risk Levels Labels
+                const lblHigh = document.getElementById('label-high');
+                const lblElevated = document.getElementById('label-elevated');
+                const lblBaseline = document.getElementById('label-baseline');
+                if (lblHigh) lblHigh.textContent = "High Risk: -";
+                if (lblElevated) lblElevated.textContent = "Elevated Risk: -";
+                if (lblBaseline) lblBaseline.textContent = "Baseline: -";
+
+                // UI Stats - Table Values
+                const idsToZero = [
+                    'val-t1-county', 'val-t1-other',
+                    'val-t2-county', 'val-t2-other',
+                    'val-t3-county', 'val-t3-other',
+                    'victims-t1-county', 'victims-t1-other',
+                    'victims-t2-county', 'victims-t2-other',
+                    'victims-t3-county', 'victims-t3-other',
+                    'calc-result', 'calc-gamblers',
+                    'disp-pop-impact-zones', 'disp-pop-adults',
+                    'disp-pop-regional-50', 'disp-victims-regional-50',
+                    'disp-victims-regional-other', 'disp-regional-counties'
+                ];
+                idsToZero.forEach(id =>
+                {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = "0";
+                });
+
+                // UI Stats - Rates & Totals
+                if (els.rateT1) els.rateT1.textContent = "0%";
+                if (els.rateT2) els.rateT2.textContent = "0%";
+                if (els.rateT3) els.rateT3.textContent = "0%";
+                if (els.vicT1) els.vicT1.textContent = "0";
+                if (els.vicT2) els.vicT2.textContent = "0";
+                if (els.vicT3) els.vicT3.textContent = "0";
+                if (els.totalVictims) els.totalVictims.textContent = "0";
+
+                const dispRateAdult = document.getElementById('disp-rate-adult');
+                if (dispRateAdult) dispRateAdult.textContent = "0%";
+                const dispRateTotal = document.getElementById('disp-rate-total');
+                if (dispRateTotal) dispRateTotal.textContent = "0%";
+                const dispRegionalCounties20 = document.getElementById('disp-regional-counties-20');
+                if (dispRegionalCounties20) dispRegionalCounties20.textContent = "≤20 mi: 0";
+            }
+
             // 2. Initialize Map
             const map = L.map(elementId, {
                 scrollWheelZoom: false, attributionControl: false, zoomControl: false
@@ -321,13 +393,7 @@ window.ImpactMap = (function ()
                     if (els.countySelect) els.countySelect.innerHTML = '<option value="">Select a state first</option>';
                     if (els.displayCounty) els.displayCounty.textContent = "Select a county";
                     
-                    if (highlightLayer) { map.removeLayer(highlightLayer); highlightLayer = null; }
-                    if (blockGroupLayer) { map.removeLayer(blockGroupLayer); blockGroupLayer = null; }
-                    if (tractLayer) { map.removeLayer(tractLayer); tractLayer = null; }
-                    if (marker) { map.removeLayer(marker); marker = null; }
-                    if (circle10) { map.removeLayer(circle10); circle10 = null; }
-                    if (circle20) { map.removeLayer(circle20); circle20 = null; }
-                    if (circle50) { map.removeLayer(circle50); circle50 = null; }
+                    resetImpactStats();
                     if (countyLayer) { map.removeLayer(countyLayer); countyLayer = null; }
                     if (selectedStateLayer) { map.removeLayer(selectedStateLayer); selectedStateLayer = null; }
                     
@@ -561,15 +627,7 @@ window.ImpactMap = (function ()
                     }
                     const displayEl = document.getElementById('county-display');
                     if (displayEl) displayEl.textContent = "Select a county";
-                    if (highlightLayer) { map.removeLayer(highlightLayer); highlightLayer = null; }
-                    if (blockGroupLayer) { map.removeLayer(blockGroupLayer); blockGroupLayer = null; }
-                    if (tractLayer) { map.removeLayer(tractLayer); tractLayer = null; }
-                    if (marker) { map.removeLayer(marker); marker = null; }
-                    if (circle10) { map.removeLayer(circle10); circle10 = null; }
-                    if (circle20) { map.removeLayer(circle20); circle20 = null; }
-                    currentContextGeoJSON = null;
-                    currentCalcFeatures = null;
-                    currentCountyTotals = null;
+                    resetImpactStats();
                     if (stateData)
                     {
                         const stateFeature = stateData.features.find(f => f.properties.GEOID === normalizedFips);
