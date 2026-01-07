@@ -1427,12 +1427,11 @@ window.EconomicCalculator = (function ()
 
 		            const tooltip = row.tooltip
 		                ? `
-		                    <div class="group relative flex items-center">
-		                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors">info</span>
-		                        <div class="absolute bottom-full left-0 mb-2 w-64 p-3 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-xl border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 font-normal whitespace-normal">
-		                            ${escapeHtml(row.tooltip)}
-		                            <div class="absolute top-full left-2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-800"></div>
-		                        </div>
+		                    <div class="flex items-center">
+		                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors" 
+                                      onmouseenter="window.EconomicCalculator && window.EconomicCalculator.showTooltip(event, '${escapeHtml(row.tooltip).replace(/'/g, "\\'")}')" 
+                                      onmouseleave="window.EconomicCalculator && window.EconomicCalculator.hideTooltip()"
+                                      onmousemove="window.EconomicCalculator && window.EconomicCalculator.moveTooltip(event)">info</span>
 		                    </div>
 		                `
 		                : '';
@@ -1670,12 +1669,64 @@ window.EconomicCalculator = (function ()
         calculate();
     }
 
+    let globalTooltip = null;
+    function ensureGlobalTooltip()
+    {
+        if (globalTooltip) return;
+        globalTooltip = document.createElement('div');
+        globalTooltip.id = 'economic-calculator-global-tooltip';
+        globalTooltip.className = 'fixed hidden pointer-events-none z-[10000] w-64 p-3 bg-slate-900 text-white text-xs rounded-lg shadow-2xl border border-slate-700 font-normal whitespace-normal transition-opacity duration-200 opacity-0';
+        document.body.appendChild(globalTooltip);
+    }
+
+    function showTooltip(e, text)
+    {
+        ensureGlobalTooltip();
+        globalTooltip.textContent = text;
+        globalTooltip.classList.remove('hidden');
+        // Force reflow
+        void globalTooltip.offsetWidth;
+        globalTooltip.classList.add('opacity-100');
+        moveTooltip(e);
+    }
+
+    function hideTooltip()
+    {
+        if (!globalTooltip) return;
+        globalTooltip.classList.remove('opacity-100');
+        globalTooltip.classList.add('opacity-0');
+        setTimeout(() => { if (globalTooltip.classList.contains('opacity-0')) globalTooltip.classList.add('hidden'); }, 200);
+    }
+
+    function moveTooltip(e)
+    {
+        if (!globalTooltip) return;
+        const x = e.clientX;
+        const y = e.clientY;
+        const width = globalTooltip.offsetWidth;
+        const height = globalTooltip.offsetHeight;
+        const padding = 15;
+
+        let left = x + padding;
+        let top = y - height - padding;
+
+        // Boundary check
+        if (left + width > window.innerWidth) left = x - width - padding;
+        if (top < 0) top = y + padding;
+
+        globalTooltip.style.left = `${left}px`;
+        globalTooltip.style.top = `${top}px`;
+    }
+
     return {
         init: init,
         calculate: calculate,
         selectCounty: selectCounty,
         updateCounties: updateCounties,
-        toggleOtherCounties: toggleOtherCounties
+        toggleOtherCounties: toggleOtherCounties,
+        showTooltip: showTooltip,
+        hideTooltip: hideTooltip,
+        moveTooltip: moveTooltip
     };
 })();
 
