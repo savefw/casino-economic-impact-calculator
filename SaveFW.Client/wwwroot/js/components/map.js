@@ -271,6 +271,92 @@ window.ImpactMap = (function ()
 
             let stateMenuOpen = false;
 
+            function updateMapNavUI(step)
+            {
+                const colors = {
+                    1: { bar: 'bg-blue-500', shadow: 'shadow-[0_0_10px_rgba(59,130,246,0.5)]', text: 'text-blue-400' },
+                    2: { bar: 'bg-emerald-500', shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.5)]', text: 'text-emerald-400' },
+                    3: { bar: 'bg-purple-500', shadow: 'shadow-[0_0_10px_rgba(168,85,247,0.5)]', text: 'text-purple-400' }
+                };
+
+                for (let i = 1; i <= 3; i++)
+                {
+                    const bar = document.getElementById(`map-nav-bar-${i}`);
+                    const label = document.getElementById(`map-nav-label-${i}`);
+                    if (!bar || !label) continue;
+
+                    const config = colors[i];
+
+                    // Reset classes
+                    bar.classList.remove('bg-slate-700', 'bg-blue-500', 'bg-emerald-500', 'bg-purple-500',
+                        'shadow-[0_0_10px_rgba(59,130,246,0.5)]',
+                        'shadow-[0_0_10px_rgba(16,185,129,0.5)]',
+                        'shadow-[0_0_10px_rgba(168,85,247,0.5)]');
+                    label.classList.remove('text-slate-600', 'text-blue-400', 'text-emerald-400', 'text-purple-400');
+
+                    if (i <= step)
+                    {
+                        bar.classList.add(config.bar, config.shadow);
+                        label.classList.add(config.text);
+                    } else
+                    {
+                        bar.classList.add('bg-slate-700');
+                        label.classList.add('text-slate-600');
+                    }
+                }
+            }
+
+            function navigateToStep(step)
+            {
+                if (step === 1)
+                {
+                    // Back to Nationwide
+                    currentStateFips = null;
+                    currentCountyFips = null;
+                    if (els.stateSelect) els.stateSelect.value = "";
+                    if (els.stateDisplay) els.stateDisplay.textContent = "Select a state";
+                    if (els.countySelect) els.countySelect.innerHTML = '<option value="">Select a state first</option>';
+                    if (els.displayCounty) els.displayCounty.textContent = "Select a county";
+                    
+                    if (highlightLayer) { map.removeLayer(highlightLayer); highlightLayer = null; }
+                    if (blockGroupLayer) { map.removeLayer(blockGroupLayer); blockGroupLayer = null; }
+                    if (tractLayer) { map.removeLayer(tractLayer); tractLayer = null; }
+                    if (marker) { map.removeLayer(marker); marker = null; }
+                    if (circle10) { map.removeLayer(circle10); circle10 = null; }
+                    if (circle20) { map.removeLayer(circle20); circle20 = null; }
+                    if (circle50) { map.removeLayer(circle50); circle50 = null; }
+                    if (countyLayer) { map.removeLayer(countyLayer); countyLayer = null; }
+                    if (selectedStateLayer) { map.removeLayer(selectedStateLayer); selectedStateLayer = null; }
+                    
+                    if (stateData)
+                    {
+                        if (stateLayer && map.hasLayer(stateLayer)) map.removeLayer(stateLayer);
+                        stateLayer = L.geoJSON(stateData, {
+                            style: { color: '#94a3b8', weight: 1, fillColor: '#94a3b8', fillOpacity: 0.05 },
+                            interactive: true,
+                            onEachFeature: (feature, layer) => {
+                                // Re-bind events since we re-created the layer
+                                layer.on({
+                                    mouseover: (e) => { e.target.setStyle({ weight: 2, color: '#60a5fa', fillOpacity: 0.3 }); },
+                                    mouseout: (e) => { stateLayer.resetStyle(e.target); },
+                                    click: (e) => { 
+                                        const fips = String(feature.properties.GEOID || feature.properties.geoid || "").padStart(2, '0');
+                                        if (fips) loadStateCounties(fips);
+                                    }
+                                });
+                            }
+                        }).addTo(map);
+                        map.setView([39.5, -98.35], 4);
+                    }
+                    updateMapNavUI(1);
+                }
+                else if (step === 2)
+                {
+                    // Back to State View
+                    if (currentStateFips) loadStateCounties(currentStateFips);
+                }
+            }
+
             function toggleStateMenu(show)
             {
                 if (!els.stateMenu) return;
@@ -516,6 +602,7 @@ window.ImpactMap = (function ()
                     {
                         window.EconomicCalculator.updateCounties();
                     }
+                    updateMapNavUI(2);
                 } catch (e)
                 {
                     console.error("County Load Error", e);
@@ -639,6 +726,7 @@ window.ImpactMap = (function ()
                     {
                         await ensureContextLayers();
                     }
+                    updateMapNavUI(3);
                 }
                 finally
                 {
@@ -1491,6 +1579,13 @@ window.ImpactMap = (function ()
                 repGeocContainer.appendChild(repGeocNode);
             }
 
+            window._ImpactMapInstance = {
+                navigateToStep: navigateToStep,
+                updateMapNavUI: updateMapNavUI
+            };
+        },
+        navigateToStep: (step) => {
+            if (window._ImpactMapInstance) window._ImpactMapInstance.navigateToStep(step);
         }
     };
 })();
