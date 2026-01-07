@@ -272,6 +272,9 @@ window.ImpactMap = (function ()
                 if (dispRateTotal) dispRateTotal.textContent = "0%";
                 const dispRegionalCounties20 = document.getElementById('disp-regional-counties-20');
                 if (dispRegionalCounties20) dispRegionalCounties20.textContent = "≤20 mi: 0";
+
+                // Dispatch Reset Event for other components (e.g. Calculator) to react
+                window.dispatchEvent(new Event('map-state-reset'));
             }
 
             // 2. Initialize Map

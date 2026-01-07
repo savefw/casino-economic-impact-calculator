@@ -400,6 +400,36 @@ window.EconomicCalculator = (function ()
 
     function calculate(e)
     {
+        // 0. Check if location is selected
+        const hasLocation = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
+        
+        // Toggle Visibility for Net Impact Table
+        const netImpactEmpty = document.getElementById('net-impact-empty-state');
+        const netImpactContent = document.getElementById('net-impact-content');
+        if (netImpactEmpty && netImpactContent)
+        {
+            if (hasLocation) { netImpactEmpty.classList.add('hidden'); netImpactContent.classList.remove('hidden'); }
+            else { netImpactEmpty.classList.remove('hidden'); netImpactContent.classList.add('hidden'); }
+        }
+
+        // Toggle Visibility for Automated Analysis
+        const analysisEmpty = document.getElementById('analysis-empty-state');
+        const analysisContent = document.getElementById('analysis-content');
+        if (analysisEmpty && analysisContent)
+        {
+            if (hasLocation) { analysisEmpty.classList.add('hidden'); analysisContent.classList.remove('hidden'); }
+            else { analysisEmpty.classList.remove('hidden'); analysisContent.classList.add('hidden'); }
+        }
+
+        // Toggle Visibility for Detailed Social Cost Breakdown
+        const breakdownEmpty = document.getElementById('detailed-breakdown-empty-state');
+        const breakdownContent = document.getElementById('detailed-breakdown-content');
+        if (breakdownEmpty && breakdownContent)
+        {
+            if (hasLocation) { breakdownEmpty.classList.add('hidden'); breakdownContent.classList.remove('hidden'); }
+            else { breakdownEmpty.classList.remove('hidden'); breakdownContent.classList.add('hidden'); }
+        }
+
         // Update Title
         const selectedOption = els.inCounty.options[els.inCounty.selectedIndex];
         const countyName = selectedOption.text.split(' (')[0];
@@ -1616,9 +1646,17 @@ window.EconomicCalculator = (function ()
             selectCounty(e.detail.name, e.detail.geoid, e.detail.pop);
         });
 
+        // Watch for Map Reset (e.g., navigating back to State/Nationwide)
+        window.addEventListener('map-state-reset', () =>
+        {
+            lastImpactBreakdown = null;
+            calculate();
+        });
+
         window.addEventListener('impact-breakdown-updated', (e) =>
         {
             lastImpactBreakdown = (e && e.detail) ? e.detail : null;
+            calculate();
         });
     }
 
@@ -1767,7 +1805,7 @@ window.goToSimStep = function (step)
 
 window.nextSimStep = function ()
 {
-    if (window.currentSimStep < 3)
+    if (window.currentSimStep < 4)
     {
         window.currentSimStep++;
         window.updateSimStep();
@@ -1786,7 +1824,7 @@ window.prevSimStep = function ()
 window.updateSimStep = function ()
 {
     // Content Visibility
-    for (let i = 1; i <= 3; i++)
+    for (let i = 1; i <= 4; i++)
     {
         const el = document.getElementById(`sim-step-${i}`);
         if (el)
@@ -1808,7 +1846,7 @@ window.updateSimStep = function ()
         if (btnCancel) btnCancel.classList.remove('hidden');
         if (btnNext) btnNext.classList.remove('hidden');
         if (btnRun) btnRun.classList.add('hidden');
-    } else if (window.currentSimStep === 2)
+    } else if (window.currentSimStep === 2 || window.currentSimStep === 3)
     {
         if (btnBack) btnBack.classList.remove('hidden');
         if (btnCancel) btnCancel.classList.add('hidden');
@@ -1826,10 +1864,11 @@ window.updateSimStep = function ()
     const colors = {
         1: { bar: 'bg-emerald-500', shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.5)]', text: 'text-emerald-400' },
         2: { bar: 'bg-purple-500', shadow: 'shadow-[0_0_10px_rgba(168,85,247,0.5)]', text: 'text-purple-400' },
-        3: { bar: 'bg-red-500', shadow: 'shadow-[0_0_10px_rgba(239,68,68,0.5)]', text: 'text-red-400' }
+        3: { bar: 'bg-orange-500', shadow: 'shadow-[0_0_10px_rgba(249,115,22,0.5)]', text: 'text-orange-400' },
+        4: { bar: 'bg-red-500', shadow: 'shadow-[0_0_10px_rgba(239,68,68,0.5)]', text: 'text-red-400' }
     };
 
-    for (let i = 1; i <= 3; i++)
+    for (let i = 1; i <= 4; i++)
     {
         const bar = document.getElementById(`sim-bar-${i}`);
         const label = document.getElementById(`sim-label-${i}`);
@@ -1838,11 +1877,12 @@ window.updateSimStep = function ()
         const config = colors[i];
 
         // Reset classes
-        bar.classList.remove('bg-slate-700', 'bg-blue-500', 'bg-purple-500', 'bg-red-500',
+        bar.classList.remove('bg-slate-700', 'bg-blue-500', 'bg-purple-500', 'bg-orange-500', 'bg-red-500',
             'shadow-[0_0_10px_rgba(59,130,246,0.5)]',
             'shadow-[0_0_10px_rgba(168,85,247,0.5)]',
+            'shadow-[0_0_10px_rgba(249,115,22,0.5)]',
             'shadow-[0_0_10px_rgba(239,68,68,0.5)]');
-        label.classList.remove('text-slate-600', 'text-blue-400', 'text-purple-400', 'text-red-400');
+        label.classList.remove('text-slate-600', 'text-blue-400', 'text-purple-400', 'text-orange-400', 'text-red-400');
 
         if (i <= window.currentSimStep)
         {
