@@ -416,9 +416,9 @@ window.EconomicCalculator = (function ()
             else { analysisEmpty.classList.remove('hidden'); analysisContent.classList.add('hidden'); }
         }
 
-        // Toggle Visibility for Revenue + Social Cost Calculations
-        const breakdownEmpty = document.getElementById('calc-breakdown-empty-state');
-        const breakdownContent = document.getElementById('calc-breakdown-content');
+        // Toggle Visibility for Detailed Social Cost Breakdown
+        const breakdownEmpty = document.getElementById('detailed-breakdown-empty-state');
+        const breakdownContent = document.getElementById('detailed-breakdown-content');
         if (breakdownEmpty && breakdownContent)
         {
             if (hasLocation) { breakdownEmpty.classList.add('hidden'); breakdownContent.classList.remove('hidden'); }
@@ -819,46 +819,38 @@ window.EconomicCalculator = (function ()
         const agrTotal = agrM * 1000000;
         const effectiveTaxRate = agrTotal > 0 ? (totalRevenue / agrTotal) * 100 : 0;
 
-        renderCalcBreakdownTable({
-            subjectCountyName,
-            subjectStateName,
-            subject: {
-                adults: adultPop,
-                victims,
-                rate: gamblerGrowthRate,
-                agr: agrTotal,
-                totalRevenue,
-                effectiveTaxRate,
-                allocPct,
-                revHealthPool,
-                revGeneralPool
-            },
-            costs: {
-                health: totalCostHealth,
-                social: totalCostSocial,
-                crime: totalCostCrime,
-                legal: totalCostLegal,
-                abused: totalCostAbused,
-                employment: totalCostEmployment,
-                total: totalCost,
-                perVictim: {
-                    health: costHealthPer,
-                    social: costSocialPer,
-                    crime: costCrimePer,
-                    legal: costLegalPer,
-                    abused: costAbusedPer,
-                    employment: costEmploymentPer,
-                    total: costPer
-                }
-            },
-            other: {
-                adults: otherAdults,
-                victims: otherVictims,
-                rate: otherRate,
-                totals: otherTotals
-            },
-            otherCounties: otherCosts ? otherCosts.counties : []
-        });
+        const fmtVictims = Math.round(victims).toLocaleString();
+        setTxt('calc-pop', Math.round(currentPop).toLocaleString());
+        setTxt('calc-rate', gamblerGrowthRate.toFixed(2) + '%');
+        setTxt('calc-result', fmtVictims);
+
+        setTxt('calc-break-health-victims', fmtVictims);
+        setTxt('calc-break-health-per', fmt(costHealthPer));
+        setTxt('calc-break-health-total', fmtM(totalCostHealth));
+
+        setTxt('calc-break-social-victims', fmtVictims);
+        setTxt('calc-break-social-per', fmt(costSocialPer));
+        setTxt('calc-break-social-total', fmtM(totalCostSocial));
+
+        setTxt('calc-break-crime-victims', fmtVictims);
+        setTxt('calc-break-crime-per', fmt(costCrimePer));
+        setTxt('calc-break-crime-total', fmtM(totalCostCrime));
+
+        setTxt('calc-break-legal-victims', fmtVictims);
+        setTxt('calc-break-legal-per', fmt(costLegalPer));
+        setTxt('calc-break-legal-total', fmtM(totalCostLegal));
+
+        setTxt('calc-break-abused-victims', fmtVictims);
+        setTxt('calc-break-abused-per', fmt(costAbusedPer));
+        setTxt('calc-break-abused-total', fmtM(totalCostAbused));
+
+        setTxt('calc-break-employment-victims', fmtVictims);
+        setTxt('calc-break-employment-per', fmt(costEmploymentPer));
+        setTxt('calc-break-employment-total', fmtM(totalCostEmployment));
+
+        setTxt('calc-break-total-victims', fmtVictims);
+        setTxt('calc-total-cost-per', fmt(costPer));
+        setTxt('calc-total-cost-combined', fmtM(totalCost));
 
         const netImpactRows = [
             {
@@ -1017,6 +1009,42 @@ window.EconomicCalculator = (function ()
                 if (els.calcAllocPctG) els.calcAllocPctG.textContent = (100 - allocPct) + '%';
                 if (els.calcAllocGenVal) els.calcAllocGenVal.textContent = fmtM(revGeneralPool);
             }
+
+        const otherVictimsRaw = otherCosts && Array.isArray(otherCosts.counties)
+            ? otherCosts.counties.reduce((sum, c) => sum + (Number(c && c.victimsWithin50) || 0), 0)
+            : 0;
+        const otherVictimsDisplay = hasImpact ? Math.round(otherVictimsRaw).toLocaleString() : '-';
+
+        const otherPerDisplay = (v) => hasImpact ? fmt(v) : '-';
+        const otherCostDisplay = (v) => hasImpact ? fmtM(v) : '-';
+
+        setTxt('calc-break-health-victims-other', otherVictimsDisplay);
+        setTxt('calc-break-health-per-other', otherPerDisplay(costHealthPer));
+        setTxt('calc-break-health-total-other', otherCostDisplay(otherTotals.health));
+
+        setTxt('calc-break-social-victims-other', otherVictimsDisplay);
+        setTxt('calc-break-social-per-other', otherPerDisplay(costSocialPer));
+        setTxt('calc-break-social-total-other', otherCostDisplay(otherTotals.social));
+
+        setTxt('calc-break-crime-victims-other', otherVictimsDisplay);
+        setTxt('calc-break-crime-per-other', otherPerDisplay(costCrimePer));
+        setTxt('calc-break-crime-total-other', otherCostDisplay(otherTotals.crime));
+
+        setTxt('calc-break-legal-victims-other', otherVictimsDisplay);
+        setTxt('calc-break-legal-per-other', otherPerDisplay(costLegalPer));
+        setTxt('calc-break-legal-total-other', otherCostDisplay(otherTotals.legal));
+
+        setTxt('calc-break-abused-victims-other', otherVictimsDisplay);
+        setTxt('calc-break-abused-per-other', otherPerDisplay(costAbusedPer));
+        setTxt('calc-break-abused-total-other', otherCostDisplay(otherTotals.abused));
+
+        setTxt('calc-break-employment-victims-other', otherVictimsDisplay);
+        setTxt('calc-break-employment-per-other', otherPerDisplay(costEmploymentPer));
+        setTxt('calc-break-employment-total-other', otherCostDisplay(otherTotals.employment));
+
+        setTxt('calc-break-total-victims-other', otherVictimsDisplay);
+        setTxt('calc-total-cost-per-other', otherPerDisplay(costPer));
+        setTxt('calc-total-cost-combined-other', otherCostDisplay(otherTotals.total));
 
         // Bar
         let percentCovered = 0;
@@ -1340,265 +1368,6 @@ window.EconomicCalculator = (function ()
         }
     }
 
-    function renderCalcBreakdownTable(model)
-    {
-        const container = document.getElementById('calc-breakdown-table');
-        if (!container) return;
-
-        const noteEl = document.getElementById('calc-breakdown-note');
-
-        if (!model || !model.subject)
-        {
-            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see revenue and social cost calculations.</div>`;
-            if (noteEl) noteEl.textContent = '';
-            return;
-        }
-
-        const subjectCountyName = String(model.subjectCountyName || '').trim();
-        const subjectStateName = String(model.subjectStateName || '').trim();
-        const subjectHeaderText = subjectCountyName
-            ? (/\bcounty\b/i.test(subjectCountyName) ? subjectCountyName : `${subjectCountyName} County`)
-            : 'Subject County';
-
-        const otherCounties = Array.isArray(model.otherCounties) ? model.otherCounties : [];
-        const otherHeaderText = `${subjectStateName ? `Other ${subjectStateName} Counties` : 'Other Counties'}${otherCounties.length ? ` (${otherCounties.length})` : ''}`;
-
-        const fmtCount = (v) => Math.round(Number(v || 0)).toLocaleString();
-        const fmtPct = (v) => `${Number(v || 0).toFixed(2)}%`;
-        const fmtMoney = (v) => '$' + Math.round(Number(v || 0)).toLocaleString();
-        const fmtMM = (v) => fmtM(Number(v || 0));
-        const fmtCalc = (left, mid, right, leftFmt, midFmt, rightFmt) =>
-        {
-            if (!Number.isFinite(left) || !Number.isFinite(mid) || !Number.isFinite(right)) return '-';
-            return `${leftFmt(left)} × ${midFmt(mid)} = ${rightFmt(right)}`;
-        };
-
-        const subject = model.subject;
-        const costs = model.costs || {};
-        const other = model.other || { totals: {} };
-
-        const sectionRows = [
-            { kind: 'section', label: 'Revenue + Fund Allocation + Problem Gambling Inputs' },
-            {
-                kind: 'detail',
-                label: 'Projected Casino AGR',
-                subject: fmtMM(subject.agr),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Effective Tax Rate of AGR',
-                subject: fmtPct(subject.effectiveTaxRate),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Total Tax Revenue',
-                subject: fmtCalc(subject.agr, subject.effectiveTaxRate, subject.totalRevenue, fmtMM, fmtPct, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: `Humanitarian Fund Allocation (${subject.allocPct}%)`,
-                subject: fmtCalc(subject.totalRevenue, subject.allocPct, subject.revHealthPool, fmtMM, fmtPct, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: `General Fund Allocation (${100 - subject.allocPct}%)`,
-                subject: fmtCalc(subject.totalRevenue, 100 - subject.allocPct, subject.revGeneralPool, fmtMM, fmtPct, fmtMM),
-                other: '-'
-            },
-            { kind: 'subsection', label: 'Problem Gambler Calculation' },
-            {
-                kind: 'detail',
-                label: 'Adults (18+)',
-                subject: fmtCount(subject.adults),
-                other: fmtCount(other.adults)
-            },
-            {
-                kind: 'detail',
-                label: 'Effective Rate',
-                subject: fmtPct(subject.rate),
-                other: fmtPct(other.rate)
-            },
-            {
-                kind: 'detail',
-                label: 'New Problem Gamblers',
-                subject: fmtCount(subject.victims),
-                other: fmtCount(other.victims)
-            },
-            { kind: 'section', label: 'Detailed Cost Breakdown — Subject County' },
-            {
-                kind: 'detail',
-                label: 'Public Health (Humanitarian Fund)',
-                subject: fmtCalc(subject.victims, costs.perVictim?.health, costs.health, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Social Services (Welfare, Unemployment)',
-                subject: fmtCalc(subject.victims, costs.perVictim?.social, costs.social, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Law Enforcement (Police, Courts, Jail)',
-                subject: fmtCalc(subject.victims, costs.perVictim?.crime, costs.crime, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Civil Legal (Courts, Bankruptcy)',
-                subject: fmtCalc(subject.victims, costs.perVictim?.legal, costs.legal, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Abused Dollars (Household Loss)',
-                subject: fmtCalc(subject.victims, costs.perVictim?.abused, costs.abused, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Lost Employment (Productivity)',
-                subject: fmtCalc(subject.victims, costs.perVictim?.employment, costs.employment, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            {
-                kind: 'detail',
-                label: 'Total Social Cost',
-                subject: fmtCalc(subject.victims, costs.perVictim?.total, costs.total, fmtCount, fmtMoney, fmtMM),
-                other: '-'
-            },
-            { kind: 'section', label: 'Detailed Cost Breakdown — Other Counties (Same State, ≤50 mi)' },
-            {
-                kind: 'detail',
-                label: 'Public Health (Humanitarian Fund)',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.health, other.totals?.health, fmtCount, fmtMoney, fmtMM)
-            },
-            {
-                kind: 'detail',
-                label: 'Social Services (Welfare, Unemployment)',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.social, other.totals?.social, fmtCount, fmtMoney, fmtMM)
-            },
-            {
-                kind: 'detail',
-                label: 'Law Enforcement (Police, Courts, Jail)',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.crime, other.totals?.crime, fmtCount, fmtMoney, fmtMM)
-            },
-            {
-                kind: 'detail',
-                label: 'Civil Legal (Courts, Bankruptcy)',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.legal, other.totals?.legal, fmtCount, fmtMoney, fmtMM)
-            },
-            {
-                kind: 'detail',
-                label: 'Abused Dollars (Household Loss)',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.abused, other.totals?.abused, fmtCount, fmtMoney, fmtMM)
-            },
-            {
-                kind: 'detail',
-                label: 'Lost Employment (Productivity)',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.employment, other.totals?.employment, fmtCount, fmtMoney, fmtMM)
-            },
-            {
-                kind: 'detail',
-                label: 'Total Social Cost',
-                subject: '-',
-                other: fmtCalc(other.victims, costs.perVictim?.total, other.totals?.total, fmtCount, fmtMoney, fmtMM)
-            }
-        ];
-
-        if (otherCounties.length)
-        {
-            sectionRows.splice(10, 0, { kind: 'subsection', label: 'Other Counties (Each)' });
-            let insertAt = 11;
-            for (const county of otherCounties)
-            {
-                const adults = Number(county.adultsWithin50 || 0);
-                const victims = Number(county.victimsWithin50 || 0);
-                const rate = adults > 0 ? (victims / adults) * 100 : 0;
-                const formula = fmtCalc(adults, rate, victims, fmtCount, fmtPct, fmtCount);
-                sectionRows.splice(insertAt, 0, {
-                    kind: 'detail',
-                    label: county.name || county.fips || 'Other County',
-                    subject: '-',
-                    other: formula
-                });
-                insertAt += 1;
-            }
-        }
-
-        const thead = `
-            <thead>
-                <tr class="border-b border-slate-700 bg-slate-900/60 text-slate-200">
-                    <th class="px-3 py-2 text-left sticky left-0 bg-slate-950/90 backdrop-blur max-w-[160px]">GROUP</th>
-                    <th class="px-3 py-2 text-right max-w-[220px]">${escapeHtml(subjectHeaderText.toUpperCase())}</th>
-                    <th class="px-3 py-2 text-right max-w-[220px]">${escapeHtml(otherHeaderText.toUpperCase())}</th>
-                </tr>
-            </thead>
-        `;
-
-        const colSpan = 3;
-        let tbody = '<tbody>';
-
-        for (const row of sectionRows)
-        {
-            const rowBgClass = row.kind === 'section'
-                ? 'bg-slate-800/60 border-t-2 border-slate-600'
-                : row.kind === 'subsection'
-                    ? 'bg-slate-800/30 border-t border-slate-600'
-                    : 'border-t border-slate-800/60';
-
-            if (row.kind === 'section' || row.kind === 'subsection')
-            {
-                tbody += `
-                    <tr class="${rowBgClass}">
-                        <td class="px-3 py-2 text-slate-200 font-bold uppercase tracking-widest text-[11px]" colspan="${colSpan}">
-                            ${escapeHtml(row.label || '')}
-                        </td>
-                    </tr>
-                `;
-                continue;
-            }
-
-            const labelCell = `
-                <td class="px-3 py-2 whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur text-slate-200 font-semibold">
-                    ${escapeHtml(row.label || '')}
-                </td>
-            `;
-
-            tbody += `
-                <tr class="${rowBgClass}">
-                    ${labelCell}
-                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-slate-200">${escapeHtml(row.subject || '-')}</td>
-                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-slate-200">${escapeHtml(row.other || '-')}</td>
-                </tr>
-            `;
-        }
-
-        tbody += '</tbody>';
-
-        container.innerHTML = `
-            <table class="w-full text-xs">
-                ${thead}
-                ${tbody}
-            </table>
-        `;
-
-        if (noteEl)
-        {
-            noteEl.textContent = 'Other counties totals include same-state spillover within 50 miles. Per-county line items are listed under the problem gambler section.';
-        }
-    }
-	
 		    function renderNetEconomicImpactTable(model)
 		    {
 		        const container = document.getElementById('net-impact-table');
