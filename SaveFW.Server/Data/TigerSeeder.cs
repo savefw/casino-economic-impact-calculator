@@ -18,7 +18,7 @@ namespace SaveFW.Server.Data
             "24", "25", "26", "27", "28", "29", "30", "31", "32", "33",
             "34", "35", "36", "37", "38", "39", "40", "41", "42", "44",
             "45", "46", "47", "48", "49", "50", "51", "53", "54", "55",
-            "56", "72"
+            "56", "60", "66", "69", "72", "78"
         };
 
         public TigerSeeder(TigerIngestionService ingestionService, ILogger<TigerSeeder> logger, IConfiguration config)
@@ -61,20 +61,25 @@ namespace SaveFW.Server.Data
                 }
             }
 
-            // 3. Check if Block Groups exist (checking specifically if any data exists, simplistic for now)
-            if (!await HasData(conn, "census_block_groups"))
+            // 3. Check if Block Groups exist for each state
+            _logger.LogInformation("TigerSeeder: Checking block group data for all states/territories...");
+            foreach (var fips in BlockGroupStateFips)
             {
-                _logger.LogInformation("TigerSeeder: No block groups found. Seeding all state block groups...");
-                foreach (var fips in BlockGroupStateFips)
+                using var cmdState = conn.CreateCommand();
+                cmdState.CommandText = "SELECT 1 FROM census_block_groups WHERE substring(geoid, 1, 2) = @fips LIMIT 1;";
+                var p = cmdState.CreateParameter();
+                p.ParameterName = "fips";
+                p.Value = fips;
+                cmdState.Parameters.Add(p);
+
+                var stateHasData = await cmdState.ExecuteScalarAsync();
+                if (stateHasData == null)
                 {
-                    _logger.LogInformation($"TigerSeeder: Seeding block groups for state {fips}...");
+                    _logger.LogInformation($"TigerSeeder: No block groups found for state {fips}. Ingesting...");
                     await _ingestionService.IngestState(fips);
                 }
             }
-            else
-            {
-                _logger.LogInformation("TigerSeeder: Block Groups already seeded.");
-            }
+            _logger.LogInformation("TigerSeeder: Block Group seeding check complete.");
 
             // 4. Ensure simplified geometry columns exist and are populated (visualization only)
             await EnsureSimplifiedGeometriesAsync(conn);

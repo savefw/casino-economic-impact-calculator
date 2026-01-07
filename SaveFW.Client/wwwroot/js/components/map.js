@@ -403,7 +403,7 @@ window.ImpactMap = (function ()
                     div.className = "px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-blue-300 cursor-pointer transition-colors flex items-center justify-between group";
                     div.innerHTML = `
                         <span class="font-medium">${s.name}</span>
-                        <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${s.pop > 0 ? s.pop.toLocaleString() : '-'}</span>
+                        <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${s.pop > 0 ? s.pop.toLocaleString() : 'N/A'}</span>
                     `;
                     div.onclick = () =>
                     {
