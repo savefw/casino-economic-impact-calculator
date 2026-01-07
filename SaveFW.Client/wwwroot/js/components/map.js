@@ -42,8 +42,8 @@ window.ImpactMap = (function ()
                 const panel = document.getElementById('map-overlay-panel');
                 if (panel)
                 {
-                    if (panel.classList.contains('-translate-x-[120%]')) panel.classList.remove('-translate-x-[120%]');
-                    else panel.classList.add('-translate-x-[120%]');
+                    if (panel.classList.contains('translate-x-[120%]')) panel.classList.remove('translate-x-[120%]');
+                    else panel.classList.add('translate-x-[120%]');
                 }
             };
 
