@@ -462,8 +462,11 @@ window.ImpactMap = (function ()
 
                 const sorted = [...data].sort((a, b) =>
                 {
-                    if (stateSortMode === 'pop') return (b.pop || 0) - (a.pop || 0);
-                    return (a.name || '').localeCompare(b.name || '');
+                    if (stateSortMode === 'pop') {
+                         return stateSortDir === 'asc' ? (a.pop || 0) - (b.pop || 0) : (b.pop || 0) - (a.pop || 0);
+                    }
+                    // Alpha
+                    return stateSortDir === 'asc' ? (a.name || '').localeCompare(b.name || '') : (b.name || '').localeCompare(a.name || '');
                 });
 
                 sorted.forEach(s =>
@@ -486,6 +489,7 @@ window.ImpactMap = (function ()
             }
 
             let stateSortMode = 'alpha';
+            let stateSortDir = 'asc';
             let allStateOptions = [];
 
             async function initStateMap()
@@ -575,7 +579,12 @@ window.ImpactMap = (function ()
                         els.stateSortAlpha.onclick = (e) =>
                         {
                             e.preventDefault();
-                            stateSortMode = 'alpha';
+                            if (stateSortMode === 'alpha') {
+                                stateSortDir = stateSortDir === 'asc' ? 'desc' : 'asc';
+                            } else {
+                                stateSortMode = 'alpha';
+                                stateSortDir = 'asc';
+                            }
                             renderStateOptions(allStateOptions);
                         };
                     }
@@ -585,7 +594,12 @@ window.ImpactMap = (function ()
                         els.stateSortPop.onclick = (e) =>
                         {
                             e.preventDefault();
-                            stateSortMode = 'pop';
+                            if (stateSortMode === 'pop') {
+                                stateSortDir = stateSortDir === 'asc' ? 'desc' : 'asc';
+                            } else {
+                                stateSortMode = 'pop';
+                                stateSortDir = 'desc';
+                            }
                             renderStateOptions(allStateOptions);
                         };
                     }

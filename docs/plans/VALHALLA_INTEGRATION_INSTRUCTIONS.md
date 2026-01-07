@@ -273,7 +273,17 @@ Gemini instructions:
 }
 ```
 
-(Since `network_mode: "host"` is used, `localhost` on the container refers to the host machine interface where port 8002 is listening).
+- [x] Add to `SaveFW.Server/appsettings.Development.json` to avoid conflicts:
+
+```json
+{
+  "Valhalla": {
+    "BaseUrl": "http://localhost:8003"
+  }
+}
+```
+
+(Since `network_mode: "host"` is used, `localhost` on the container refers to the host machine interface where port 8002/8003 is listening).
 
 ### Isochrone request
 

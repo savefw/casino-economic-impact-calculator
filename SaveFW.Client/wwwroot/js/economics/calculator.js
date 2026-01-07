@@ -151,8 +151,10 @@ window.EconomicCalculator = (function ()
 
         const sorted = [...data].sort((a, b) =>
         {
-            if (sortMode === 'pop') return (b.pop || 0) - (a.pop || 0);
-            return (a.name || '').localeCompare(b.name || '');
+            if (sortMode === 'pop') {
+                return sortDir === 'asc' ? (a.pop || 0) - (b.pop || 0) : (b.pop || 0) - (a.pop || 0);
+            }
+            return sortDir === 'asc' ? (a.name || '').localeCompare(b.name || '') : (b.name || '').localeCompare(a.name || '');
         });
 
         sorted.forEach(c =>
@@ -197,6 +199,7 @@ window.EconomicCalculator = (function ()
     let sortPopBtn = null;
     let isOpen = false;
     let sortMode = 'alpha';
+    let sortDir = 'asc';
 
     function toggleMenu(show)
     {
@@ -260,7 +263,12 @@ window.EconomicCalculator = (function ()
             sortAlphaBtn.onclick = (e) =>
             {
                 e.preventDefault();
-                sortMode = 'alpha';
+                if (sortMode === 'alpha') {
+                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortMode = 'alpha';
+                    sortDir = 'asc';
+                }
                 renderCustomOptions(getCountyData());
             };
         }
@@ -269,7 +277,12 @@ window.EconomicCalculator = (function ()
             sortPopBtn.onclick = (e) =>
             {
                 e.preventDefault();
-                sortMode = 'pop';
+                if (sortMode === 'pop') {
+                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortMode = 'pop';
+                    sortDir = 'desc';
+                }
                 renderCustomOptions(getCountyData());
             };
         }
@@ -1598,7 +1611,7 @@ window.EconomicCalculator = (function ()
             const max = parseFloat(input.max);
             const range = max - min;
 
-            function addTick(val, typeClass, labelText = null)
+            function addTick(val, typeClass, labelText = null, labelExtraClass = '')
             {
                 const tick = document.createElement('div');
                 tick.className = `slider-tick ${typeClass}`;
@@ -1609,7 +1622,7 @@ window.EconomicCalculator = (function ()
                 if (labelText)
                 {
                     const label = document.createElement('div');
-                    label.className = 'tick-label';
+                    label.className = `tick-label ${labelExtraClass}`.trim();
                     label.textContent = labelText;
                     label.style.left = `${pct}%`;
                     container.insertBefore(label, input);
@@ -1622,7 +1635,13 @@ window.EconomicCalculator = (function ()
                 const startMajor = Math.ceil(min / cfg.stepMajor) * cfg.stepMajor;
                 for (let v = startMajor; v <= max; v += cfg.stepMajor)
                 {
-                    addTick(v, 'tick-major', cfg.format(v));
+                    let labelClass = '';
+                    // On mobile, skip every other label for AGR and Revenue sliders to prevent bunching
+                    if ((cfg.id === 'input-agr' || cfg.id === 'input-revenue') && (Math.round(v / cfg.stepMajor) % 2 !== 0))
+                    {
+                        labelClass = 'hidden sm:block';
+                    }
+                    addTick(v, 'tick-major', cfg.format(v), labelClass);
                 }
 
                 // Add minor ticks (no labels)

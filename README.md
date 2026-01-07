@@ -186,7 +186,8 @@ The application is now running! Access the services at:
 
 | Service | URL | Description |
 | :--- | :--- | :--- |
-| **Web Application** | **http://localhost** | Main user interface (Port 80) |
+| **Production Web Application** | **http://localhost:80** | Main user interface |
+| **Development Web Application** | **http://localhost:5000** | Main user interface |
 | **CloudBeaver** | **http://localhost:8978** | Database GUI Management |
 | **Valhalla API** | **http://localhost:8002** | Isochrone & Routing API |
 
@@ -198,9 +199,11 @@ If you wish to modify the C# code or run the application without Docker, you wil
 
 ```bash
 # Local Development Command
+# This will start the dev server on port 5000 to avoid conflicting with port 80 (Docker).
+# Ensure Valhalla is available (standard port 8002 for Docker, or 8003 for Dev).
 export PATH=$PATH:/root/.dotnet
 cd SaveFW
-dotnet run --project SaveFW.Server/SaveFW.Server.csproj --urls "http://0.0.0.0:8080"
+./dev/start_server.sh
 ```
 
 ---
