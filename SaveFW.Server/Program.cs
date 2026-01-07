@@ -40,10 +40,21 @@ builder.Services.AddScoped<TigerSeeder>();
 // Register Census Ingestion Service
 builder.Services.AddHttpClient<SaveFW.Server.Services.CensusIngestionService>();
 
+// Register Isochrone Seeding Service
+builder.Services.AddScoped<SaveFW.Server.Services.IsochroneSeedingService>();
+
 // Register Workers
 // builder.Services.AddHostedService<SaveFW.Server.Workers.ScoringWorker>();
 
 var app = builder.Build();
+
+if (args.Contains("--run-allen-isochrones"))
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<SaveFW.Server.Services.IsochroneSeedingService>();
+    await seeder.RunAllenCountyAsync(CancellationToken.None);
+    return;
+}
 
 // Auto-migrate database
 using (var scope = app.Services.CreateScope())

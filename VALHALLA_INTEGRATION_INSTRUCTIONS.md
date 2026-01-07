@@ -371,29 +371,31 @@ If you want “annual updates”:
 
 ---
 
-# 4.4) Allen County test plan (planning mode)
+# 4.4) Allen County test plan (current run)
 
 Recommended defaults for a first run:
 
 - Grid type: square
-- Grid size: 10,000 meters
-- Contours per request: `[60, 90]` in one Valhalla call
-- Cache: two rows per point (60 + 90)
+- Grid size: 8,000 meters
+- Contours per request: 5..120 in 5-minute increments, batched by 4 (Valhalla max contours = 4)
+- Cache: one row per contour per point
 
-Why 10,000 meters?
-- Much faster to cover counties end-to-end with a coarse grid.
-- Allen County is ~1,700 km^2, so expect ~15–25 points after boundary trimming.
+Why 8,000 meters?
+- Still coarse enough to cover counties quickly, but yields more points than 10 km.
+- Allen County is ~1,700 km^2, so expect ~40–60 points after boundary trimming (44 at 8,000m with current simplified geom).
 
 Exact point count (run in PostGIS):
 
 ```sql
 WITH county AS (
-  SELECT ST_Transform(geom, 26916) AS g
+  SELECT ST_Transform(COALESCE(geom_simplified, geom), 3857) AS g
   FROM tiger_counties
   WHERE name = 'Allen' AND state_fp = '18'
 ),
 grid AS (
-  SELECT (ST_SquareGrid(10000, (SELECT g FROM county))).geom AS cell
+  SELECT grid.geom AS cell
+  FROM county,
+       LATERAL ST_SquareGrid(8000, county.g) AS grid
 )
 SELECT COUNT(*) AS point_count
 FROM grid
@@ -403,12 +405,28 @@ WHERE ST_Intersects(cell, (SELECT g FROM county));
 If you use `counties` instead of `tiger_counties`, swap the table and column names.
 
 Runtime estimate (4 CPU threads, 10GB RAM, after tiles are built):
-- Valhalla isochrones: ~0.5–2.0s per point typical
-- Total for ~20 points with 4 threads: ~0.2–1.0 minutes
+- Valhalla isochrones: ~1–5s per point typical
+- Total for ~56 points with 4 threads: ~1–4 minutes
 - PostGIS overlay + writes: add ~1–5 minutes
-- End-to-end for Allen County: ~2–10 minutes
+- End-to-end for Allen County: ~3–9 minutes
 
 If tiles are not built yet, the initial Valhalla build can take much longer.
+
+Implementation notes (current code):
+- `SaveFW.Server` includes `IsochroneSeedingService` and a CLI runner:
+  - `dotnet run -- --run-allen-isochrones`
+- Config lives in `SaveFW/SaveFW.Server/appsettings.json` under `IsochroneSeeding`.
+- The run creates `isochrone_cache` and `isochrone_runs` if they do not exist.
+
+Run metadata table:
+- `isochrone_runs` logs each run (intervals, grid spacing, point count, request stats, area, hardware).
+- Example:
+```sql
+SELECT id, started_at, completed_at, grid_meters, point_count, request_count, inserted_isochrones
+FROM isochrone_runs
+ORDER BY id DESC
+LIMIT 1;
+```
 
 ---
 
