@@ -63,6 +63,24 @@
 
                     <div id="state-menu"
                         class="hidden absolute top-full left-0 w-full mt-2 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-xl shadow-2xl overflow-hidden transform origin-top transition-all duration-200 opacity-0 scale-95 z-[200]">
+                        <div class="p-3 border-b border-slate-700">
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+                                <input type="text" id="state-search" placeholder="Search states..."
+                                    class="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500">
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                <button id="state-sort-alpha"
+                                    class="flex-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800">
+                                    Sort A-Z
+                                </button>
+                                <button id="state-sort-pop"
+                                    class="flex-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800">
+                                    Sort Pop
+                                </button>
+                            </div>
+                        </div>
                         <div id="state-options"
                             class="max-h-60 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
                             <!-- Populated by JS -->
@@ -509,6 +527,20 @@
 	                            -
 	                        </div>
 	                    </div>
+	                </div>
+
+	                <!-- 3b. Regional (Non-County) Problem Gamblers -->
+	                <div class="flex flex-col sm:flex-row items-center justify-between py-1 border-t border-slate-800/50 mt-1 pt-2">
+	                    <div class="flex items-center gap-3 mb-2 sm:mb-0">
+	                        <div class="p-2 bg-red-500/10 rounded-full text-red-400/80">
+	                            <span class="material-symbols-outlined text-[20px]">person_add</span>
+	                        </div>
+	                        <div class="text-left">
+	                            <div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Regional New Problem Gamblers*</div>
+	                            <div class="text-sm text-slate-500">Within 50 miles (outside county)</div>
+	                        </div>
+	                    </div>
+	                    <div class="text-xl font-mono text-red-300/90 text-right" id="disp-victims-regional-other">-</div>
 	                </div>
 
 	                <div class="h-px bg-slate-700 my-3"></div>

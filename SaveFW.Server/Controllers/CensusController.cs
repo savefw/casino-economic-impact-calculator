@@ -80,6 +80,13 @@ namespace SaveFW.Server.Controllers
                 await conn.OpenAsync();
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = @"
+                    WITH state_pop AS (
+                        SELECT substring(geoid, 1, 2) AS state_fips,
+                               SUM(pop_total) AS pop_total,
+                               SUM(pop_18_plus) AS pop_adult
+                        FROM census_block_groups
+                        GROUP BY 1
+                    )
                     SELECT json_build_object(
                         'type', 'FeatureCollection',
                         'features', COALESCE(json_agg(
@@ -89,12 +96,15 @@ namespace SaveFW.Server.Controllers
                                 'properties', json_build_object(
                                     'geoid', geoid,
                                     'name', name,
-                                    'stusps', stusps
+                                    'stusps', stusps,
+                                    'pop_total', COALESCE(sp.pop_total, 0),
+                                    'pop_adult', COALESCE(sp.pop_adult, 0)
                                 )
                             )
                         ), '[]'::json)
                     )::text
-                    FROM tiger_states;
+                    FROM tiger_states ts
+                    LEFT JOIN state_pop sp ON sp.state_fips = ts.geoid;
                 ";
 
                 var json = (string?)await cmd.ExecuteScalarAsync();

@@ -192,6 +192,9 @@ window.ImpactMap = (function ()
                 stateTrigger: document.getElementById('state-trigger'),
                 stateMenu: document.getElementById('state-menu'),
                 stateOptions: document.getElementById('state-options'),
+                stateSearch: document.getElementById('state-search'),
+                stateSortAlpha: document.getElementById('state-sort-alpha'),
+                stateSortPop: document.getElementById('state-sort-pop'),
                 stateDisplay: document.getElementById('state-display'),
                 countySelect: document.getElementById('input-county'),
                 displayCounty: document.getElementById('display-impact-county')
@@ -377,15 +380,31 @@ window.ImpactMap = (function ()
                 }
             }
 
-            function renderStateOptions(options)
+            function renderStateOptions(data)
             {
                 if (!els.stateOptions) return;
                 els.stateOptions.innerHTML = '';
-                options.forEach(s =>
+
+                if (data.length === 0)
+                {
+                    els.stateOptions.innerHTML = `<div class="p-4 text-center text-sm text-slate-400">No states found.</div>`;
+                    return;
+                }
+
+                const sorted = [...data].sort((a, b) =>
+                {
+                    if (stateSortMode === 'pop') return (b.pop || 0) - (a.pop || 0);
+                    return (a.name || '').localeCompare(b.name || '');
+                });
+
+                sorted.forEach(s =>
                 {
                     const div = document.createElement('div');
-                    div.className = "px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-blue-300 cursor-pointer transition-colors";
-                    div.textContent = s.name;
+                    div.className = "px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-blue-300 cursor-pointer transition-colors flex items-center justify-between group";
+                    div.innerHTML = `
+                        <span class="font-medium">${s.name}</span>
+                        <span class="text-xs text-white font-mono bg-[#0f172a] dark:bg-[#0f172a] px-2 py-0.5 rounded transition-colors">${s.pop ? s.pop.toLocaleString() : ''}</span>
+                    `;
                     div.onclick = () =>
                     {
                         if (els.stateSelect) els.stateSelect.value = s.geoid;
@@ -396,6 +415,9 @@ window.ImpactMap = (function ()
                     els.stateOptions.appendChild(div);
                 });
             }
+
+            let stateSortMode = 'alpha';
+            let allStateOptions = [];
 
             async function initStateMap()
             {
@@ -412,6 +434,7 @@ window.ImpactMap = (function ()
                             if (!f.properties.STUSPS) f.properties.STUSPS = f.properties.stusps || f.properties.STUSPS || "";
                             const rawGeoid = f.properties.geoid || f.properties.GEOID || "";
                             f.properties.GEOID = String(rawGeoid).padStart(2, '0');
+                            if (!f.properties.POP_TOTAL) f.properties.POP_TOTAL = f.properties.pop_total || 0;
                         });
                     }
                     stateData = apiData;
@@ -431,7 +454,7 @@ window.ImpactMap = (function ()
                                     e.target.setStyle({ weight: 2, color: '#60a5fa', fillOpacity: 0.3 });
                                     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) e.target.bringToFront();
                                 },
-                                mouseout: (e) => { stateLayer.resetStyle(e.target); },
+                                mouseout: (e) => { if (stateLayer) stateLayer.resetStyle(e.target); },
                                 click: (e) =>
                                 {
                                     const stateFips = String(feature.properties.GEOID || feature.properties.geoid || "").padStart(2, '0');
@@ -444,14 +467,18 @@ window.ImpactMap = (function ()
                         }
                     }).addTo(map);
 
+                    if (apiData && Array.isArray(apiData.features))
+                    {
+                        allStateOptions = apiData.features.map(f => ({
+                            geoid: f.properties.GEOID,
+                            name: f.properties.NAME || f.properties.GEOID,
+                            pop: f.properties.POP_TOTAL || 0
+                        }));
+                    }
+
                     if (els.stateSelect)
                     {
-                        const options = apiData.features
-                            .map(f => ({
-                                geoid: f.properties.GEOID,
-                                name: f.properties.NAME || f.properties.GEOID
-                            }))
-                            .sort((a, b) => a.name.localeCompare(b.name));
+                        const options = allStateOptions.sort((a, b) => a.name.localeCompare(b.name));
                         els.stateSelect.innerHTML = '<option value=\"\">Select a state</option>' +
                             options.map(s => `<option value=\"${s.geoid}\">${s.name}</option>`).join('');
 
@@ -461,7 +488,37 @@ window.ImpactMap = (function ()
                             if (val) loadStateCounties(val);
                         };
 
-                        renderStateOptions(options);
+                        renderStateOptions(allStateOptions);
+                    }
+
+                    if (els.stateSearch)
+                    {
+                        els.stateSearch.oninput = (e) =>
+                        {
+                            const term = e.target.value.toLowerCase();
+                            const filtered = allStateOptions.filter(s => s.name.toLowerCase().includes(term));
+                            renderStateOptions(filtered);
+                        };
+                    }
+
+                    if (els.stateSortAlpha)
+                    {
+                        els.stateSortAlpha.onclick = (e) =>
+                        {
+                            e.preventDefault();
+                            stateSortMode = 'alpha';
+                            renderStateOptions(allStateOptions);
+                        };
+                    }
+
+                    if (els.stateSortPop)
+                    {
+                        els.stateSortPop.onclick = (e) =>
+                        {
+                            e.preventDefault();
+                            stateSortMode = 'pop';
+                            renderStateOptions(allStateOptions);
+                        };
                     }
 
                     if (els.stateTrigger)
@@ -1209,6 +1266,7 @@ window.ImpactMap = (function ()
                 } catch (e) { console.error("Tract gen failed", e); return null; }
             }
 
+            /* Commented out geocoder as requested
             const geocoder = L.Control.geocoder({
                 defaultMarkGeocode: false, collapsed: false, placeholder: "Search for an address...", suggestMinLength: 3, suggestTimeout: 300,
                 geocoder: L.Control.Geocoder.nominatim({ geocodingQueryParams: { countrycodes: 'us', viewbox: '-88.2,42.0,-84.6,37.5', bounded: 1, limit: 5 } })
@@ -1249,6 +1307,7 @@ window.ImpactMap = (function ()
                     });
                 }
             }
+            */
 
             function calculateImpact()
             {
@@ -1429,6 +1488,13 @@ window.ImpactMap = (function ()
                 if (dispRegionalAdults50) dispRegionalAdults50.textContent = Math.round(regionalAdultsWithin50).toLocaleString();
                 const dispRegionalVictims50 = document.getElementById('disp-victims-regional-50');
                 if (dispRegionalVictims50) dispRegionalVictims50.textContent = Math.round(totalVictimsRegionalWithin50).toLocaleString();
+
+                const dispRegionalVictimsOther = document.getElementById('disp-victims-regional-other');
+                if (dispRegionalVictimsOther)
+                {
+                    const victimsOther = Math.max(0, totalVictimsRegionalWithin50 - totalVictimsCounty);
+                    dispRegionalVictimsOther.textContent = Math.round(victimsOther).toLocaleString();
+                }
 
 	                const impactedCounties = Object.values(byCounty)
 	                    .filter(c => c && (c.t1Pop + c.t2Pop + c.t3Pop) > 0)
