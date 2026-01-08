@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
@@ -22,7 +22,7 @@ FROM build AS publish
 RUN dotnet publish "SaveFW.Server.csproj" -c Release -o /app/publish
 
 # Final stage/image
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 # Install debugging tools
 RUN apt-get update && apt-get install -y curl procps vim && rm -rf /var/lib/apt/lists/*
