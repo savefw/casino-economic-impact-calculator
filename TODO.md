@@ -3,6 +3,9 @@
 ## 1. Automated Analysis Refactoring (Post-CALCULATION_UPDATES.md)
 The manual dashboard UI has been updated to distinguish between **Total Estimated** problem gamblers and **Net New (Attributable)** problem gamblers. The "automated analysis" (the dynamic prose generated in the dashboard) still needs to be updated to match this logic.
 
+### Rules
+Dynamically generated text in the analysis should not be bolded. Utilize the same slate color that is applied elsewhere. The only bold text for each bullet point is the beginning word(s) that precede the colon, as well as the colon being bolded.
+
 ### Context
 - **Files Involved:** `SaveFW/SaveFW.Client/wwwroot/js/economics/calculator.js` (specifically the `DYNAMIC ANALYSIS TEXT` section starting around line 1086).
 - **Goal:** Update the prose so it doesn't just say "new problem gamblers" when referring to the total prevalence in a zone.
