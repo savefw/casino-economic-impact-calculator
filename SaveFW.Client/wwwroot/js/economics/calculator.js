@@ -441,7 +441,8 @@ window.EconomicCalculator = (function ()
         // Update Title
         const selectedOption = els.inCounty.options[els.inCounty.selectedIndex];
         const countyName = selectedOption.text.split(' (')[0];
-        els.deficitTitle.innerHTML = `<span class="material-symbols-outlined text-red-500 align-middle mr-2">calculate</span> ${countyName} County Casino Net Economic Impact Analysis`;
+        const titleSuffix = hasLocation ? `${countyName} County ` : "";
+        els.deficitTitle.innerHTML = `<span class="material-symbols-outlined text-red-500 align-middle mr-2">calculate</span> ${titleSuffix}Casino Net Economic Impact Analysis`;
 
         // 1. Two-Way Binding Logic (AGR vs Revenue)
         const source = e ? e.target : null;

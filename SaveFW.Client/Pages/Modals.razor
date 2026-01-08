@@ -75,6 +75,7 @@
         if (firstRender)
         {
             await JSRuntime.InvokeVoidAsync("window.Modals.init");
+            await JSRuntime.InvokeVoidAsync("window.ImageModal.init");
         }
     }
 }

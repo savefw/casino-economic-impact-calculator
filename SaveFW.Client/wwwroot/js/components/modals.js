@@ -1,34 +1,5 @@
 window.Modals = (function ()
 {
-
-    /* --- IMAGE MODAL --- */
-    function initImageModal()
-    {
-        const imageModal = document.getElementById('image-modal');
-        const modalImage = document.getElementById('modal-image');
-        if (!imageModal || !modalImage) return;
-
-        window.openImageModal = function (src)
-        {
-            modalImage.src = src;
-            imageModal.classList.remove('opacity-0', 'pointer-events-none');
-            document.body.classList.add('overflow-hidden');
-            setTimeout(() =>
-            {
-                modalImage.classList.remove('scale-95');
-                modalImage.classList.add('scale-100');
-            }, 10);
-        };
-
-        window.closeImageModal = function ()
-        {
-            imageModal.classList.add('opacity-0', 'pointer-events-none');
-            modalImage.classList.remove('scale-100');
-            modalImage.classList.add('scale-95');
-            document.body.classList.remove('overflow-hidden');
-        };
-    }
-
     /* --- SOURCES & WORD DETAIL MODAL --- */
     function initSourcesModal()
     {
@@ -208,7 +179,6 @@ window.Modals = (function ()
     return {
         init: function ()
         {
-            initImageModal();
             initMethodologyModal();
             initSourcesModal();
             initFlipbook();

@@ -763,9 +763,9 @@ window.ImpactMap = (function ()
             const mapOverlayControls = L.control({ position: 'topright' });
             mapOverlayControls.onAdd = function (map)
             {
-                const container = L.DomUtil.create('div', 'flex flex-col items-end gap-2 mt-4 mr-2');
+                const container = L.DomUtil.create('div', 'flex flex-col items-end gap-2 mt-16 mr-2');
                 container.id = 'map-overlay-topright';
-                const btn = L.DomUtil.create('button', 'bg-white text-slate-700 hover:bg-slate-100 w-10 h-10 flex items-center justify-center rounded-lg shadow-xl cursor-pointer border border-slate-300 transition-colors mb-2', container);
+                const btn = L.DomUtil.create('button', 'bg-slate-950/40 text-white hover:bg-slate-900/60 w-10 h-10 flex items-center justify-center rounded-lg shadow-xl cursor-pointer border border-white/5 backdrop-blur-sm transition-colors mb-2', container);
                 btn.innerHTML = '<span class="material-symbols-outlined text-2xl leading-none">fullscreen</span>';
                 btn.title = "Toggle Fullscreen";
                 btn.id = "fs-toggle-btn";
@@ -779,9 +779,9 @@ window.ImpactMap = (function ()
                 };
                 const labelStack = L.DomUtil.create('div', 'flex flex-col gap-2', container);
                 labelStack.innerHTML = `
-                    <div class="bg-blue-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105" id="label-high">High Risk: -</div>
-                    <div class="bg-red-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105" id="label-elevated">Elevated Risk: -</div>
-                    <div class="bg-orange-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105" id="label-baseline">Baseline: -</div>
+                    <div class="bg-blue-600/40 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 cursor-pointer" id="label-high">High Risk: -</div>
+                    <div class="bg-red-600/40 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 cursor-pointer" id="label-elevated">Elevated Risk: -</div>
+                    <div class="bg-orange-600/40 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl border border-white/20 backdrop-blur-sm transition-all duration-300 transform hover:scale-105 cursor-pointer" id="label-baseline">Baseline: -</div>
                 `;
                 return container;
             };

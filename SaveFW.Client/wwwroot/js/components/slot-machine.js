@@ -47,7 +47,10 @@ window.SlotMachine = (function ()
         const ry = 100;
         const spacing = 35; // Pixel spacing between bulbs
 
-        const bulbs = [];
+        // Temporary arrays to hold bulbs before combining
+        const arcBulbs = [];
+        const leftBulbs = [];
+        const rightBulbs = [];
 
         // Shift logic for right side (Move tiny bit to the left)
         const getShiftedX = (x) =>
@@ -58,20 +61,14 @@ window.SlotMachine = (function ()
             return x - (factor * 4);
         };
 
-        // Helper to add a 3D bulb
-        const addBulb = (x, y, rot, i) =>
+        // Helper to create a 3D bulb element (does not append to DOM yet)
+        const createBulb = (x, y, rot) =>
         {
             const li = document.createElement('li');
             li.style.left = `${getShiftedX(x)}px`;
             li.style.top = `${y}px`;
             li.style.transform = `rotate(${rot}deg)`;
-
-            // Store metadata for the animation loop
-            li.dataset.group = i % 6;
-            li.dataset.index = i;
-
-            list.appendChild(li);
-            bulbs.push(li);
+            return li;
         };
 
         const getPoint = (t) => ({
@@ -96,15 +93,14 @@ window.SlotMachine = (function ()
         const numIntervals = Math.round(totalArcLength / spacing);
         const actualSpacing = totalArcLength / numIntervals;
 
-        // Place Bulbs
+        // --- 1. ARC BULBS GENERATION ---
         let currentLen = 0;
-        let bulbIdx = 0;
         let nextTarget = 0;
 
         prevP = getPoint(Math.PI); // Reset
 
-        // Place first bulb manually (Left Corner)
-        addBulb(prevP.x, prevP.y, 270, bulbIdx++);
+        // Place first bulb manually (Left Corner of Arc)
+        arcBulbs.push(createBulb(prevP.x, prevP.y, 270));
         nextTarget += actualSpacing;
 
         for (let i = 1; i <= segments; i++)
@@ -122,29 +118,38 @@ window.SlotMachine = (function ()
                 const finalP = getPoint(interpT);
                 const deg = (interpT * 180 / Math.PI) + 90;
 
-                addBulb(finalP.x, finalP.y, deg, bulbIdx++);
+                arcBulbs.push(createBulb(finalP.x, finalP.y, deg));
                 nextTarget += actualSpacing;
             }
             currentLen += dist;
             prevP = p;
         }
 
-        // --- 2. SIDE LIGHTS ---
+        // --- 2. SIDE LIGHTS GENERATION ---
         const sideStartY = ry;
         const sideEndY = h - 35; // Shorten (approx 1 bulb)
         const numSide = Math.max(0, Math.floor((sideEndY - sideStartY) / spacing));
 
-        // Capture the current bulb index to start the side sequences
-        const startSideIdx = bulbIdx;
-
         for (let i = 0; i < numSide; i++)
         {
             const y = sideStartY + ((i + 1) * spacing);
-            // Left Edge (x = 0)
-            addBulb(0, y, 0, startSideIdx + i);
-            // Right Edge (x = w) - Offset by 5 for visual chase sync
-            addBulb(w, y, 180, startSideIdx + i + 5);
+            // Left Edge (x = 0) - Bottom to Top requires reverse logic later
+            leftBulbs.push(createBulb(0, y, 0));
+            // Right Edge (x = w) - Top to Bottom
+            rightBulbs.push(createBulb(w, y, 180));
         }
+
+        // --- 3. COMBINE & INDEX ---
+        // Sequence: Left (Bottom->Top) -> Arc (Left->Right) -> Right (Top->Bottom)
+        // leftBulbs was generated Top->Bottom (y increasing), so we reverse it.
+        const bulbs = [...leftBulbs.reverse(), ...arcBulbs, ...rightBulbs];
+
+        bulbs.forEach((li, i) => {
+            // Store metadata for the animation loop
+            li.dataset.group = i % 6;
+            li.dataset.index = i;
+            list.appendChild(li);
+        });
 
         // Single Animation Loop for High Performance
         const animate = () =>
@@ -153,11 +158,12 @@ window.SlotMachine = (function ()
 
             if (isSirenActive)
             {
-                // Synchronous fast blinking (Panic Mode)
+                // Synchronous fast blinking (Panic Mode - RED)
                 const isPhaseOn = Math.floor(now / 150) % 2 === 0;
                 for (let i = 0; i < bulbs.length; i++)
                 {
                     const li = bulbs[i];
+                    li.classList.add('bulb-red'); // Turn RED
                     if (isPhaseOn) li.classList.remove('bulb-off');
                     else li.classList.add('bulb-off');
                 }
@@ -170,9 +176,11 @@ window.SlotMachine = (function ()
 
                 for (let i = 0; i < totalBulbs; i++)
                 {
+                    const li = bulbs[i];
+                    li.classList.remove('bulb-red'); // Ensure not red
                     // Simple dot mode
-                    if (i === activeIndex) bulbs[i].classList.remove('bulb-off');
-                    else bulbs[i].classList.add('bulb-off');
+                    if (i === activeIndex) li.classList.remove('bulb-off');
+                    else li.classList.add('bulb-off');
                 }
             } else
             {
@@ -182,6 +190,7 @@ window.SlotMachine = (function ()
                 for (let i = 0; i < bulbs.length; i++)
                 {
                     const li = bulbs[i];
+                    li.classList.remove('bulb-red'); // Ensure not red
                     const group = parseInt(li.dataset.group);
                     const index = parseInt(li.dataset.index);
 

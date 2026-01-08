@@ -6,27 +6,35 @@
         border-top-right-radius: 12px !important;
         border-bottom-left-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
-        border-bottom: 1px solid rgba(255,255,255,0.1) !important;
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        background-color: rgba(2, 6, 23, 0.4) !important;
+        color: white !important;
+        backdrop-filter: blur(4px);
     }
     .leaflet-control-zoom-out {
         border-bottom-left-radius: 12px !important;
         border-bottom-right-radius: 12px !important;
         border-top-left-radius: 0 !important;
         border-top-right-radius: 0 !important;
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
+        background-color: rgba(2, 6, 23, 0.4) !important;
+        color: white !important;
+        backdrop-filter: blur(4px);
     }
     .leaflet-control-zoom {
-        border: 1px solid rgba(255,255,255,0.1) !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
         border-radius: 12px !important;
         overflow: hidden;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
     }
     .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
-        background-color: #334155 !important;
-        color: #60a5fa !important;
+        background-color: rgba(2, 6, 23, 0.6) !important;
+        color: white !important;
+    }
+    #impact-visualizer button,
+    #impact-visualizer .cursor-pointer,
+    #impact-visualizer [onclick] {
+        user-select: none !important;
+        -webkit-user-select: none !important;
     }
 </style>
 
@@ -44,8 +52,8 @@
             cards below, which in turn updates the Net Impact Analysis.
         </p>
         <p class="text-slate-400 dark:text-slate-400 leading-relaxed border-t border-slate-700 pt-4 mb-8">
-            You may use either the Assessed State and Assessed County dropdown menus, in which a marker will be placed in the center of the selected county. 
-            Otherwise, you may interact with the map to fintune the desired casino location.
+            You may use the Assessed State and Assessed County dropdown menus to select a county, in which a map marker will be placed in the center of the selected county. 
+            Alternatively, you may interact with the map by selecting the desired state and county, followed by moving the map marker.
         </p>
 
         <!-- Tiered Risk Controls -->
@@ -259,7 +267,7 @@
 
                 <!-- Toggle Overlay Button -->
                 <button onclick="toggleMapOverlay()"
-                    class="absolute bottom-28 right-[12px] z-[70] bg-white dark:bg-slate-800 p-2 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    class="absolute bottom-28 right-[12px] z-[70] bg-slate-950/40 backdrop-blur-sm w-[30px] h-[30px] flex items-center justify-center rounded-lg shadow-lg border border-white/5 text-white hover:bg-slate-900/60 transition-colors">
                     <span class="material-symbols-outlined">layers</span>
                 </button>
             </div>
@@ -380,7 +388,7 @@
                 <div
                     class="p-4 bg-blue-900/20 rounded-xl border border-blue-800 relative overflow-hidden group flex flex-col">
                     <div
-                        class="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                        class="absolute top-0 right-0 bg-blue-500/40 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                         2.0x Risk</div>
 	                    <div class="flex-1">
 	                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2">0-10 Miles
@@ -408,7 +416,7 @@
                 <div
                     class="p-4 bg-red-900/20 rounded-xl border border-red-800 relative overflow-hidden group flex flex-col">
                     <div
-                        class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                        class="absolute top-0 right-0 bg-red-500/40 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                         1.5x Risk</div>
 	                    <div class="flex-1">
 	                        <div class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">10-20 Miles
@@ -436,7 +444,7 @@
                 <div
                     class="p-4 bg-orange-900/20 rounded-xl border border-orange-800 relative overflow-hidden group flex flex-col">
                     <div
-                        class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                        class="absolute top-0 right-0 bg-orange-500/40 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                         1.0x Risk</div>
 	                    <div class="flex-1">
 	                        <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2">20-50 Miles
