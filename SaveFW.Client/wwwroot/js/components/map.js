@@ -246,6 +246,9 @@ window.ImpactMap = (function ()
                     'victims-t1-county', 'victims-t1-other',
                     'victims-t2-county', 'victims-t2-other',
                     'victims-t3-county', 'victims-t3-other',
+                    'net-new-t1', 'net-new-t1-county', 'net-new-t1-other',
+                    'net-new-t2', 'net-new-t2-county', 'net-new-t2-other',
+                    'net-new-t3', 'net-new-t3-county', 'net-new-t3-other',
                     'calc-result', 'calc-gamblers',
                     'disp-pop-impact-zones', 'disp-pop-adults',
                     'disp-pop-regional-50', 'disp-victims-regional-50',
@@ -1459,12 +1462,25 @@ window.ImpactMap = (function ()
                 const regionalAdultsWithin50 = t1PopRegional + t2PopRegional + t3PopRegional;
                 const countyAdultsWithin50 = t1PopCounty + t2PopCounty + t3PopCounty;
 
-                const r1 = baselineRate * 2.0; const r2 = baselineRate * 1.5; const r3 = baselineRate * 1.0;
+                // --- NEW CALCULATION LOGIC ---
+                // PreRate (Baseline)
+                const preRate = baselineRate;
+
+                // PostRates
+                const r1 = preRate * 2.0; 
+                const r2 = preRate * 1.5; 
+                const r3 = preRate * 1.0;
+
+                // DeltaRates (Net New)
+                const d1 = Math.max(0, r1 - preRate);
+                const d2 = Math.max(0, r2 - preRate);
+                const d3 = Math.max(0, r3 - preRate);
 
                 const t1PopOther = Math.max(0, t1PopRegional - t1PopCounty);
                 const t2PopOther = Math.max(0, t2PopRegional - t2PopCounty);
                 const t3PopOther = Math.max(0, t3PopRegional - t3PopCounty);
 
+                // Total Estimated (PostRate * Pop)
                 const v1Total = t1PopRegional * (r1 / 100);
                 const v2Total = t2PopRegional * (r2 / 100);
                 const v3Total = t3PopRegional * (r3 / 100);
@@ -1476,9 +1492,25 @@ window.ImpactMap = (function ()
                 const v1Other = t1PopOther * (r1 / 100);
                 const v2Other = t2PopOther * (r2 / 100);
                 const v3Other = t3PopOther * (r3 / 100);
+                
+                const totalEstimatedCounty = v1County + v2County + v3County;
+                const totalEstimatedRegional = v1Total + v2Total + v3Total;
 
-                const totalVictimsCounty = v1County + v2County + v3County;
-                const totalVictimsRegionalWithin50 = v1Total + v2Total + v3Total;
+                // Net New (DeltaRate * Pop)
+                const n1Total = t1PopRegional * (d1 / 100);
+                const n2Total = t2PopRegional * (d2 / 100);
+                const n3Total = t3PopRegional * (d3 / 100);
+
+                const n1County = t1PopCounty * (d1 / 100);
+                const n2County = t2PopCounty * (d2 / 100);
+                const n3County = t3PopCounty * (d3 / 100);
+
+                const n1Other = t1PopOther * (d1 / 100);
+                const n2Other = t2PopOther * (d2 / 100);
+                const n3Other = t3PopOther * (d3 / 100);
+
+                const totalNetNewCounty = n1County + n2County + n3County;
+                const totalNetNewRegional = n1Total + n2Total + n3Total;
 
                 animateValue(els.t1, t1PopRegional);
                 animateValue(els.t2, t2PopRegional);
@@ -1503,6 +1535,8 @@ window.ImpactMap = (function ()
                 if (els.rateT1) els.rateT1.textContent = r1.toFixed(1) + '%';
                 if (els.rateT2) els.rateT2.textContent = r2.toFixed(1) + '%';
                 if (els.rateT3) els.rateT3.textContent = r3.toFixed(1) + '%';
+                
+                // Update Total Estimated
                 if (els.vicT1) els.vicT1.textContent = Math.round(v1Total).toLocaleString();
                 if (els.vicT2) els.vicT2.textContent = Math.round(v2Total).toLocaleString();
                 if (els.vicT3) els.vicT3.textContent = Math.round(v3Total).toLocaleString();
@@ -1513,7 +1547,21 @@ window.ImpactMap = (function ()
                 setNum('victims-t2-other', v2Other);
                 setNum('victims-t3-county', v3County);
                 setNum('victims-t3-other', v3Other);
-                if (els.totalVictims) els.totalVictims.textContent = Math.round(totalVictimsCounty).toLocaleString();
+
+                // Update Net New
+                setNum('net-new-t1', n1Total);
+                setNum('net-new-t2', n2Total);
+                setNum('net-new-t3', n3Total);
+
+                setNum('net-new-t1-county', n1County);
+                setNum('net-new-t1-other', n1Other);
+                setNum('net-new-t2-county', n2County);
+                setNum('net-new-t2-other', n2Other);
+                setNum('net-new-t3-county', n3County);
+                setNum('net-new-t3-other', n3Other);
+
+                // Summary: Net New (Attributable)
+                if (els.totalVictims) els.totalVictims.textContent = Math.round(totalNetNewCounty).toLocaleString();
 
                 const lblHigh = document.getElementById('label-high');
                 const lblElevated = document.getElementById('label-elevated');
@@ -1524,8 +1572,8 @@ window.ImpactMap = (function ()
 
                 const calcRes = document.getElementById('calc-result');
                 const calcGamblers = document.getElementById('calc-gamblers');
-                if (calcRes) calcRes.textContent = Math.round(totalVictimsCounty).toLocaleString();
-                if (calcGamblers) calcGamblers.textContent = Math.round(totalVictimsCounty).toLocaleString();
+                if (calcRes) calcRes.textContent = Math.round(totalNetNewCounty).toLocaleString();
+                if (calcGamblers) calcGamblers.textContent = Math.round(totalNetNewCounty).toLocaleString();
 
                 const dispPop = document.getElementById('disp-pop-impact-zones');
                 const dispPopAdults = document.getElementById('disp-pop-adults');
@@ -1548,26 +1596,27 @@ window.ImpactMap = (function ()
                 if (dispRateAdult)
                 {
                     // UPDATED: Calculate effective rate based on Adult Population (18+)
-                    const effectiveRate = countyAdults > 0 ? (totalVictimsCounty / countyAdults) * 100 : 0;
+                    // Uses Total Estimated for prevalence rate
+                    const effectiveRate = countyAdults > 0 ? (totalEstimatedCounty / countyAdults) * 100 : 0;
                     dispRateAdult.textContent = effectiveRate.toFixed(2) + '%';
                 }
 
                 if (dispRateTotal)
                 {
                     // UPDATED: Calculate effective rate based on Total Population (All Ages) as secondary metric
-                    const effectiveRate = countyTotal > 0 ? (totalVictimsCounty / countyTotal) * 100 : 0;
+                    const effectiveRate = countyTotal > 0 ? (totalEstimatedCounty / countyTotal) * 100 : 0;
                     dispRateTotal.textContent = effectiveRate.toFixed(2) + '%';
                 }
 
                 const dispRegionalAdults50 = document.getElementById('disp-pop-regional-50');
                 if (dispRegionalAdults50) dispRegionalAdults50.textContent = Math.round(regionalAdultsWithin50).toLocaleString();
                 const dispRegionalVictims50 = document.getElementById('disp-victims-regional-50');
-                if (dispRegionalVictims50) dispRegionalVictims50.textContent = Math.round(totalVictimsRegionalWithin50).toLocaleString();
+                if (dispRegionalVictims50) dispRegionalVictims50.textContent = Math.round(totalNetNewRegional).toLocaleString();
 
                 const dispRegionalVictimsOther = document.getElementById('disp-victims-regional-other');
                 if (dispRegionalVictimsOther)
                 {
-                    const victimsOther = Math.max(0, totalVictimsRegionalWithin50 - totalVictimsCounty);
+                    const victimsOther = Math.max(0, totalNetNewRegional - totalNetNewCounty);
                     dispRegionalVictimsOther.textContent = Math.round(victimsOther).toLocaleString();
                 }
 
@@ -1622,14 +1671,15 @@ window.ImpactMap = (function ()
                                 t2Adults: t2PopCounty,
                                 t3Adults: t3PopCounty,
                                 adultsWithin50: countyAdultsWithin50,
-                                victims: { t1: v1County, t2: v2County, t3: v3County, total: totalVictimsCounty }
+                                victims: { t1: n1County, t2: n2County, t3: n3County, total: totalNetNewCounty },
+                                totalEstimated: { t1: v1County, t2: v2County, t3: v3County, total: totalEstimatedCounty }
                             },
                             regional: {
                                 adultsWithin50: regionalAdultsWithin50,
                                 t1Adults: t1PopRegional,
                                 t2Adults: t2PopRegional,
                                 t3Adults: t3PopRegional,
-                                victimsWithin50: totalVictimsRegionalWithin50
+                                victimsWithin50: totalNetNewRegional
                             },
                             byCounty: impactedCounties
                         }
