@@ -176,7 +176,7 @@
                 *@
 
                 <!-- Three-Step Navigation Mechanism -->
-                <div class="absolute top-4 left-1/2 -translate-x-1/2 z-[90] w-full max-w-xl px-4">
+                <div class="absolute top-4 left-1/2 -translate-x-1/2 z-[90] w-auto sm:w-full max-w-[200px] sm:max-w-xl px-1 sm:px-4">
                     <div class="bg-slate-950/40 backdrop-blur-sm p-2 rounded-2xl border border-white/5">
                         <div class="grid grid-cols-3 gap-3">
                             <!-- Step 1: Nationwide -->
@@ -185,14 +185,14 @@
                                     class="h-1.5 w-full bg-blue-500 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
                                 </div>
                                 <span id="map-nav-label-1"
-                                    class="text-[9px] sm:text-[10px] font-bold text-blue-400 uppercase tracking-widest text-center transition-colors duration-300">Nationwide</span>
+                                    class="text-[9px] sm:text-[10px] font-bold text-blue-400 uppercase tracking-widest text-center transition-colors duration-300"><span class="sm:hidden">Ntl.</span><span class="hidden sm:inline">Nationwide</span></span>
                             </div>
                             <!-- Step 2: State -->
                             <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.ImpactMap && window.ImpactMap.navigateToStep(2)">
                                 <div id="map-nav-bar-2"
                                     class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
                                 <span id="map-nav-label-2"
-                                    class="text-[9px] sm:text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center transition-colors duration-300">State</span>
+                                    class="text-[9px] sm:text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center transition-colors duration-300"><span class="sm:hidden">St.</span><span class="hidden sm:inline">State</span></span>
                             </div>
                             <!-- Step 3: County -->
                             <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.ImpactMap && window.ImpactMap.navigateToStep(3)">
