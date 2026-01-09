@@ -50,6 +50,8 @@ namespace SaveFW.Server.Controllers
                         catch { }
                     }
                 }
+                
+                var brandColor = Color.FromHex("#0f172a");
             
                 var document = Document.Create(container =>
                 {
@@ -65,7 +67,7 @@ namespace SaveFW.Server.Controllers
                         {
                             col.Spacing(20);
                             
-                            col.Item().PaddingTop(2, Unit.Centimetre).AlignCenter().Text("Net Economic Impact Analysis").FontSize(28).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().PaddingTop(2, Unit.Centimetre).AlignCenter().Text("Net Economic Impact Analysis").FontSize(28).Bold().FontColor(brandColor);
                             col.Item().AlignCenter().Text("Fort Wayne Casino Proposal").FontSize(18).SemiBold().FontColor(Colors.Grey.Darken1);
                             
                             if (logoBytes != null)
@@ -76,13 +78,13 @@ namespace SaveFW.Server.Controllers
                             col.Item().PaddingTop(4, Unit.Centimetre).AlignCenter().Column(c => 
                             {
                                  c.Item().Text($"Date: {DateTime.Now:MMMM d, yyyy}").FontSize(14);
-                                 c.Item().Text("Prepared by: SaveFW Analysis Tool").FontSize(14).Bold();
+                                 c.Item().Text("Prepared by: SaveFW Analytics").FontSize(14).Bold();
                             });
                             
                             col.Item().PageBreak();
 
                             // 2. Table of Contents
-                            col.Item().Text("Table of Contents").FontSize(24).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().Text("Table of Contents").FontSize(24).Bold().FontColor(brandColor);
                             col.Item().PaddingTop(1, Unit.Centimetre).Column(toc => 
                             {
                                  toc.Spacing(10);
@@ -95,7 +97,7 @@ namespace SaveFW.Server.Controllers
                             col.Item().PageBreak();
 
                             // 3. Map Page
-                            col.Item().Text("1. Geographic Impact Map").FontSize(20).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().Text("1. Geographic Impact Map").FontSize(20).Bold().FontColor(brandColor);
                             
                             if (!string.IsNullOrEmpty(request.MapImageBase64))
                             {
@@ -119,7 +121,7 @@ namespace SaveFW.Server.Controllers
                             col.Item().PageBreak();
 
                             // 4. Net Economic Impact Table
-                            col.Item().Text("2. Net Economic Impact Table").FontSize(20).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().Text("2. Net Economic Impact Table").FontSize(20).Bold().FontColor(brandColor);
                             
                             if (request.MainTable != null && request.MainTable.Rows != null && request.MainTable.Rows.Count > 0)
                             {
@@ -168,7 +170,7 @@ namespace SaveFW.Server.Controllers
                             col.Item().PageBreak();
 
                             // 5. Detailed Breakdown (Supplementary)
-                            col.Item().Text("3. Detailed Cost Breakdown").FontSize(20).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().Text("3. Detailed Cost Breakdown").FontSize(20).Bold().FontColor(brandColor);
                             col.Item().Text("Supplementary analysis of social costs per problem gambler.").FontSize(10).Italic().FontColor(Colors.Grey.Medium);
 
                             // Subject County
@@ -182,7 +184,7 @@ namespace SaveFW.Server.Controllers
                             col.Item().PageBreak();
 
                             // 6. Analysis Text
-                            col.Item().Text("4. Automated Analysis").FontSize(20).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().Text("4. Automated Analysis").FontSize(20).Bold().FontColor(brandColor);
                             
                             if (!string.IsNullOrEmpty(request.AnalysisText))
                             {
@@ -191,12 +193,23 @@ namespace SaveFW.Server.Controllers
                         });
 
                         page.Footer()
-                            .AlignCenter()
-                            .Text(x =>
-                            {
-                                x.Span("Page ");
-                                x.CurrentPageNumber();
-                                x.Span(" | SaveFW.org");
+                            .Row(row => {
+                                if (logoBytes != null)
+                                {
+                                    row.RelativeItem().AlignLeft().Height(0.8f, Unit.Centimetre).Image(logoBytes).FitArea();
+                                }
+                                else
+                                {
+                                     row.RelativeItem().AlignLeft().Text("SaveFW.org").FontSize(10).FontColor(Colors.Grey.Medium);
+                                }
+                                
+                                row.RelativeItem().AlignRight().Text(x =>
+                                {
+                                    x.Span("Page ");
+                                    x.CurrentPageNumber();
+                                    x.Span(" of ");
+                                    x.TotalPages();
+                                });
                             });
                     });
                 });
