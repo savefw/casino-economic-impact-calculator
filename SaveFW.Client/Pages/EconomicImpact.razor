@@ -2196,7 +2196,9 @@
             {
                 MapImageBase64 = base64Map,
                 AnalysisText = data.AnalysisText,
-                TableData = data.TableData
+                MainTable = data.MainTable,
+                BreakdownTable = data.BreakdownTable,
+                BreakdownOtherTable = data.BreakdownOtherTable
             };
             
             var response = await Http.PostAsJsonAsync("api/report/generate", request);
@@ -2226,6 +2228,14 @@
     public class ReportDataScraped 
     {
         public string AnalysisText { get; set; }
-        public Dictionary<string, string> TableData { get; set; }
+        public TableData MainTable { get; set; }
+        public List<List<string>> BreakdownTable { get; set; }
+        public List<List<string>> BreakdownOtherTable { get; set; }
+    }
+
+    public class TableData
+    {
+        public List<string> Headers { get; set; }
+        public List<List<string>> Rows { get; set; }
     }
 }

@@ -1,15 +1,15 @@
 window.PdfHelper = {
     captureMapAndGenerate: async function(mapElementId) {
-        // 1. Target elements to hide
+        // 1. Target elements to hide (UI Controls ONLY)
         const elementsToHide = [
             document.getElementById('map-navigation-overlay'),
             document.querySelector('#map-zoom-hint'),
             document.querySelector('#map-overlay-panel'),
-            document.querySelector('#map-overlay-topright'),
-            document.querySelector('button[onclick="toggleMapOverlay()"]'),
-            document.querySelector('.leaflet-control-zoom'),
-            document.querySelector('.leaflet-control-attribution'),
-            document.querySelector('.leaflet-control-container .leaflet-top.leaflet-left') // Often contains zoom
+            document.querySelector('#map-overlay-topright'), // Toggles & Risk Tags
+            document.querySelector('button[onclick="toggleMapOverlay()"]'), // Layer Toggle
+            // Leaflet Controls (Zoom buttons, Attribution) - Keep markers/lines!
+            document.querySelector('.leaflet-control-container .leaflet-top.leaflet-left'), 
+            document.querySelector('.leaflet-control-container .leaflet-bottom.leaflet-right')
         ];
 
         // 2. Hide them
@@ -27,12 +27,17 @@ window.PdfHelper = {
         
         if (mapElement) {
             try {
-                // Use html2canvas
+                // Ensure SVG rendering is enabled
                 const canvas = await html2canvas(mapElement, {
                     useCORS: true,
                     allowTaint: true,
                     logging: false,
-                    scale: 2 // Higher resolution
+                    scale: 2, // High resolution
+                    ignoreElements: (element) => {
+                        // Double check we don't capture hidden UI if html2canvas sees them
+                        if (elementsToHide.includes(element)) return true;
+                        return false;
+                    }
                 });
                 
                 base64 = canvas.toDataURL("image/png");
@@ -63,48 +68,64 @@ window.PdfHelper = {
         URL.revokeObjectURL(url);
     },
 
-    // Scrape data for report
     getReportData: function() {
-        // Scrape Analysis Text
-        const analysisEl = document.getElementById('analysis-text');
-        const analysisText = analysisEl ? analysisEl.innerText : "";
+        // 1. Scrape Main Table (Net Economic Impact)
+        const table = document.querySelector('#net-impact-table table');
+        let mainTableData = { headers: [], rows: [] };
+        
+        if (table) {
+            // Headers
+            const ths = Array.from(table.querySelectorAll('thead th'));
+            mainTableData.headers = ths.map(th => th.innerText.trim());
+            
+            // Rows
+            const trs = Array.from(table.querySelectorAll('tbody tr'));
+            mainTableData.rows = trs.map(tr => {
+                const cells = Array.from(tr.querySelectorAll('td'));
+                return cells.map(td => td.innerText.trim().replace(/[\n\r]+|info/g, ' ')); // Clean up tooltips/newlines
+            });
+        }
 
-        // Scrape Data Table
-        // The net impact table might be dynamic HTML.
-        // We can try to scrape values from the IDs we know exist in EconomicImpact.razor
-        // like "val-agr", "val-revenue", "val-cost-total", etc.
-        // Or if there is a generated table #net-impact-table.
-        
-        // Let's scrape key IDs based on the Razor file
-        const data = {};
-        
-        const idsToScrape = [
-            { id: 'val-agr', name: 'Adjusted Gross Revenue' },
-            { id: 'val-revenue', name: 'Tax Revenue' },
-            { id: 'val-cost-total', name: 'Social Cost Per Gambler' },
-            { id: 'val-cost-crime', name: 'Crime Costs' },
-            { id: 'val-cost-business', name: 'Lost Employment' },
-            { id: 'val-cost-bankruptcy', name: 'Bankruptcy' },
-            { id: 'val-cost-illness', name: 'Illness' },
-            { id: 'val-cost-services', name: 'Social Services' },
-            { id: 'val-cost-abused', name: 'Abused Dollars' },
-            // Calculated totals
-            { id: 'calc-tax-total', name: 'Total Estimated Tax Revenue' },
-            { id: 'calc-result', name: 'New Problem Gamblers (Calculated)' },
-            { id: 'calc-total-cost-combined', name: 'Total Social Cost (Subject County)' },
-            { id: 'total-gamblers', name: 'Total Net New Problem Gamblers' }
+        // 2. Scrape Supplementary Tables (Breakdowns)
+        const getRow = (label, idVictims, idPer, idTotal) => {
+            return [
+                label,
+                document.getElementById(idVictims)?.innerText || "-",
+                document.getElementById(idPer)?.innerText || "-",
+                document.getElementById(idTotal)?.innerText || "-"
+            ];
+        };
+
+        // Subject County Breakdown
+        const breakdownData = [
+            getRow("Public Health", "calc-break-health-victims", "calc-break-health-per", "calc-break-health-total"),
+            getRow("Social Services", "calc-break-social-victims", "calc-break-social-per", "calc-break-social-total"),
+            getRow("Law Enforcement", "calc-break-crime-victims", "calc-break-crime-per", "calc-break-crime-total"),
+            getRow("Civil Legal", "calc-break-legal-victims", "calc-break-legal-per", "calc-break-legal-total"),
+            getRow("Abused Dollars", "calc-break-abused-victims", "calc-break-abused-per", "calc-break-abused-total"),
+            getRow("Lost Employment", "calc-break-employment-victims", "calc-break-employment-per", "calc-break-employment-total"),
+            getRow("Total", "calc-break-total-victims", "calc-total-cost-per", "calc-total-cost-combined")
         ];
 
-        idsToScrape.forEach(item => {
-            const el = document.getElementById(item.id);
-            if (el) {
-                data[item.name] = el.innerText;
-            }
-        });
+        // Other Counties Breakdown
+        const breakdownOtherData = [
+            getRow("Public Health", "calc-break-health-victims-other", "calc-break-health-per-other", "calc-break-health-total-other"),
+            getRow("Social Services", "calc-break-social-victims-other", "calc-break-social-per-other", "calc-break-social-total-other"),
+            getRow("Law Enforcement", "calc-break-crime-victims-other", "calc-break-crime-per-other", "calc-break-crime-total-other"),
+            getRow("Civil Legal", "calc-break-legal-victims-other", "calc-break-legal-per-other", "calc-break-legal-total-other"),
+            getRow("Abused Dollars", "calc-break-abused-victims-other", "calc-break-abused-per-other", "calc-break-abused-total-other"),
+            getRow("Lost Employment", "calc-break-employment-victims-other", "calc-break-employment-per-other", "calc-break-employment-total-other"),
+            getRow("Total", "calc-break-total-victims-other", "calc-total-cost-per-other", "calc-total-cost-combined-other")
+        ];
+
+        // Scrape Analysis Text
+        const analysisText = document.getElementById('analysis-text')?.innerText || "";
 
         return {
             analysisText: analysisText,
-            tableData: data
+            mainTable: mainTableData,
+            breakdownTable: breakdownData,
+            breakdownOtherTable: breakdownOtherData
         };
     }
 };
