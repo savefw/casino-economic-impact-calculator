@@ -91,7 +91,7 @@ namespace SaveFW.Server.Controllers
                                  toc.Item().Row(row => { row.RelativeItem().Text("1. Geographic Impact Map").FontSize(14); row.AutoItem().Text("3").FontSize(14); });
                                  toc.Item().Row(row => { row.RelativeItem().Text("2. Net Economic Impact Table").FontSize(14); row.AutoItem().Text("4").FontSize(14); });
                                  toc.Item().Row(row => { row.RelativeItem().Text("3. Detailed Cost Breakdown").FontSize(14); row.AutoItem().Text("5").FontSize(14); });
-                                 toc.Item().Row(row => { row.RelativeItem().Text("4. Automated Analysis").FontSize(14); row.AutoItem().Text("6").FontSize(14); });
+                                 toc.Item().Row(row => { row.RelativeItem().Text("4. Economic Analysis").FontSize(14); row.AutoItem().Text("6").FontSize(14); });
                             });
                             
                             col.Item().PageBreak();
@@ -178,11 +178,11 @@ namespace SaveFW.Server.Controllers
                             col.Item().PageBreak();
 
                             // 6. Analysis Text
-                            col.Item().Text("4. Automated Analysis").FontSize(20).Bold().FontColor(brandColor);
+                            col.Item().Text("4. Economic Analysis").FontSize(20).Bold().FontColor(brandColor);
                             
                             if (!string.IsNullOrEmpty(request.AnalysisText))
                             {
-                                col.Item().PaddingTop(10).Text(request.AnalysisText).Justify();
+                                RenderMarkdown(col, request.AnalysisText);
                             }
                         });
 
@@ -218,6 +218,54 @@ namespace SaveFW.Server.Controllers
             {
                 Console.WriteLine($"PDF Generation Error: {ex}");
                 return StatusCode(500, new { error = ex.Message, stack = ex.StackTrace });
+            }
+        }
+
+        private void RenderMarkdown(ColumnDescriptor col, string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            var lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                var trimmed = line.Trim();
+                if (trimmed.StartsWith("###"))
+                {
+                    // Section Header
+                    col.Item().PaddingTop(10).PaddingBottom(5).Text(trimmed.Substring(3).Trim()).FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                }
+                else if (trimmed.StartsWith("*"))
+                {
+                    // Bullet Point
+                    col.Item().PaddingLeft(10).PaddingBottom(2).Row(row =>
+                    {
+                        row.ConstantItem(10).Text("•");
+                        row.RelativeItem().Text(t => ParseInlineMarkdown(t, trimmed.Substring(1).Trim()));
+                    });
+                }
+                else
+                {
+                    // Paragraph
+                    col.Item().PaddingBottom(5).Text(t => ParseInlineMarkdown(t, trimmed));
+                }
+            }
+        }
+
+        private void ParseInlineMarkdown(TextDescriptor text, string content)
+        {
+            // Simple parser for **bold**
+            var parts = content.Split("**");
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (i % 2 == 1) // Odd index = inside ** **
+                {
+                    text.Span(parts[i]).Bold();
+                }
+                else
+                {
+                    text.Span(parts[i]);
+                }
             }
         }
 

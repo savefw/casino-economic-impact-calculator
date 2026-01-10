@@ -119,10 +119,44 @@ window.PdfHelper = {
         ];
 
         // Scrape Analysis Text
-        const analysisText = document.getElementById('analysis-text')?.innerText || "";
+        const analysisEl = document.getElementById('analysis-text');
+        let formattedText = "";
+        
+        if (analysisEl) {
+            // Helper to process nodes recursively-ish or just handle known structure
+            // The structure is flat: div (header), ul (list), div (header), ul (list)...
+            
+            for (const node of analysisEl.childNodes) {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.tagName === 'DIV' && node.classList.contains('font-bold')) {
+                        // Section Header
+                        formattedText += `### ${node.innerText.trim()}\n`;
+                    } else if (node.tagName === 'UL') {
+                        // List
+                        const lis = node.querySelectorAll('li');
+                        lis.forEach(li => {
+                            // Handle inner bold
+                            let liText = li.innerHTML;
+                            // Replace <strong> or <b> with **text**
+                            liText = liText.replace(/<(strong|b)>(.*?)<\/\1>/gi, "**$2**");
+                            // Remove other tags (like links) but keep text
+                            liText = liText.replace(/<[^>]+>/g, ""); // naive strip tags
+                            // Decode entities if needed (browser handles innerHTML mostly, but let's be safe with simple text)
+                            // Actually, let's use a temporary element to decode entities but preserve our ** markers
+                            const temp = document.createElement('div');
+                            temp.innerHTML = liText;
+                            formattedText += `* ${temp.innerText.trim()}\n`;
+                        });
+                        formattedText += "\n";
+                    } else if (node.tagName === 'P') {
+                        formattedText += `${node.innerText.trim()}\n\n`;
+                    }
+                }
+            }
+        }
 
         return {
-            analysisText: analysisText,
+            analysisText: formattedText,
             mainTable: mainTableData,
             breakdownTable: breakdownData,
             breakdownOtherTable: breakdownOtherData
