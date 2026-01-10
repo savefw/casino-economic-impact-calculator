@@ -17,6 +17,12 @@ fi
 # Start the server
 echo "Starting server on port $DEV_PORT (Development Environment)..."
 
+# Build Tailwind CSS
+echo "Building Assets..."
+cd /root/SaveFW || exit 1
+npm run copy-libs
+npm run build:css
+
 # Ensure the app runs with the correct content root/appsettings
 cd /root/SaveFW/SaveFW.Server || exit 1
 

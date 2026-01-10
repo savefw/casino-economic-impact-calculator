@@ -7,72 +7,25 @@
     <title>Save Fort Wayne - Protect Our Future</title>
     <base href="/" />
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;800;900&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <!-- Fonts (Local) -->
+    <link href="lib/public-sans/index.css" rel="stylesheet" />
+    <link href="lib/material-symbols-outlined/index.css" rel="stylesheet" />
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#0f172a",
-                        "primary-dark": "#020617",
-                        "accent": "#e11d48",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#020617",
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#1e293b",
-                        "fw-teal": "#0f172a",
-                        "fw-teal-dark": "#020617",
-                    },
-                    fontFamily: {
-                        "display": ["Public Sans", "sans-serif"]
-                    },
-                    backgroundImage: {
-                        'hero-gradient': 'linear-gradient(to right bottom, #0f172a, #1e293b, #334155)',
-                    },
-                    animation: {
-                        'loop-pre': 'loopPre 10s ease-in-out infinite',
-                        'loop-post': 'loopPost 10s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        loopPre: {
-                            '0%, 45%': { opacity: '1', zIndex: '20', pointerEvents: 'auto' },
-                            '55%, 95%': { opacity: '0', zIndex: '0', pointerEvents: 'none' },
-                            '100%': { opacity: '1', zIndex: '20', pointerEvents: 'auto' },
-                        },
-                        loopPost: {
-                            '0%, 45%': { opacity: '0', zIndex: '0', pointerEvents: 'none' },
-                            '55%, 95%': { opacity: '1', zIndex: '20', pointerEvents: 'auto' },
-                            '100%': { opacity: '0', zIndex: '0', pointerEvents: 'none' },
-                        }
-                    }
-                },
-            },
-        }
-    </script>
+    <!-- Tailwind CSS (Moved to Local Install) -->
+
 
     <!-- Leaflet (Local) -->
     <link rel="stylesheet" href="css/leaflet.css" />
     <script src="js/lib/leaflet.js"></script>
 
     <!-- Leaflet Plugins -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="css/Control.Geocoder.css" />
+    <script src="js/lib/Control.Geocoder.js"></script>
     <script src="js/lib/leaflet-heat.js"></script>
 
     <!-- Turf.js & Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/lib/turf.min.js"></script>
+    <script src="js/lib/chart.js"></script>
 
     <!-- PDF.js & PageFlip (local) -->
     <script src="js/lib/pdf.min.js"></script>
@@ -232,7 +185,7 @@
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
 
     <!-- Custom Modules -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/lib/html2canvas.min.js"></script>
     <script src="js/pdf-helper.js"></script>
     <script src="js/data/indiana-counties.js?v=20260105b"></script>
     <script src="js/components/slot-machine.js?v=20260105b"></script>
