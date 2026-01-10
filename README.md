@@ -236,3 +236,41 @@ Social cost modeling is derived from established academic research:
     <a href="https://savefw.com"><strong>Visit Live Site</strong></a>
   </p>
 </div>
+
+---
+
+# Dependencies & Offline Support
+
+This application is designed to run **fully offline**. All critical external assets—including CSS frameworks, JavaScript libraries, Fonts, and Map Tiles—have been localized or vendored to ensure zero dependency on external CDNs during runtime. This architecture guarantees stability, privacy, and performance even in isolated environments.
+
+### NPM Packages (Frontend)
+Managed via `package.json` and built using `npm run build:css` / `copy-libs`.
+
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **tailwindcss** | ^3.4.0 | Utility-first CSS framework (Built via CLI) |
+| **leaflet-control-geocoder** | ^3.3.1 | Map search and geocoding controls |
+| **@turf/turf** | ^7.3.1 | Geospatial analysis engine (Client-side) |
+| **chart.js** | ^4.5.1 | Interactive charts and graphs |
+| **html2canvas** | ^1.4.1 | Canvas generation for PDF reports |
+| **@fontsource-variable/public-sans** | ^5.2.7 | Typography (Variable Font) |
+| **@fontsource-variable/material-symbols-outlined** | ^5.2.30 | Iconography (Variable Font) |
+
+### .NET Packages (Server)
+Managed via NuGet in `SaveFW.Server.csproj`.
+
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **Npgsql.EntityFrameworkCore.PostgreSQL** | 10.0.0 | Database Provider for PostgreSQL |
+| **Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite** | 10.0.0 | Spatial Support (PostGIS) |
+| **NetTopologySuite.IO.ShapeFile** | 2.1.0 | SHP File Ingestion (Census Data) |
+| **QuestPDF** | 2025.12.1 | PDF Report Generation |
+| **Microsoft.AspNetCore.Components.WebAssembly.Server** | 10.0.1 | Blazor Server Hosting |
+
+### Vendored Libraries
+These libraries are manually included in `wwwroot/js/lib` or `wwwroot/css` to avoid external fetch requests.
+
+*   **Leaflet.js / Leaflet.css:** Interactive mapping core.
+*   **Leaflet Heat:** Heatmap visualization plugin.
+*   **PDF.js:** Client-side PDF rendering.
+*   **PageFlip:** Flipbook animation effect.
