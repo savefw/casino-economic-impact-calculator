@@ -199,7 +199,7 @@ public class ImpactController : ControllerBase
             return NotFound();
         }
 
-        var jsonString = jsonResult.ToString();
+        var jsonString = jsonResult.ToString() ?? string.Empty;
         _logger.LogInformation($"[ImpactController] 5. JSON String Length: {jsonString.Length}");
         
         var bytes = System.Text.Encoding.UTF8.GetBytes(jsonString);

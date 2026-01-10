@@ -30,7 +30,7 @@ namespace SaveFW.Server.Controllers
             try
             {
                 // Try to find the logo
-                byte[] logoBytes = null;
+                byte[]? logoBytes = null;
                 var possiblePaths = new[]
                 {
                     Path.Combine(_env.ContentRootPath, "..", "SaveFW.Client", "wwwroot", "assets", "SAVEFW.jpg"),
@@ -330,7 +330,7 @@ namespace SaveFW.Server.Controllers
 
         static IContainer CombinedHeaderStyle(IContainer container)
         {
-            return container.Background(Colors.Blue.Darken3).Padding(5).DefaultTextStyle(x => x.SemiBold().Color(Colors.White).FontSize(8));
+            return container.Background(Colors.Blue.Darken3).Padding(5).DefaultTextStyle(x => x.SemiBold().FontColor(Colors.White).FontSize(8));
         }
 
         static IContainer CombinedCellStyle(IContainer container, bool isTotal = false)
