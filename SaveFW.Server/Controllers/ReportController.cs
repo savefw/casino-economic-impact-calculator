@@ -173,13 +173,7 @@ namespace SaveFW.Server.Controllers
                             col.Item().Text("3. Detailed Cost Breakdown").FontSize(20).Bold().FontColor(brandColor);
                             col.Item().Text("Supplementary analysis of social costs per problem gambler.").FontSize(10).Italic().FontColor(Colors.Grey.Medium);
 
-                            // Subject County
-                            col.Item().PaddingTop(10).Text("Subject County Analysis").FontSize(14).Bold().FontColor(Colors.Grey.Darken3);
-                            RenderBreakdownTable(col, request.BreakdownTable);
-
-                            // Other Counties
-                            col.Item().PaddingTop(15).Text("Other Counties Analysis (Regional Spillover)").FontSize(14).Bold().FontColor(Colors.Grey.Darken3);
-                            RenderBreakdownTable(col, request.BreakdownOtherTable);
+                            RenderCombinedBreakdownTable(col, request.BreakdownTable, request.BreakdownOtherTable);
 
                             col.Item().PageBreak();
 
@@ -227,43 +221,73 @@ namespace SaveFW.Server.Controllers
             }
         }
 
-        private void RenderBreakdownTable(ColumnDescriptor col, List<List<string>>? data)
+        private void RenderCombinedBreakdownTable(ColumnDescriptor col, List<List<string>>? subjectData, List<List<string>>? otherData)
         {
-            if (data == null || data.Count == 0)
+            if ((subjectData == null || subjectData.Count == 0) && (otherData == null || otherData.Count == 0))
             {
                 col.Item().Text("No data available.");
                 return;
             }
 
-            col.Item().PaddingTop(5).Table(table =>
+            col.Item().PaddingTop(10).Table(table =>
             {
                 table.ColumnsDefinition(columns =>
                 {
-                    columns.RelativeColumn(2); // Category
-                    columns.RelativeColumn();  // Victims
-                    columns.RelativeColumn();  // Cost Per
-                    columns.RelativeColumn();  // Total
+                    columns.RelativeColumn(1.8f); // Impact Area
+                    columns.RelativeColumn(1); // Public Health
+                    columns.RelativeColumn(1); // Social Services
+                    columns.RelativeColumn(1); // Law Enforcement
+                    columns.RelativeColumn(1); // Civil Legal
+                    columns.RelativeColumn(1); // Abused Dollars
+                    columns.RelativeColumn(1); // Lost Employment
+                    columns.RelativeColumn(1.2f); // Total
                 });
 
                 table.Header(header =>
                 {
-                    header.Cell().Element(HeaderCellStyle).Text("Category");
-                    header.Cell().Element(HeaderCellStyle).AlignRight().Text("Victims");
-                    header.Cell().Element(HeaderCellStyle).AlignRight().Text("Cost Per Victim");
-                    header.Cell().Element(HeaderCellStyle).AlignRight().Text("Total Cost");
+                    header.Cell().Element(CombinedHeaderStyle).Text("Impact Area");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Pub. Health");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Soc. Svcs");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Law Enf.");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Civil Legal");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Abused $");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Lost Emp.");
+                    header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Total");
                 });
 
-                foreach (var row in data)
+                // Row 1: Subject County
+                if (subjectData != null && subjectData.Count >= 7)
                 {
-                    if (row.Count < 4) continue;
-                    bool isTotal = row[0].Contains("Total", StringComparison.OrdinalIgnoreCase);
+                    table.Cell().Element(c => CombinedCellStyle(c)).Text("Subject County").Bold();
+                    // Indices: 0=PH, 1=SS, 2=Law, 3=Legal, 4=Abused, 5=Emp, 6=Total
+                    // Data row structure: [Category, Victims, Per, Total] -> Index 3 is Total Cost
+                    for (int i = 0; i < 6; i++) 
+                        table.Cell().Element(c => CombinedCellStyle(c)).AlignRight().Text(subjectData[i].Count > 3 ? subjectData[i][3] : "-");
+                    
+                    // Total Column (Index 6 in data)
+                    table.Cell().Element(c => CombinedCellStyle(c, true)).AlignRight().Text(subjectData[6].Count > 3 ? subjectData[6][3] : "-");
+                }
 
-                    table.Cell().Element(c => CellStyle(c, isTotal)).Text(row[0]);
-                    table.Cell().Element(c => CellStyle(c, isTotal)).AlignRight().Text(row[1]);
-                    table.Cell().Element(c => CellStyle(c, isTotal)).AlignRight().Text(row[2]);
-                    table.Cell().Element(c => CellStyle(c, isTotal)).AlignRight().Text(row[3]);
+                // Row 2: Regional Spillover
+                if (otherData != null && otherData.Count >= 7)
+                {
+                    table.Cell().Element(c => CombinedCellStyle(c)).Text("Regional Spillover").Bold();
+                    for (int i = 0; i < 6; i++) 
+                        table.Cell().Element(c => CombinedCellStyle(c)).AlignRight().Text(otherData[i].Count > 3 ? otherData[i][3] : "-");
+
+                    table.Cell().Element(c => CombinedCellStyle(c, true)).AlignRight().Text(otherData[6].Count > 3 ? otherData[6][3] : "-");
                 }
             });
+        }
+
+        static IContainer CombinedHeaderStyle(IContainer container)
+        {
+            return container.Background(Colors.Blue.Darken3).Padding(5).DefaultTextStyle(x => x.SemiBold().Color(Colors.White).FontSize(8));
+        }
+
+        static IContainer CombinedCellStyle(IContainer container, bool isTotal = false)
+        {
+            return container.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).DefaultTextStyle(x => x.FontSize(9).Weight(isTotal ? FontWeight.Bold : FontWeight.Normal));
         }
 
         static IContainer HeaderCellStyle(IContainer container)
