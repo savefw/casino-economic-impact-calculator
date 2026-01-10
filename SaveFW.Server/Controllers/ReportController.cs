@@ -22,7 +22,7 @@ namespace SaveFW.Server.Controllers
         }
 
         [HttpPost("generate")]
-        public IActionResult GenerateReport([FromBody] ReportRequest request)
+        public async Task<IActionResult> GenerateReport([FromBody] ReportRequest request)
         {
             // Enable debugging to find layout issues
             QuestPDF.Settings.EnableDebugging = true;
@@ -44,7 +44,7 @@ namespace SaveFW.Server.Controllers
                     {
                         try 
                         {
-                            logoBytes = System.IO.File.ReadAllBytes(path);
+                            logoBytes = await System.IO.File.ReadAllBytesAsync(path);
                             break;
                         } 
                         catch { }
