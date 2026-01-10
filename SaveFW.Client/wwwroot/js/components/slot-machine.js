@@ -159,7 +159,7 @@ window.SlotMachine = (function ()
             if (isSirenActive)
             {
                 // Synchronous fast blinking (Panic Mode - RED)
-                const isPhaseOn = Math.floor(now / 150) % 2 === 0;
+                const isPhaseOn = Math.floor(now / 300) % 2 === 0;
                 for (let i = 0; i < bulbs.length; i++)
                 {
                     const li = bulbs[i];
