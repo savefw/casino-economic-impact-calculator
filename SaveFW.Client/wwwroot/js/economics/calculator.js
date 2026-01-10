@@ -1984,7 +1984,7 @@ window.updateSimStep = function ()
     const colors = {
         1: { bar: 'bg-emerald-500', shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.5)]', text: 'text-emerald-400' },
         2: { bar: 'bg-purple-500', shadow: 'shadow-[0_0_10px_rgba(168,85,247,0.5)]', text: 'text-purple-400' },
-        3: { bar: 'bg-orange-500', shadow: 'shadow-[0_0_10px_rgba(249,115,22,0.5)]', text: 'text-orange-400' },
+        3: { bar: 'bg-red-500', shadow: 'shadow-[0_0_10px_rgba(239,68,68,0.5)]', text: 'text-red-400' },
         4: { bar: 'bg-red-500', shadow: 'shadow-[0_0_10px_rgba(239,68,68,0.5)]', text: 'text-red-400' }
     };
 
@@ -2002,7 +2002,7 @@ window.updateSimStep = function ()
             'shadow-[0_0_10px_rgba(168,85,247,0.5)]',
             'shadow-[0_0_10px_rgba(249,115,22,0.5)]',
             'shadow-[0_0_10px_rgba(239,68,68,0.5)]');
-        label.classList.remove('text-slate-600', 'text-blue-400', 'text-purple-400', 'text-orange-400', 'text-red-400');
+        label.classList.remove('text-slate-600', 'text-blue-400', 'text-purple-400', 'text-red-400');
 
         if (i <= window.currentSimStep)
         {
