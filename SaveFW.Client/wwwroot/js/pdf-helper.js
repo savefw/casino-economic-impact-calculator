@@ -24,8 +24,29 @@ window.PdfHelper = {
         // 3. Snapshot
         const mapElement = document.getElementById(mapElementId);
         let base64 = null;
+        let markerRestores = [];
         
         if (mapElement) {
+            // Fix Leaflet Markers (Translate3d to Top/Left) for html2canvas
+            const markers = mapElement.querySelectorAll('.leaflet-marker-icon, .leaflet-marker-shadow');
+            markers.forEach(m => {
+                const t = m.style.transform;
+                if (t && t.includes('translate3d')) {
+                    const parts = t.match(/translate3d\(([^,]+),\s*([^,]+)/);
+                    if (parts && parts.length >= 3) {
+                        markerRestores.push({
+                            element: m,
+                            transform: t,
+                            left: m.style.left,
+                            top: m.style.top
+                        });
+                        m.style.left = parts[1];
+                        m.style.top = parts[2];
+                        m.style.transform = 'none';
+                    }
+                }
+            });
+
             try {
                 // Ensure SVG rendering is enabled
                 const canvas = await html2canvas(mapElement, {
@@ -47,6 +68,14 @@ window.PdfHelper = {
         }
 
         // 4. Restore
+        if (markerRestores) {
+            markerRestores.forEach(r => {
+                r.element.style.transform = r.transform;
+                r.element.style.left = r.left;
+                r.element.style.top = r.top;
+            });
+        }
+
         elementsToHide.forEach(el => {
             if (el) {
                 el.style.display = originalStyles.get(el);
