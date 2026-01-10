@@ -8,6 +8,7 @@ window.EconomicCalculator = (function ()
     let currentPop = 0;
     let lastImpactBreakdown = null;
     let otherCountiesExpanded = false;
+    let lastCalculationResult = null;
 
     function escapeHtml(input)
     {
@@ -420,6 +421,17 @@ window.EconomicCalculator = (function ()
             else { netImpactEmpty.classList.remove('hidden'); netImpactContent.classList.add('hidden'); }
         }
 
+        // Toggle PDF Button State
+        const pdfBtn = document.getElementById('btn-generate-pdf');
+        if (pdfBtn) {
+            const isSpinning = pdfBtn.querySelector('.animate-spin');
+            if (!hasLocation) {
+                pdfBtn.disabled = true;
+            } else if (!isSpinning) {
+                pdfBtn.disabled = false;
+            }
+        }
+
         // Toggle Visibility for Automated Analysis
         const analysisEmpty = document.getElementById('analysis-empty-state');
         const analysisContent = document.getElementById('analysis-content');
@@ -814,6 +826,12 @@ window.EconomicCalculator = (function ()
                 employment: costEmploymentPer
             }
         });
+
+        // Store for PDF generation
+        lastCalculationResult = {
+            subjectCountyName: subjectCountyName,
+            otherCosts: otherCosts
+        };
 
         const o = otherCosts && otherCosts.totals ? otherCosts.totals : {};
         const otherTotals = {
@@ -1753,6 +1771,8 @@ window.EconomicCalculator = (function ()
         globalTooltip.id = 'economic-calculator-global-tooltip';
         globalTooltip.className = 'fixed hidden pointer-events-none z-[10000] w-64 p-3 bg-slate-900 text-white text-xs rounded-lg shadow-2xl border border-slate-700 font-normal whitespace-normal transition-opacity duration-200 opacity-0';
         document.body.appendChild(globalTooltip);
+        // Hide tooltip on any scroll event to prevent sticking
+        window.addEventListener('scroll', () => hideTooltip(), true);
     }
 
     function showTooltip(e, text)
@@ -1884,7 +1904,8 @@ window.EconomicCalculator = (function ()
         toggleOtherCounties: toggleOtherCounties,
         showTooltip: showTooltip,
         hideTooltip: hideTooltip,
-        moveTooltip: moveTooltip
+        moveTooltip: moveTooltip,
+        getLastCalculationData: () => lastCalculationResult
     };
 })();
 

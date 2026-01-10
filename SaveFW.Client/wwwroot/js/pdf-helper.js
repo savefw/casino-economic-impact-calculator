@@ -74,15 +74,12 @@ window.PdfHelper = {
         let mainTableData = { headers: [], rows: [] };
         
         if (table) {
-            // Headers
             const ths = Array.from(table.querySelectorAll('thead th'));
             mainTableData.headers = ths.map(th => th.innerText.trim());
-            
-            // Rows
             const trs = Array.from(table.querySelectorAll('tbody tr'));
             mainTableData.rows = trs.map(tr => {
                 const cells = Array.from(tr.querySelectorAll('td'));
-                return cells.map(td => td.innerText.trim().replace(/[\n\r]+|info/g, ' ')); // Clean up tooltips/newlines
+                return cells.map(td => td.innerText.trim().replace(/[\n\r]+|info/g, ' '));
             });
         }
 
@@ -96,8 +93,7 @@ window.PdfHelper = {
             ];
         };
 
-        // Subject County Breakdown
-        const breakdownData = [
+        const breakdownSubjectData = [
             getRow("Public Health", "calc-break-health-victims", "calc-break-health-per", "calc-break-health-total"),
             getRow("Social Services", "calc-break-social-victims", "calc-break-social-per", "calc-break-social-total"),
             getRow("Law Enforcement", "calc-break-crime-victims", "calc-break-crime-per", "calc-break-crime-total"),
@@ -107,8 +103,7 @@ window.PdfHelper = {
             getRow("Total", "calc-break-total-victims", "calc-total-cost-per", "calc-total-cost-combined")
         ];
 
-        // Other Counties Breakdown
-        const breakdownOtherData = [
+        const breakdownOtherData_Scraped = [
             getRow("Public Health", "calc-break-health-victims-other", "calc-break-health-per-other", "calc-break-health-total-other"),
             getRow("Social Services", "calc-break-social-victims-other", "calc-break-social-per-other", "calc-break-social-total-other"),
             getRow("Law Enforcement", "calc-break-crime-victims-other", "calc-break-crime-per-other", "calc-break-crime-total-other"),
@@ -118,31 +113,21 @@ window.PdfHelper = {
             getRow("Total", "calc-break-total-victims-other", "calc-total-cost-per-other", "calc-total-cost-combined-other")
         ];
 
-        // Scrape Analysis Text
+        // 3. Scrape Analysis Text (Markdown-ish)
         const analysisEl = document.getElementById('analysis-text');
         let formattedText = "";
         
         if (analysisEl) {
-            // Helper to process nodes recursively-ish or just handle known structure
-            // The structure is flat: div (header), ul (list), div (header), ul (list)...
-            
             for (const node of analysisEl.childNodes) {
                 if (node.nodeType === Node.ELEMENT_NODE) {
                     if (node.tagName === 'DIV' && node.classList.contains('font-bold')) {
-                        // Section Header
                         formattedText += `### ${node.innerText.trim()}\n`;
                     } else if (node.tagName === 'UL') {
-                        // List
                         const lis = node.querySelectorAll('li');
                         lis.forEach(li => {
-                            // Handle inner bold
                             let liText = li.innerHTML;
-                            // Replace <strong> or <b> with **text**
                             liText = liText.replace(/<(strong|b)>(.*?)<\/\1>/gi, "**$2**");
-                            // Remove other tags (like links) but keep text
-                            liText = liText.replace(/<[^>]+>/g, ""); // naive strip tags
-                            // Decode entities if needed (browser handles innerHTML mostly, but let's be safe with simple text)
-                            // Actually, let's use a temporary element to decode entities but preserve our ** markers
+                            liText = liText.replace(/<[^>]+>/g, "");
                             const temp = document.createElement('div');
                             temp.innerHTML = liText;
                             formattedText += `* ${temp.innerText.trim()}\n`;
@@ -155,10 +140,53 @@ window.PdfHelper = {
             }
         }
 
+        // 4. Retrieve Detailed Calc Data
+        let calcData = null;
+        if (window.EconomicCalculator && window.EconomicCalculator.getLastCalculationData) {
+            calcData = window.EconomicCalculator.getLastCalculationData();
+        }
+
+        const subjectCountyName = (calcData && calcData.subjectCountyName) ? calcData.subjectCountyName : null;
+
+        // 5. Build Final Other Breakdown
+        let breakdownOtherData = [];
+        const fmtM = (v) => '$' + (v / 1000000).toFixed(1) + 'MM';
+        
+        if (calcData && calcData.otherCosts && Array.isArray(calcData.otherCosts.counties) && calcData.otherCosts.counties.length > 0) {
+            const counties = calcData.otherCosts.counties;
+            breakdownOtherData = counties.map(c => {
+                return [
+                    c.name + " County",
+                    fmtM(c.costs.health),
+                    fmtM(c.costs.social),
+                    fmtM(c.costs.crime),
+                    fmtM(c.costs.legal),
+                    fmtM(c.costs.abused),
+                    fmtM(c.costs.employment),
+                    fmtM(c.costs.total)
+                ];
+            });
+        } else {
+            // Use scraped summary if detailed data missing (fallback)
+            // But scraped data is [Category, Victims, Per, Total] (rows).
+            // We need to transpose it to fit the new table structure [Name, PH, SS, ...]
+            // The scraped data is just ONE row of values effectively (the "Regional Spillover" aggregate).
+            // Let's manually construct a single summary row from the scraped data to fit the new schema.
+            // Scraped indices: 0=PH, 1=SS, 2=Law, 3=Legal, 4=Abused, 5=Emp, 6=Total.
+            // Value is at index 3 of each row.
+            const val = (idx) => breakdownOtherData_Scraped[idx][3];
+            
+            breakdownOtherData = [[
+                "Regional Spillover (Summary)",
+                val(0), val(1), val(2), val(3), val(4), val(5), val(6)
+            ]];
+        }
+
         return {
+            subjectCountyName: subjectCountyName,
             analysisText: formattedText,
             mainTable: mainTableData,
-            breakdownTable: breakdownData,
+            breakdownTable: breakdownSubjectData,
             breakdownOtherTable: breakdownOtherData
         };
     }

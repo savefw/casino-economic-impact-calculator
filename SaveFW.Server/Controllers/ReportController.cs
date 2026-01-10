@@ -142,7 +142,7 @@ namespace SaveFW.Server.Controllers
                                         {
                                             foreach (var h in request.MainTable.Headers)
                                             {
-                                                header.Cell().Element(HeaderCellStyle).Text(h);
+                                                header.Cell().Element(CombinedHeaderStyle).Text(h);
                                             }
                                         });
                                     }
@@ -157,7 +157,7 @@ namespace SaveFW.Server.Controllers
                                             // We can check if the first cell starts with "Subtotal" or "Total".
                                             bool isTotal = row[0].Contains("Total", StringComparison.OrdinalIgnoreCase) || row[0].Contains("Subtotal", StringComparison.OrdinalIgnoreCase);
                                             
-                                            table.Cell().Element(c => CellStyle(c, isTotal)).Text(cell);
+                                            table.Cell().Element(c => CombinedCellStyle(c, isTotal)).Text(cell);
                                         }
                                     }
                                 });
@@ -173,7 +173,7 @@ namespace SaveFW.Server.Controllers
                             col.Item().Text("3. Detailed Cost Breakdown").FontSize(20).Bold().FontColor(brandColor);
                             col.Item().Text("Supplementary analysis of social costs per problem gambler.").FontSize(10).Italic().FontColor(Colors.Grey.Medium);
 
-                            RenderCombinedBreakdownTable(col, request.BreakdownTable, request.BreakdownOtherTable);
+                            RenderCombinedBreakdownTable(col, request.BreakdownTable, request.BreakdownOtherTable, request.SubjectCountyName);
 
                             col.Item().PageBreak();
 
@@ -233,14 +233,14 @@ namespace SaveFW.Server.Controllers
                 if (trimmed.StartsWith("###"))
                 {
                     // Section Header
-                    col.Item().PaddingTop(10).PaddingBottom(5).Text(trimmed.Substring(3).Trim()).FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                    col.Item().PaddingTop(10).PaddingBottom(5).Text(trimmed.Substring(3).Trim()).FontSize(14).Bold().Underline().FontColor(Colors.Blue.Darken2);
                 }
                 else if (trimmed.StartsWith("*"))
                 {
                     // Bullet Point
                     col.Item().PaddingLeft(10).PaddingBottom(2).Row(row =>
                     {
-                        row.ConstantItem(10).Text("•");
+                        row.ConstantItem(15).Text("\u2022"); // Bullet
                         row.RelativeItem().Text(t => ParseInlineMarkdown(t, trimmed.Substring(1).Trim()));
                     });
                 }
@@ -269,7 +269,7 @@ namespace SaveFW.Server.Controllers
             }
         }
 
-        private void RenderCombinedBreakdownTable(ColumnDescriptor col, List<List<string>>? subjectData, List<List<string>>? otherData)
+        private void RenderCombinedBreakdownTable(ColumnDescriptor col, List<List<string>>? subjectData, List<List<string>>? otherData, string? subjectCountyName)
         {
             if ((subjectData == null || subjectData.Count == 0) && (otherData == null || otherData.Count == 0))
             {
@@ -303,11 +303,13 @@ namespace SaveFW.Server.Controllers
                     header.Cell().Element(CombinedHeaderStyle).AlignRight().Text("Total");
                 });
 
-                // Row 1: Subject County
+                // Row 1: Subject County (Extracted from Category-based rows)
                 if (subjectData != null && subjectData.Count >= 7)
                 {
-                    table.Cell().Element(c => CombinedCellStyle(c)).Text("Subject County").Bold();
-                    // Indices: 0=PH, 1=SS, 2=Law, 3=Legal, 4=Abused, 5=Emp, 6=Total
+                    string name = !string.IsNullOrWhiteSpace(subjectCountyName) ? subjectCountyName : "Subject County";
+                    table.Cell().Element(c => CombinedCellStyle(c)).Text(name).Bold();
+                    
+                    // subjectData indices: 0=PH, 1=SS, 2=Law, 3=Legal, 4=Abused, 5=Emp, 6=Total
                     // Data row structure: [Category, Victims, Per, Total] -> Index 3 is Total Cost
                     for (int i = 0; i < 6; i++) 
                         table.Cell().Element(c => CombinedCellStyle(c)).AlignRight().Text(subjectData[i].Count > 3 ? subjectData[i][3] : "-");
@@ -316,14 +318,21 @@ namespace SaveFW.Server.Controllers
                     table.Cell().Element(c => CombinedCellStyle(c, true)).AlignRight().Text(subjectData[6].Count > 3 ? subjectData[6][3] : "-");
                 }
 
-                // Row 2: Regional Spillover
-                if (otherData != null && otherData.Count >= 7)
+                // Other Rows: Regional Spillover (Counties)
+                // New format: [Name, PH, SS, Law, Legal, Abused, Emp, Total]
+                if (otherData != null)
                 {
-                    table.Cell().Element(c => CombinedCellStyle(c)).Text("Regional Spillover").Bold();
-                    for (int i = 0; i < 6; i++) 
-                        table.Cell().Element(c => CombinedCellStyle(c)).AlignRight().Text(otherData[i].Count > 3 ? otherData[i][3] : "-");
-
-                    table.Cell().Element(c => CombinedCellStyle(c, true)).AlignRight().Text(otherData[6].Count > 3 ? otherData[6][3] : "-");
+                    foreach (var row in otherData)
+                    {
+                        if (row.Count < 8) continue; 
+                        
+                        table.Cell().Element(c => CombinedCellStyle(c)).Text(row[0]); // Name
+                        for (int i = 1; i <= 7; i++)
+                        {
+                             bool isTotalCol = (i == 7);
+                             table.Cell().Element(c => CombinedCellStyle(c, isTotalCol)).AlignRight().Text(row[i]);
+                        }
+                    }
                 }
             });
         }
@@ -351,6 +360,7 @@ namespace SaveFW.Server.Controllers
 
     public class ReportRequest
     {
+        public string? SubjectCountyName { get; set; }
         public string? MapImageBase64 { get; set; }
         public string? AnalysisText { get; set; }
         public TableData? MainTable { get; set; }
