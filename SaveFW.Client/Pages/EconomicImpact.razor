@@ -88,7 +88,7 @@
 
                         <!-- Revenue Input -->
                         <div>
-                            <div class="flex justify-between items-end mb-4">
+                            <div class="flex justify-between items-end mb-4 mt-4">
                                 <div class="flex flex-col">
                                     <label class="text-base font-bold text-white">Tax Revenue</label>
                                     <p class="text-xs text-slate-400 italic">Default: Spectrum Gaming Projection
@@ -202,11 +202,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-lg font-bold font-mono text-white"
-                                            id="val-cost-crime">$1,625</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-lg font-bold font-mono text-white">$</span>
+                                            <input type="text" id="val-cost-crime" min="0" max="10000" inputmode="numeric" class="bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-0.5 text-lg font-bold font-mono text-white w-28 text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner" value="1,625">
+                                        </div>
                                     </div>
                                     <div class="relative w-full group flex items-center  overflow-visible">
-                                        <input type="range" min="0" max="10000" step="25" value="1625"
+                                        <input type="range" min="0" max="10000" step="1" value="1625"
                                             data-default="1625.0" id="input-cost-crime"
                                             class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
                                         <input type="radio" name="crime-default" value="1625"
@@ -249,11 +251,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-lg font-bold font-mono text-white"
-                                            id="val-cost-business">$4,051</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-lg font-bold font-mono text-white">$</span>
+                                            <input type="text" id="val-cost-business" min="0" max="10000" inputmode="numeric" class="bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-0.5 text-lg font-bold font-mono text-white w-28 text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner" value="4,051">
+                                        </div>
                                     </div>
                                     <div class="relative w-full group flex items-center  overflow-visible">
-                                        <input type="range" min="0" max="10000" step="50" value="4051"
+                                        <input type="range" min="0" max="10000" step="1" value="4051"
                                             data-default="4051.0" id="input-cost-business"
                                             class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
                                         <input type="radio" name="business-default" value="4051"
@@ -295,11 +299,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-lg font-bold font-mono text-white"
-                                            id="val-cost-bankruptcy">$431</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-lg font-bold font-mono text-white">$</span>
+                                            <input type="text" id="val-cost-bankruptcy" min="0" max="10000" inputmode="numeric" class="bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-0.5 text-lg font-bold font-mono text-white w-28 text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner" value="431">
+                                        </div>
                                     </div>
                                     <div class="relative w-full group flex items-center  overflow-visible">
-                                        <input type="range" min="0" max="10000" step="10" value="431"
+                                        <input type="range" min="0" max="10000" step="1" value="431"
                                             data-default="431.0" id="input-cost-bankruptcy"
                                             class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
                                         <input type="radio" name="bankruptcy-default" value="431"
@@ -341,11 +347,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-lg font-bold font-mono text-white"
-                                            id="val-cost-illness">$1,328</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-lg font-bold font-mono text-white">$</span>
+                                            <input type="text" id="val-cost-illness" min="0" max="10000" inputmode="numeric" class="bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-0.5 text-lg font-bold font-mono text-white w-28 text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner" value="1,328">
+                                        </div>
                                     </div>
                                     <div class="relative w-full group flex items-center  overflow-visible">
-                                        <input type="range" min="0" max="10000" step="25" value="1328"
+                                        <input type="range" min="0" max="10000" step="1" value="1328"
                                             data-default="1328.0" id="input-cost-illness"
                                             class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
                                         <input type="radio" name="illness-default" value="1328"
@@ -388,11 +396,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-lg font-bold font-mono text-white"
-                                            id="val-cost-services">$713</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-lg font-bold font-mono text-white">$</span>
+                                            <input type="text" id="val-cost-services" min="0" max="10000" inputmode="numeric" class="bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-0.5 text-lg font-bold font-mono text-white w-28 text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner" value="713">
+                                        </div>
                                     </div>
                                     <div class="relative w-full group flex items-center  overflow-visible">
-                                        <input type="range" min="0" max="10000" step="25" value="713"
+                                        <input type="range" min="0" max="10000" step="1" value="713"
                                             data-default="713.0" id="input-cost-services"
                                             class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
                                         <input type="radio" name="services-default" value="713"
@@ -435,11 +445,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="text-lg font-bold font-mono text-white"
-                                            id="val-cost-abused">$5,055</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-lg font-bold font-mono text-white">$</span>
+                                            <input type="text" id="val-cost-abused" min="0" max="10000" inputmode="numeric" class="bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-0.5 text-lg font-bold font-mono text-white w-28 text-right focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all shadow-inner" value="5,055">
+                                        </div>
                                     </div>
                                     <div class="relative w-full group flex items-center  overflow-visible">
-                                        <input type="range" min="0" max="10000" step="50" value="5055"
+                                        <input type="range" min="0" max="10000" step="1" value="5055"
                                             data-default="5055.0" id="input-cost-abused"
                                             class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500 relative z-20">
                                         <input type="radio" name="abused-default" value="5055"

@@ -409,6 +409,9 @@ window.EconomicCalculator = (function ()
 
     function calculate(e)
     {
+        const fmt = (v, dec = 0) => v.toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        const isTextInput = e ? e.isTextInput : false;
+
         // 0. Check if location is selected
         const hasLocation = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
         
@@ -458,11 +461,12 @@ window.EconomicCalculator = (function ()
 
         // 1. Two-Way Binding Logic (AGR vs Revenue)
         const source = e ? e.target : null;
+        const sourceId = source ? source.id : "";
         let revenueM = 0;
         let agrM = 0;
         let taxResult = null;
 
-        if (source === els.inAGR)
+        if (sourceId === 'input-agr')
         {
             // Master: AGR
             agrM = parseFloat(els.inAGR.value);
@@ -472,7 +476,7 @@ window.EconomicCalculator = (function ()
             // Update Revenue Slider (Snap disabled for calculated updates)
             els.inRevenue.value = revenueM.toFixed(2);
             els.inRevenue.dispatchEvent(new Event('slider-update'));
-        } else if (source === els.inRevenue)
+        } else if (sourceId === 'input-revenue')
         {
             // Master: Revenue
             revenueM = parseFloat(els.inRevenue.value);
@@ -629,12 +633,12 @@ window.EconomicCalculator = (function ()
         els.valRate.textContent = rate.toFixed(1) + '%';
 
         els.valCostTotal.textContent = '$' + costPer.toLocaleString();
-        els.valCostCrime.textContent = '$' + cCrime.toLocaleString();
-        els.valCostBusiness.textContent = '$' + cBusiness.toLocaleString();
-        els.valCostBankruptcy.textContent = '$' + cBankruptcy.toLocaleString();
-        els.valCostIllness.textContent = '$' + cIllness.toLocaleString();
-        els.valCostServices.textContent = '$' + cServices.toLocaleString();
-        els.valCostAbused.textContent = '$' + cAbused.toLocaleString();
+        if (document.activeElement !== els.valCostCrime) els.valCostCrime.value = fmt(cCrime);
+        if (document.activeElement !== els.valCostBusiness) els.valCostBusiness.value = fmt(cBusiness);
+        if (document.activeElement !== els.valCostBankruptcy) els.valCostBankruptcy.value = fmt(cBankruptcy);
+        if (document.activeElement !== els.valCostIllness) els.valCostIllness.value = fmt(cIllness);
+        if (document.activeElement !== els.valCostServices) els.valCostServices.value = fmt(cServices);
+        if (document.activeElement !== els.valCostAbused) els.valCostAbused.value = fmt(cAbused);
 
         // Logic
         const totalPopEl = document.getElementById('disp-pop-impact-zones');
@@ -1692,6 +1696,56 @@ window.EconomicCalculator = (function ()
         if (els.inCostServices) els.inCostServices.addEventListener('input', calculate);
         if (els.inCostAbused) els.inCostAbused.addEventListener('input', calculate);
 
+        // Text Input Listeners (Sync)
+        const textInputs = [
+            { text: els.valAGR, slider: els.inAGR },
+            { text: els.valRevenue, slider: els.inRevenue },
+            { text: els.valCostCrime, slider: els.inCostCrime },
+            { text: els.valCostBusiness, slider: els.inCostBusiness },
+            { text: els.valCostBankruptcy, slider: els.inCostBankruptcy },
+            { text: els.valCostIllness, slider: els.inCostIllness },
+            { text: els.valCostServices, slider: els.inCostServices },
+            { text: els.valCostAbused, slider: els.inCostAbused }
+        ];
+        textInputs.forEach(pair => {
+            if (pair.text && pair.slider) {
+                pair.text.addEventListener('input', (e) => {
+                    const rawVal = e.target.value.replace(/,/g, '');
+                    if (rawVal === '' || rawVal === '-') return;
+
+                    let val = parseFloat(rawVal);
+                    if (isNaN(val)) return;
+
+                    // Clamp
+                    const min = parseFloat(pair.slider.min);
+                    const max = parseFloat(pair.slider.max);
+                    let clamped = val;
+                    if (val > max) clamped = max;
+                    if (val < min) clamped = min;
+
+                    // Sync Slider
+                    pair.slider.value = clamped;
+
+                    // Format Input
+                    const step = parseFloat(pair.slider.step);
+                    const isDecimal = step < 1;
+                    const formatted = clamped.toLocaleString(undefined, { maximumFractionDigits: isDecimal ? 2 : 0 });
+
+                    let shouldFormat = true;
+                    // Don't format if user is typing a decimal and we are within bounds
+                    if (isDecimal && (e.target.value.endsWith('.') || e.target.value.endsWith('.0') || e.target.value.endsWith('.00'))) {
+                        if (val === clamped) shouldFormat = false;
+                    }
+
+                    if (shouldFormat && e.target.value !== formatted) {
+                        e.target.value = formatted;
+                    }
+
+                    calculate({ target: pair.slider, isTextInput: true });
+                });
+            }
+        });
+
         // Map Event Listener
         window.addEventListener('county-selected-map', (e) =>
         {
@@ -1715,7 +1769,7 @@ window.EconomicCalculator = (function ()
     // Main init function - called by Blazor after component renders
     function init()
     {
-        if (isInitialized)
+        if (isInitialized && els.inAGR && document.body.contains(els.inAGR))
         {
             console.log('EconomicCalculator already initialized, skipping');
             return;
