@@ -229,6 +229,14 @@ namespace SaveFW.Server.Controllers
 
             foreach (var line in lines)
             {
+                // Determine indentation
+                int spaces = 0;
+                foreach (char c in line)
+                {
+                    if (c == ' ') spaces++;
+                    else break;
+                }
+
                 var trimmed = line.Trim();
                 if (trimmed.StartsWith("###"))
                 {
@@ -238,7 +246,10 @@ namespace SaveFW.Server.Controllers
                 else if (trimmed.StartsWith("*"))
                 {
                     // Bullet Point
-                    col.Item().PaddingLeft(10).PaddingBottom(2).Row(row =>
+                    int level = spaces / 2;
+                    float indent = 10 + (level * 15);
+
+                    col.Item().PaddingLeft(indent).PaddingBottom(2).Row(row =>
                     {
                         row.ConstantItem(15).Text("\u2022"); // Bullet
                         row.RelativeItem().Text(t => ParseInlineMarkdown(t, trimmed.Substring(1).Trim()));

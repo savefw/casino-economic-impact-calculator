@@ -119,7 +119,7 @@ This project is built using a modern .NET 10 distributed architecture:
 
 ---
 
-# Getting Started
+# Installation
 
 The easiest way to run Save Fort Wayne is using **Docker**. This ensures the application, database, and all dependencies run exactly as intended without installing anything else on your machine.
 
@@ -206,40 +206,7 @@ cd SaveFW
 ./dev/start_server.sh
 ```
 
----
-
-# Open Source and Contributions
-
-This project is shared openly to encourage community involvement. We invite developers and data scientists to:
-
-1.  Improve the Calculator: Refine social cost algorithms and add granular data points.
-2.  Enhance Visualizations: Expand mapping and charting capabilities.
-3.  Audit Sources: Ensure the latest research is reflected in the platform models.
-
-# Contact
-
-For inquiries, feedback, or to join the coalition, please reach out to:
-outreach@savefw.com
-
-# Data and Sources
-
-Social cost modeling is derived from established academic research:
-*   Grinols (2011): Social cost per problem gambler calculations (adjusted for 2025 inflation).
-*   Welte et al.: Proximity-based multipliers for gambling addiction risk.
-*   Spectrum Gaming: Comparison of state-commissioned revenue projections.
-
----
-
-<div align="center">
-  <p><em>A volunteer effort by concerned residents of Allen County.</em></p>
-  <p>
-    <a href="https://savefw.com"><strong>Visit Live Site</strong></a>
-  </p>
-</div>
-
----
-
-# Dependencies & Offline Support
+## Dependencies & Offline Support
 
 This application is designed to run **fully offline**. All critical external assets—including CSS frameworks, JavaScript libraries, Fonts, and Map Tiles—have been localized or vendored to ensure zero dependency on external CDNs during runtime. This architecture guarantees stability, privacy, and performance even in isolated environments.
 
@@ -274,3 +241,34 @@ These libraries are manually included in `wwwroot/js/lib` or `wwwroot/css` to av
 *   **Leaflet Heat:** Heatmap visualization plugin.
 *   **PDF.js:** Client-side PDF rendering.
 *   **PageFlip:** Flipbook animation effect.
+
+---
+
+# Open Source and Contributions
+
+This project is shared openly to encourage community involvement. We invite developers and data scientists to:
+
+1.  Improve the Calculator: Refine social cost algorithms and add granular data points.
+2.  Enhance Visualizations: Expand mapping and charting capabilities.
+3.  Audit Sources: Ensure the latest research is reflected in the platform models.
+
+# Contact
+
+For inquiries, feedback, or to join the coalition, please reach out to:
+outreach@savefw.com
+
+# Data and Sources
+
+Social cost modeling is derived from established academic research:
+*   Grinols (2011): Social cost per problem gambler calculations (adjusted for 2025 inflation).
+*   Welte et al.: Proximity-based multipliers for gambling addiction risk.
+*   Spectrum Gaming: Comparison of state-commissioned revenue projections.
+
+---
+
+<div align="center">
+  <p><em>A volunteer effort by concerned residents of Allen County.</em></p>
+  <p>
+    <a href="https://savefw.com"><strong>Visit Live Site</strong></a>
+  </p>
+</div>

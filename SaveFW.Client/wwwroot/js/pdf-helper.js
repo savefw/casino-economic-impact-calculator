@@ -1,63 +1,44 @@
 window.PdfHelper = {
     captureMapAndGenerate: async function(mapElementId) {
-        // 1. Target elements to hide (UI Controls ONLY)
-        const elementsToHide = [
-            document.getElementById('map-navigation-overlay'),
-            document.querySelector('#map-zoom-hint'),
-            document.querySelector('#map-overlay-panel'),
-            document.querySelector('#map-overlay-topright'), // Toggles & Risk Tags
-            document.querySelector('button[onclick="toggleMapOverlay()"]'), // Layer Toggle
-            // Leaflet Controls (Zoom buttons, Attribution) - Keep markers/lines!
-            document.querySelector('.leaflet-control-container .leaflet-top.leaflet-left'), 
-            document.querySelector('.leaflet-control-container .leaflet-bottom.leaflet-right')
-        ];
-
-        // 2. Hide them
-        const originalStyles = new Map();
-        elementsToHide.forEach(el => {
-            if (el) {
-                originalStyles.set(el, el.style.display);
-                el.style.display = 'none';
-            }
-        });
-
-        // 3. Snapshot
         const mapElement = document.getElementById(mapElementId);
         let base64 = null;
-        let markerRestores = [];
         
         if (mapElement) {
-            // Fix Leaflet Markers (Translate3d to Top/Left) for html2canvas
-            const markers = mapElement.querySelectorAll('.leaflet-marker-icon, .leaflet-marker-shadow');
-            markers.forEach(m => {
-                const t = m.style.transform;
-                if (t && t.includes('translate3d')) {
-                    const parts = t.match(/translate3d\(([^,]+),\s*([^,]+)/);
-                    if (parts && parts.length >= 3) {
-                        markerRestores.push({
-                            element: m,
-                            transform: t,
-                            left: m.style.left,
-                            top: m.style.top
-                        });
-                        m.style.left = parts[1];
-                        m.style.top = parts[2];
-                        m.style.transform = 'none';
-                    }
-                }
-            });
-
             try {
-                // Ensure SVG rendering is enabled
                 const canvas = await html2canvas(mapElement, {
                     useCORS: true,
                     allowTaint: true,
                     logging: false,
-                    scale: 2, // High resolution
-                    ignoreElements: (element) => {
-                        // Double check we don't capture hidden UI if html2canvas sees them
-                        if (elementsToHide.includes(element)) return true;
-                        return false;
+                    scale: 2,
+                    onclone: (clonedDoc) => {
+                        // 1. Hide Controls in Clone
+                        const selectors = [
+                            '#map-navigation-overlay',
+                            '#map-zoom-hint',
+                            '#map-overlay-panel',
+                            '#map-overlay-topright',
+                            'button[onclick="toggleMapOverlay()"]',
+                            '.leaflet-control-container .leaflet-top.leaflet-left',
+                            '.leaflet-control-container .leaflet-bottom.leaflet-right'
+                        ];
+                        selectors.forEach(s => {
+                            const el = clonedDoc.querySelector(s);
+                            if (el) el.style.display = 'none';
+                        });
+
+                        // 2. Fix Markers (translate3d -> translate)
+                        // html2canvas sometimes miscalculates 3D transforms or absolute positioning on markers.
+                        // Converting to simple 2D translate often resolves alignment issues.
+                        const markers = clonedDoc.querySelectorAll('.leaflet-marker-icon, .leaflet-marker-shadow');
+                        markers.forEach(m => {
+                            const t = m.style.transform;
+                            if (t && t.includes('translate3d')) {
+                                const parts = t.match(/translate3d\(([^,]+),\s*([^,]+)/);
+                                if (parts && parts.length >= 3) {
+                                    m.style.transform = `translate(${parts[1]}, ${parts[2]})`;
+                                }
+                            }
+                        });
                     }
                 });
                 
@@ -66,21 +47,6 @@ window.PdfHelper = {
                 console.error("Map capture failed:", err);
             }
         }
-
-        // 4. Restore
-        if (markerRestores) {
-            markerRestores.forEach(r => {
-                r.element.style.transform = r.transform;
-                r.element.style.left = r.left;
-                r.element.style.top = r.top;
-            });
-        }
-
-        elementsToHide.forEach(el => {
-            if (el) {
-                el.style.display = originalStyles.get(el);
-            }
-        });
         
         return base64;
     },
@@ -146,21 +112,44 @@ window.PdfHelper = {
         const analysisEl = document.getElementById('analysis-text');
         let formattedText = "";
         
+        // Recursive list processor
+        const processList = (ul, level = 0) => {
+            let result = "";
+            const indent = " ".repeat(level * 2);
+            for (const child of ul.children) {
+                if (child.tagName === 'LI') {
+                    // Clone to get text without child lists
+                    const clone = child.cloneNode(true);
+                    const nested = clone.querySelectorAll('ul, ol');
+                    nested.forEach(n => n.remove());
+                    
+                    let liText = clone.innerHTML;
+                    liText = liText.replace(/<(strong|b)>(.*?)<\/\1>/gi, "**$2**");
+                    liText = liText.replace(/<[^>]+>/g, ""); // Strip other tags
+                    liText = liText.trim();
+                    
+                    if (liText) {
+                        result += `${indent}* ${liText}\n`;
+                    }
+                    
+                    // Process nested lists from original child
+                    for (const sub of child.children) {
+                        if (sub.tagName === 'UL' || sub.tagName === 'OL') {
+                            result += processList(sub, level + 1);
+                        }
+                    }
+                }
+            }
+            return result;
+        };
+
         if (analysisEl) {
             for (const node of analysisEl.childNodes) {
                 if (node.nodeType === Node.ELEMENT_NODE) {
                     if (node.tagName === 'DIV' && node.classList.contains('font-bold')) {
                         formattedText += `### ${node.innerText.trim()}\n`;
                     } else if (node.tagName === 'UL') {
-                        const lis = node.querySelectorAll('li');
-                        lis.forEach(li => {
-                            let liText = li.innerHTML;
-                            liText = liText.replace(/<(strong|b)>(.*?)<\/\1>/gi, "**$2**");
-                            liText = liText.replace(/<[^>]+>/g, "");
-                            const temp = document.createElement('div');
-                            temp.innerHTML = liText;
-                            formattedText += `* ${temp.innerText.trim()}\n`;
-                        });
+                        formattedText += processList(node);
                         formattedText += "\n";
                     } else if (node.tagName === 'P') {
                         formattedText += `${node.innerText.trim()}\n\n`;
