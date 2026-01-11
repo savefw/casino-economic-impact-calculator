@@ -409,7 +409,7 @@ window.EconomicCalculator = (function ()
 
     function calculate(e)
     {
-        const fmt = (v, dec = 0) => v.toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        const fmtInput = (v, dec = 0) => v.toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const isTextInput = e ? e.isTextInput : false;
 
         // 0. Check if location is selected
@@ -633,12 +633,12 @@ window.EconomicCalculator = (function ()
         els.valRate.textContent = rate.toFixed(1) + '%';
 
         els.valCostTotal.textContent = '$' + costPer.toLocaleString();
-        if (document.activeElement !== els.valCostCrime) els.valCostCrime.value = fmt(cCrime);
-        if (document.activeElement !== els.valCostBusiness) els.valCostBusiness.value = fmt(cBusiness);
-        if (document.activeElement !== els.valCostBankruptcy) els.valCostBankruptcy.value = fmt(cBankruptcy);
-        if (document.activeElement !== els.valCostIllness) els.valCostIllness.value = fmt(cIllness);
-        if (document.activeElement !== els.valCostServices) els.valCostServices.value = fmt(cServices);
-        if (document.activeElement !== els.valCostAbused) els.valCostAbused.value = fmt(cAbused);
+        if ((sourceId === 'input-cost-crime' && !isTextInput) || document.activeElement !== els.valCostCrime) els.valCostCrime.value = fmtInput(cCrime);
+        if ((sourceId === 'input-cost-business' && !isTextInput) || document.activeElement !== els.valCostBusiness) els.valCostBusiness.value = fmtInput(cBusiness);
+        if ((sourceId === 'input-cost-bankruptcy' && !isTextInput) || document.activeElement !== els.valCostBankruptcy) els.valCostBankruptcy.value = fmtInput(cBankruptcy);
+        if ((sourceId === 'input-cost-illness' && !isTextInput) || document.activeElement !== els.valCostIllness) els.valCostIllness.value = fmtInput(cIllness);
+        if ((sourceId === 'input-cost-services' && !isTextInput) || document.activeElement !== els.valCostServices) els.valCostServices.value = fmtInput(cServices);
+        if ((sourceId === 'input-cost-abused' && !isTextInput) || document.activeElement !== els.valCostAbused) els.valCostAbused.value = fmtInput(cAbused);
 
         // Logic
         const totalPopEl = document.getElementById('disp-pop-impact-zones');
