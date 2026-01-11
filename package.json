@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "description": "SaveFW - Economic Impact Analysis",
   "scripts": {
-    "build:css": "tailwindcss -i ./SaveFW.Client/Styles/app.css -o ./SaveFW.Client/wwwroot/css/app.css --minify",
+    "build:css": "BROWSERSLIST_IGNORE_OLD_DATA=true tailwindcss -i ./SaveFW.Client/Styles/app.css -o ./SaveFW.Client/wwwroot/css/app.css --minify",
     "copy-libs": "cp node_modules/leaflet-control-geocoder/dist/Control.Geocoder.js SaveFW.Client/wwwroot/js/lib/ && cp node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css SaveFW.Client/wwwroot/css/ && cp node_modules/@turf/turf/turf.min.js SaveFW.Client/wwwroot/js/lib/ && cp node_modules/chart.js/dist/chart.umd.min.js SaveFW.Client/wwwroot/js/lib/chart.js && cp node_modules/html2canvas/dist/html2canvas.min.js SaveFW.Client/wwwroot/js/lib/ && cp -r node_modules/@fontsource-variable/public-sans SaveFW.Client/wwwroot/lib/ && cp -r node_modules/@fontsource-variable/material-symbols-outlined SaveFW.Client/wwwroot/lib/"
   },
   "dependencies": {
     "@fontsource-variable/material-symbols-outlined": "^5.2.30",
     "@fontsource-variable/public-sans": "^5.2.7",
     "@turf/turf": "^7.3.1",
+    "browserslist": "^4.28.1",
+    "caniuse-lite": "^1.0.30001764",
     "chart.js": "^4.5.1",
     "html2canvas": "^1.4.1",
     "leaflet-control-geocoder": "^3.3.1"
@@ -17,7 +19,7 @@
   "devDependencies": {
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.7",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.23",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0"
   }
