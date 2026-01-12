@@ -153,7 +153,8 @@ window.EconomicCalculator = (function ()
 
         const sorted = [...data].sort((a, b) =>
         {
-            if (sortMode === 'pop') {
+            if (sortMode === 'pop')
+            {
                 return sortDir === 'asc' ? (a.pop || 0) - (b.pop || 0) : (b.pop || 0) - (a.pop || 0);
             }
             return sortDir === 'asc' ? (a.name || '').localeCompare(b.name || '') : (b.name || '').localeCompare(a.name || '');
@@ -265,9 +266,11 @@ window.EconomicCalculator = (function ()
             sortAlphaBtn.onclick = (e) =>
             {
                 e.preventDefault();
-                if (sortMode === 'alpha') {
+                if (sortMode === 'alpha')
+                {
                     sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-                } else {
+                } else
+                {
                     sortMode = 'alpha';
                     sortDir = 'asc';
                 }
@@ -279,9 +282,11 @@ window.EconomicCalculator = (function ()
             sortPopBtn.onclick = (e) =>
             {
                 e.preventDefault();
-                if (sortMode === 'pop') {
+                if (sortMode === 'pop')
+                {
                     sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-                } else {
+                } else
+                {
                     sortMode = 'pop';
                     sortDir = 'desc';
                 }
@@ -417,7 +422,7 @@ window.EconomicCalculator = (function ()
 
         // 0. Check if location is selected
         const hasLocation = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
-        
+
         // Toggle Visibility for Net Impact Table
         const netImpactEmpty = document.getElementById('net-impact-empty-state');
         const netImpactContent = document.getElementById('net-impact-content');
@@ -429,11 +434,14 @@ window.EconomicCalculator = (function ()
 
         // Toggle PDF Button State
         const pdfBtn = document.getElementById('btn-generate-pdf');
-        if (pdfBtn) {
+        if (pdfBtn)
+        {
             const isSpinning = pdfBtn.querySelector('.animate-spin');
-            if (!hasLocation) {
+            if (!hasLocation)
+            {
                 pdfBtn.disabled = true;
-            } else if (!isSpinning) {
+            } else if (!isSpinning)
+            {
                 pdfBtn.disabled = false;
             }
         }
@@ -588,8 +596,8 @@ window.EconomicCalculator = (function ()
 
             // Determine active color based on slider type
             let activeColor = null;
-            if (input.id === 'input-rate') activeColor = 'text-orange-500';
-            else if (input.id === 'input-revenue') activeColor = 'text-emerald-500';
+            // Rate slider uses default white text
+            if (input.id === 'input-revenue') activeColor = 'text-emerald-500';
             else if (input.id === 'input-agr') activeColor = 'text-emerald-400';
 
             if (snapped) 
@@ -647,7 +655,7 @@ window.EconomicCalculator = (function ()
         // els.valRate.textContent = rate.toFixed(1) + '%';
 
         els.valCostTotal.textContent = '$' + costPer.toLocaleString();
-        
+
         // Force update text inputs if they are not focused (fallback for SliderInputLogic)
         if (document.activeElement !== els.valCostCrime) els.valCostCrime.value = fmtInput(cCrime);
         if (document.activeElement !== els.valCostBusiness) els.valCostBusiness.value = fmtInput(cBusiness);
@@ -1032,33 +1040,33 @@ window.EconomicCalculator = (function ()
             }
         ];
 
-		        renderNetEconomicImpactTable({
-		            subjectCountyName,
-		            subjectCountyFips,
-		            subjectStateName,
-		            baselineRate: rate,
-		            rows: netImpactRows,
-                otherCounties: otherCosts ? otherCosts.counties : [],
-                expanded: otherCountiesExpanded
-            });
+        renderNetEconomicImpactTable({
+            subjectCountyName,
+            subjectCountyFips,
+            subjectStateName,
+            baselineRate: rate,
+            rows: netImpactRows,
+            otherCounties: otherCosts ? otherCosts.counties : [],
+            expanded: otherCountiesExpanded
+        });
 
-            const hasImpact = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
+        const hasImpact = !!(lastImpactBreakdown && lastImpactBreakdown.countyFips);
 
-            if (hasImpact)
-            {
-                const taxEffRateActual = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
-                if (els.calcAGR) els.calcAGR.textContent = fmtM(agrM * 1000000);
-                if (els.calcTaxRate) els.calcTaxRate.textContent = taxEffRateActual.toFixed(2) + '%';
-                if (els.calcTaxTotal) els.calcTaxTotal.textContent = fmtM(totalRevenue);
+        if (hasImpact)
+        {
+            const taxEffRateActual = agrM > 0 ? (totalRevenue / (agrM * 1000000)) * 100 : 0;
+            if (els.calcAGR) els.calcAGR.textContent = fmtM(agrM * 1000000);
+            if (els.calcTaxRate) els.calcTaxRate.textContent = taxEffRateActual.toFixed(2) + '%';
+            if (els.calcTaxTotal) els.calcTaxTotal.textContent = fmtM(totalRevenue);
 
-                if (els.calcRevTotalH) els.calcRevTotalH.textContent = fmtM(totalRevenue);
-                if (els.calcAllocPctH) els.calcAllocPctH.textContent = allocPct + '%';
-                if (els.calcAllocHumanVal) els.calcAllocHumanVal.textContent = fmtM(revHealthPool);
+            if (els.calcRevTotalH) els.calcRevTotalH.textContent = fmtM(totalRevenue);
+            if (els.calcAllocPctH) els.calcAllocPctH.textContent = allocPct + '%';
+            if (els.calcAllocHumanVal) els.calcAllocHumanVal.textContent = fmtM(revHealthPool);
 
-                if (els.calcRevTotalG) els.calcRevTotalG.textContent = fmtM(totalRevenue);
-                if (els.calcAllocPctG) els.calcAllocPctG.textContent = (100 - allocPct) + '%';
-                if (els.calcAllocGenVal) els.calcAllocGenVal.textContent = fmtM(revGeneralPool);
-            }
+            if (els.calcRevTotalG) els.calcRevTotalG.textContent = fmtM(totalRevenue);
+            if (els.calcAllocPctG) els.calcAllocPctG.textContent = (100 - allocPct) + '%';
+            if (els.calcAllocGenVal) els.calcAllocGenVal.textContent = fmtM(revGeneralPool);
+        }
 
         const otherVictimsRaw = otherCosts && Array.isArray(otherCosts.counties)
             ? otherCosts.counties.reduce((sum, c) => sum + (Number(c && c.victimsWithin50) || 0), 0)
@@ -1305,71 +1313,71 @@ window.EconomicCalculator = (function ()
             analysisHTML += '</ul>';
             analysisEl.innerHTML = analysisHTML;
         }
-	    }
+    }
 
-	    function computeOtherCountyCosts(options)
-	    {
-	        const impact = options && options.impactBreakdown ? options.impactBreakdown : null;
-	        const impacted = impact && Array.isArray(impact.byCounty) ? impact.byCounty : [];
-	        const subjectCountyFips = String((impact && impact.countyFips) || "");
-	
-	        const baselineRateCandidate = Number((impact && impact.baselineRate) || (options && options.baselineRate) || 2.3);
-	        const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
-	        const r1 = (baselineRate * 2.0) / 100;
-	        const r2 = (baselineRate * 1.5) / 100;
-	        const r3 = (baselineRate * 1.0) / 100;
-	
-	        const perVictimCosts = (options && options.perVictimCosts) ? options.perVictimCosts : {};
-	        const costsPerVictim = {
-	            health: Number(perVictimCosts.health || 0),
-	            crime: Number(perVictimCosts.crime || 0),
-	            social: Number(perVictimCosts.social || 0),
-	            legal: Number(perVictimCosts.legal || 0),
-	            abused: Number(perVictimCosts.abused || 0),
-	            employment: Number(perVictimCosts.employment || 0)
-	        };
-	
-	        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
-	
-	        const totals = {
-	            adults: 0,
-	            victims: 0,
-	            health: 0,
-	            crime: 0,
-	            social: 0,
-	            legal: 0,
-	            abused: 0,
-	            employment: 0,
-	            public: 0,
-	            private: 0,
-	            total: 0
-	        };
-	
-	        const counties = [];
-	        for (const c of impacted)
-	        {
-	            const fips = String((c && (c.fips || c.geoid)) || "");
-	            if (!fips || fips === subjectCountyFips) continue;
-	
-	            const t1Adults = Number(c.t1Pop || 0);
-	            const t2Adults = Number(c.t2Pop || 0);
-	            const t3Adults = Number(c.t3Pop || 0);
-	            const adultsWithin50 = t1Adults + t2Adults + t3Adults;
-	            const victimsWithin50 = (t1Adults * r1) + (t2Adults * r2) + (t3Adults * r3);
-	            if (!Number.isFinite(victimsWithin50) || victimsWithin50 <= 0) continue;
-	
-	            const name = countyIndex.get(fips) || fips;
-	
-	            const health = victimsWithin50 * costsPerVictim.health;
-	            const crime = victimsWithin50 * costsPerVictim.crime;
-	            const social = victimsWithin50 * costsPerVictim.social;
-	            const legal = victimsWithin50 * costsPerVictim.legal;
-	            const abused = victimsWithin50 * costsPerVictim.abused;
-	            const employment = victimsWithin50 * costsPerVictim.employment;
-	            const publicTotal = health + crime + social + legal;
-	            const privateTotal = abused + employment;
-	            const total = publicTotal + privateTotal;
-	
+    function computeOtherCountyCosts(options)
+    {
+        const impact = options && options.impactBreakdown ? options.impactBreakdown : null;
+        const impacted = impact && Array.isArray(impact.byCounty) ? impact.byCounty : [];
+        const subjectCountyFips = String((impact && impact.countyFips) || "");
+
+        const baselineRateCandidate = Number((impact && impact.baselineRate) || (options && options.baselineRate) || 2.3);
+        const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
+        const r1 = (baselineRate * 2.0) / 100;
+        const r2 = (baselineRate * 1.5) / 100;
+        const r3 = (baselineRate * 1.0) / 100;
+
+        const perVictimCosts = (options && options.perVictimCosts) ? options.perVictimCosts : {};
+        const costsPerVictim = {
+            health: Number(perVictimCosts.health || 0),
+            crime: Number(perVictimCosts.crime || 0),
+            social: Number(perVictimCosts.social || 0),
+            legal: Number(perVictimCosts.legal || 0),
+            abused: Number(perVictimCosts.abused || 0),
+            employment: Number(perVictimCosts.employment || 0)
+        };
+
+        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
+
+        const totals = {
+            adults: 0,
+            victims: 0,
+            health: 0,
+            crime: 0,
+            social: 0,
+            legal: 0,
+            abused: 0,
+            employment: 0,
+            public: 0,
+            private: 0,
+            total: 0
+        };
+
+        const counties = [];
+        for (const c of impacted)
+        {
+            const fips = String((c && (c.fips || c.geoid)) || "");
+            if (!fips || fips === subjectCountyFips) continue;
+
+            const t1Adults = Number(c.t1Pop || 0);
+            const t2Adults = Number(c.t2Pop || 0);
+            const t3Adults = Number(c.t3Pop || 0);
+            const adultsWithin50 = t1Adults + t2Adults + t3Adults;
+            const victimsWithin50 = (t1Adults * r1) + (t2Adults * r2) + (t3Adults * r3);
+            if (!Number.isFinite(victimsWithin50) || victimsWithin50 <= 0) continue;
+
+            const name = countyIndex.get(fips) || fips;
+
+            const health = victimsWithin50 * costsPerVictim.health;
+            const crime = victimsWithin50 * costsPerVictim.crime;
+            const social = victimsWithin50 * costsPerVictim.social;
+            const legal = victimsWithin50 * costsPerVictim.legal;
+            const abused = victimsWithin50 * costsPerVictim.abused;
+            const employment = victimsWithin50 * costsPerVictim.employment;
+            const publicTotal = health + crime + social + legal;
+            const privateTotal = abused + employment;
+            const total = publicTotal + privateTotal;
+
             counties.push({
                 fips,
                 name,
@@ -1377,91 +1385,91 @@ window.EconomicCalculator = (function ()
                 victimsWithin50,
                 costs: { health, crime, social, legal, abused, employment, public: publicTotal, private: privateTotal, total }
             });
-	
-	            totals.health += health;
-	            totals.crime += crime;
-	            totals.social += social;
-	            totals.legal += legal;
-	            totals.abused += abused;
-	            totals.employment += employment;
-	            totals.adults += adultsWithin50;
-	            totals.victims += victimsWithin50;
-	        }
-	
-	        totals.public = totals.health + totals.crime + totals.social + totals.legal;
-	        totals.private = totals.abused + totals.employment;
-	        totals.total = totals.public + totals.private;
-	
-	        counties.sort((a, b) => (b.costs.total || 0) - (a.costs.total || 0));
-	
-	        return { counties, totals, baselineRate };
-	    }
-	
+
+            totals.health += health;
+            totals.crime += crime;
+            totals.social += social;
+            totals.legal += legal;
+            totals.abused += abused;
+            totals.employment += employment;
+            totals.adults += adultsWithin50;
+            totals.victims += victimsWithin50;
+        }
+
+        totals.public = totals.health + totals.crime + totals.social + totals.legal;
+        totals.private = totals.abused + totals.employment;
+        totals.total = totals.public + totals.private;
+
+        counties.sort((a, b) => (b.costs.total || 0) - (a.costs.total || 0));
+
+        return { counties, totals, baselineRate };
+    }
+
     function getOtherCountyCostForRow(rowKey, costs)
     {
         const c = costs || {};
         switch (rowKey)
         {
-	            case 'health_human': return 0;
-	            case 'health_tax': return Number(c.health || 0);
-	            case 'health_sub': return Number(c.health || 0);
-	            case 'crime': return Number(c.crime || 0);
-	            case 'social': return Number(c.social || 0);
-	            case 'legal': return Number(c.legal || 0);
-	            case 'gen_sub': return Number((c.crime || 0) + (c.social || 0) + (c.legal || 0));
-	            case 'public_sub': return Number(c.public || 0);
-	            case 'abused': return Number(c.abused || 0);
-	            case 'employment': return Number(c.employment || 0);
-	            case 'private_sub': return Number(c.private || 0);
-	            case 'total': return Number(c.total || 0);
+            case 'health_human': return 0;
+            case 'health_tax': return Number(c.health || 0);
+            case 'health_sub': return Number(c.health || 0);
+            case 'crime': return Number(c.crime || 0);
+            case 'social': return Number(c.social || 0);
+            case 'legal': return Number(c.legal || 0);
+            case 'gen_sub': return Number((c.crime || 0) + (c.social || 0) + (c.legal || 0));
+            case 'public_sub': return Number(c.public || 0);
+            case 'abused': return Number(c.abused || 0);
+            case 'employment': return Number(c.employment || 0);
+            case 'private_sub': return Number(c.private || 0);
+            case 'total': return Number(c.total || 0);
             default: return 0;
         }
     }
 
-		    function renderNetEconomicImpactTable(model)
-		    {
-		        const container = document.getElementById('net-impact-table');
-		        if (!container) return;
+    function renderNetEconomicImpactTable(model)
+    {
+        const container = document.getElementById('net-impact-table');
+        if (!container) return;
 
-		        const noteEl = document.getElementById('net-impact-note');
+        const noteEl = document.getElementById('net-impact-note');
 
-		        const rows = (model && Array.isArray(model.rows)) ? model.rows : [];
-		        const otherCounties = (model && Array.isArray(model.otherCounties)) ? model.otherCounties : [];
-		        const expanded = !!(model && model.expanded && otherCounties.length > 0);
-		        const baselineRate = Number(model && model.baselineRate);
-		        const baselineRateDisplay = Number.isFinite(baselineRate) ? baselineRate.toFixed(1) : "—";
+        const rows = (model && Array.isArray(model.rows)) ? model.rows : [];
+        const otherCounties = (model && Array.isArray(model.otherCounties)) ? model.otherCounties : [];
+        const expanded = !!(model && model.expanded && otherCounties.length > 0);
+        const baselineRate = Number(model && model.baselineRate);
+        const baselineRateDisplay = Number.isFinite(baselineRate) ? baselineRate.toFixed(1) : "—";
 
-		        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
-		        const subjectStateName = String((model && model.subjectStateName) || "").trim();
-		        const countyRevenueHeaderText = subjectCountyName
-		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Revenue` : `${subjectCountyName} County Revenue`)
-		            : 'County Revenue';
-		        const countyHeaderText = subjectCountyName
-		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
-		            : 'County Costs';
-		        const countyNetHeaderText = subjectCountyName
-		            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Net Balance` : `${subjectCountyName} County Net Balance`)
-		            : 'County Net Balance';
-		        const stateNetHeaderText = subjectStateName ? `${subjectStateName} Net Balance` : 'Total Net Balance';
-		        const otherHeaderText = otherCounties.length
-		            ? `Other ${subjectStateName || 'State'} Counties Cost\u00a0(${otherCounties.length})`
-		            : `Other ${subjectStateName || 'State'} Counties Cost`;
+        const subjectCountyName = String((model && model.subjectCountyName) || "").trim();
+        const subjectStateName = String((model && model.subjectStateName) || "").trim();
+        const countyRevenueHeaderText = subjectCountyName
+            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Revenue` : `${subjectCountyName} County Revenue`)
+            : 'County Revenue';
+        const countyHeaderText = subjectCountyName
+            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Costs` : `${subjectCountyName} County Costs`)
+            : 'County Costs';
+        const countyNetHeaderText = subjectCountyName
+            ? (/\bcounty\b/i.test(subjectCountyName) ? `${subjectCountyName} Net Balance` : `${subjectCountyName} County Net Balance`)
+            : 'County Net Balance';
+        const stateNetHeaderText = subjectStateName ? `${subjectStateName} Net Balance` : 'Total Net Balance';
+        const otherHeaderText = otherCounties.length
+            ? `Other ${subjectStateName || 'State'} Counties Cost\u00a0(${otherCounties.length})`
+            : `Other ${subjectStateName || 'State'} Counties Cost`;
 
-		        if (!rows.length)
-		        {
-		            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see cost distribution.</div>`;
-		            if (noteEl) noteEl.textContent = "";
-		            if (otherCountiesToggleEl) otherCountiesToggleEl.remove();
-		            otherCountiesToggleEl = null;
-		            otherCountiesToggleState = null;
-		            return;
-		        }
+        if (!rows.length)
+        {
+            container.innerHTML = `<div class="p-4 text-sm text-slate-500 italic text-center">Select a county on the map to see cost distribution.</div>`;
+            if (noteEl) noteEl.textContent = "";
+            if (otherCountiesToggleEl) otherCountiesToggleEl.remove();
+            otherCountiesToggleEl = null;
+            otherCountiesToggleState = null;
+            return;
+        }
 
-		        const headerExtra = expanded
-		            ? otherCounties.map(c => `<th class="px-3 py-2 text-right text-slate-200 max-w-[120px]">${escapeHtml(c.name)}</th>`).join('')
-		            : '';
+        const headerExtra = expanded
+            ? otherCounties.map(c => `<th class="px-3 py-2 text-right text-slate-200 max-w-[120px]">${escapeHtml(c.name)}</th>`).join('')
+            : '';
 
-		        const thead = `
+        const thead = `
 			            <thead>
 			                <tr class="border-b border-slate-700 bg-slate-900/60 text-slate-200">
 			                    <th class="px-3 py-2 text-left sticky left-0 bg-slate-950/90 backdrop-blur max-w-[100px] border-r border-slate-800/80" data-col="group">GROUP</th>
@@ -1475,40 +1483,40 @@ window.EconomicCalculator = (function ()
 			            </thead>
 			        `;
 
-		        let tbody = '<tbody>';
-		        for (const row of rows)
-		        {
-		            const kind = String(row.kind || 'detail');
-		            const rowKey = String(row.key || "");
+        let tbody = '<tbody>';
+        for (const row of rows)
+        {
+            const kind = String(row.kind || 'detail');
+            const rowKey = String(row.key || "");
 
-			            const rowRevenue = Number(row.revenue || 0);
-			            const rowCountyCost = Number(row.countyCost || 0);
-			            const rowOtherCost = Number(row.otherCost || 0);
-			            const rowCountyBalance = Number(row.countyBalance || (rowRevenue - rowCountyCost));
-			            const rowTotalBalance = rowCountyBalance - rowOtherCost;
-			
-			            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : (rowRevenue < 0 ? 'text-red-500' : 'text-slate-200');
-			            const countyCostClass = rowCountyCost !== 0 ? 'text-red-400' : 'text-slate-200';
-			            const countyBalanceClass = rowCountyBalance > 0 ? 'text-emerald-400' : (rowCountyBalance < 0 ? 'text-red-500' : 'text-slate-200');
-                        const otherCostClass = rowOtherCost !== 0 ? 'text-red-400' : 'text-slate-200';
-			            const totalBalanceClass = rowTotalBalance > 0 ? 'text-emerald-400' : (rowTotalBalance < 0 ? 'text-red-500' : 'text-slate-200');
+            const rowRevenue = Number(row.revenue || 0);
+            const rowCountyCost = Number(row.countyCost || 0);
+            const rowOtherCost = Number(row.otherCost || 0);
+            const rowCountyBalance = Number(row.countyBalance || (rowRevenue - rowCountyCost));
+            const rowTotalBalance = rowCountyBalance - rowOtherCost;
 
-                        const fmtVal = (val, fmtFn) => (Math.abs(val) < 0.01) ? '-' : fmtFn(val);
+            const revenueClass = rowRevenue > 0 ? 'text-emerald-400' : (rowRevenue < 0 ? 'text-red-500' : 'text-slate-200');
+            const countyCostClass = rowCountyCost !== 0 ? 'text-red-400' : 'text-slate-200';
+            const countyBalanceClass = rowCountyBalance > 0 ? 'text-emerald-400' : (rowCountyBalance < 0 ? 'text-red-500' : 'text-slate-200');
+            const otherCostClass = rowOtherCost !== 0 ? 'text-red-400' : 'text-slate-200';
+            const totalBalanceClass = rowTotalBalance > 0 ? 'text-emerald-400' : (rowTotalBalance < 0 ? 'text-red-500' : 'text-slate-200');
 
-		            const rowBgClass = kind === 'total'
-		                ? 'bg-slate-800/60 border-t-2 border-slate-500'
-		                : kind === 'subtotal'
-		                    ? 'bg-slate-800/30 border-t border-slate-600'
-		                    : 'border-t border-slate-800/60';
+            const fmtVal = (val, fmtFn) => (Math.abs(val) < 0.01) ? '-' : fmtFn(val);
 
-		            const rowFontClass = kind === 'total'
-		                ? 'font-black'
-		                : kind === 'subtotal'
-		                    ? 'font-bold'
-		                    : 'font-semibold';
+            const rowBgClass = kind === 'total'
+                ? 'bg-slate-800/60 border-t-2 border-slate-500'
+                : kind === 'subtotal'
+                    ? 'bg-slate-800/30 border-t border-slate-600'
+                    : 'border-t border-slate-800/60';
 
-		            const tooltip = row.tooltip
-		                ? `
+            const rowFontClass = kind === 'total'
+                ? 'font-black'
+                : kind === 'subtotal'
+                    ? 'font-bold'
+                    : 'font-semibold';
+
+            const tooltip = row.tooltip
+                ? `
 		                    <div class="flex items-center">
 		                        <span class="material-symbols-outlined text-slate-400 text-[14px] cursor-help hover:text-slate-200 transition-colors" 
                                       onmouseenter="window.EconomicCalculator && window.EconomicCalculator.showTooltip(event, '${escapeHtml(row.tooltip).replace(/'/g, "\\'")}')" 
@@ -1516,13 +1524,13 @@ window.EconomicCalculator = (function ()
                                       onmousemove="window.EconomicCalculator && window.EconomicCalculator.moveTooltip(event)">info</span>
 		                    </div>
 		                `
-		                : '';
+                : '';
 
-		            const labelHtml = (kind === 'total' || kind === 'subtotal')
-		                ? `<div class="uppercase tracking-wider ${kind === 'subtotal' ? 'pl-4' : ''}">${escapeHtml(row.label || '')}</div>`
-		                : escapeHtml(row.label || '');
+            const labelHtml = (kind === 'total' || kind === 'subtotal')
+                ? `<div class="uppercase tracking-wider ${kind === 'subtotal' ? 'pl-4' : ''}">${escapeHtml(row.label || '')}</div>`
+                : escapeHtml(row.label || '');
 
-		            const labelCell = `
+            const labelCell = `
 		                <td class="px-3 py-2 whitespace-nowrap sticky left-0 bg-slate-950/90 backdrop-blur text-slate-200 ${rowFontClass} ${row.labelClass || ''} border-r border-slate-800/80">
 		                    <div class="flex items-center gap-1">
 		                        <span>${labelHtml}</span>
@@ -1531,16 +1539,16 @@ window.EconomicCalculator = (function ()
 		                </td>
 		            `;
 
-		            const otherExtraCells = expanded
-		                ? otherCounties.map(c =>
-		                {
-		                    const val = getOtherCountyCostForRow(rowKey, c.costs);
-                            const cellClass = val !== 0 ? 'text-red-400' : 'text-slate-200';
-		                    return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap ${cellClass}">${fmtVal(val, fmtM)}</td>`;
-		                }).join('')
-		                : '';
+            const otherExtraCells = expanded
+                ? otherCounties.map(c =>
+                {
+                    const val = getOtherCountyCostForRow(rowKey, c.costs);
+                    const cellClass = val !== 0 ? 'text-red-400' : 'text-slate-200';
+                    return `<td class="px-3 py-2 text-right font-mono whitespace-nowrap ${cellClass}">${fmtVal(val, fmtM)}</td>`;
+                }).join('')
+                : '';
 
-			            tbody += `
+            tbody += `
 			                <tr class="${rowBgClass}">
 			                    ${labelCell}
 			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap ${revenueClass} border-r border-slate-800/80">${fmtVal(rowRevenue, fmtM)}</td>
@@ -1551,33 +1559,33 @@ window.EconomicCalculator = (function ()
 			                    <td class="px-3 py-2 text-right font-mono whitespace-nowrap sticky right-0 bg-slate-950/95 backdrop-blur ${rowFontClass} ${totalBalanceClass}">${fmtVal(rowTotalBalance, fmtDiffM)}</td>
 			                </tr>
 			            `;
-		        }
-		        tbody += '</tbody>';
+        }
+        tbody += '</tbody>';
 
-		        container.innerHTML = `
+        container.innerHTML = `
 		            <table class="w-full text-xs">
 		                ${thead}
 		                ${tbody}
 		            </table>
 		        `;
 
-		        otherCountiesToggleState = { container, count: otherCounties.length, expanded };
-		        positionOtherCountiesToggle();
-		        if (!otherCountiesToggleResizeBound)
-		        {
-		            const reposition = () => { positionOtherCountiesToggle(); };
-		            window.addEventListener('resize', reposition);
-		            const scrollParent = container.closest('.overflow-x-auto');
-		            if (scrollParent) scrollParent.addEventListener('scroll', reposition);
-		            window.addEventListener('scroll', reposition, true);
-		            otherCountiesToggleResizeBound = true;
-		        }
+        otherCountiesToggleState = { container, count: otherCounties.length, expanded };
+        positionOtherCountiesToggle();
+        if (!otherCountiesToggleResizeBound)
+        {
+            const reposition = () => { positionOtherCountiesToggle(); };
+            window.addEventListener('resize', reposition);
+            const scrollParent = container.closest('.overflow-x-auto');
+            if (scrollParent) scrollParent.addEventListener('scroll', reposition);
+            window.addEventListener('scroll', reposition, true);
+            otherCountiesToggleResizeBound = true;
+        }
 
-		        if (noteEl)
-		        {
-		            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. ${countyNetHeaderText} = County Revenue − County Costs. ${stateNetHeaderText} = County Revenue − (County Costs + Other Counties Costs). Other Counties Costs totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
-		        }
-		    }
+        if (noteEl)
+        {
+            noteEl.textContent = `Baseline rate: ${baselineRateDisplay}%. ${countyNetHeaderText} = County Revenue − County Costs. ${stateNetHeaderText} = County Revenue − (County Costs + Other Counties Costs). Other Counties Costs totals same-state spillover within 50 miles (no revenue offsets modeled for those counties).`;
+        }
+    }
 
     function initListeners()
     {
@@ -1594,21 +1602,25 @@ window.EconomicCalculator = (function ()
         });
 
         // Listen for map updates (replaces old county select logic)
-        window.addEventListener('impact-breakdown-updated', (e) => {
-            if (e.detail) {
+        window.addEventListener('impact-breakdown-updated', (e) =>
+        {
+            if (e.detail)
+            {
                 lastImpactBreakdown = e.detail;
-                
+
                 // Update local state if needed
-                if (lastImpactBreakdown.county && lastImpactBreakdown.county.total) {
+                if (lastImpactBreakdown.county && lastImpactBreakdown.county.total)
+                {
                     currentPop = lastImpactBreakdown.county.total;
                 }
-                
+
                 calculate();
             }
         });
 
         // Global listener for custom events from SliderInput
-        window.addEventListener('slider-input-sync', (e) => {
+        window.addEventListener('slider-input-sync', (e) =>
+        {
             calculate(e);
         });
     }

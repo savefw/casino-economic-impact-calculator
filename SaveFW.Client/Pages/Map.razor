@@ -386,8 +386,10 @@
     {
         try 
         {
+            Console.WriteLine("Map: Fetching states from API...");
             var data = await Http.GetFromJsonAsync<CensusFeatureCollection>("/api/census/states");
-            if (data?.Features != null)
+            Console.WriteLine($"Map: Got data, Features count: {data?.Features?.Count ?? 0}");
+            if (data?.Features != null && data.Features.Count > 0)
             {
                 StateOptions = data.Features.Select(f => new DropdownItem
                 {
@@ -396,9 +398,15 @@
                     Badge = f.Properties.PopTotal.ToString("N0"),
                     OrderValue = f.Properties.PopTotal
                 }).OrderBy(i => i.Text).ToList();
+                Console.WriteLine($"Map: StateOptions populated with {StateOptions.Count} items");
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine("Map: No features found in response");
             }
         }
-        catch (Exception ex) { Console.WriteLine($"Error loading states: {ex}"); }
+        catch (Exception ex) { Console.WriteLine($"Map Error loading states: {ex}"); }
     }
 
     private async Task OnStateSelected(DropdownItem item)
@@ -453,26 +461,13 @@
     }
     public class CensusProperties
     {
-        [System.Text.Json.Serialization.JsonPropertyName("GEOID")]
-        public string? GEOID { get; set; }
-        
         [System.Text.Json.Serialization.JsonPropertyName("geoid")]
-        public string? geoid { get; set; } // Handle lowercase case if API varies
+        public string GeoId { get; set; } = "";
 
-        [System.Text.Json.Serialization.JsonPropertyName("NAME")]
-        public string? NAME { get; set; }
-        
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string? name { get; set; }
+        public string Name { get; set; } = "";
 
-        [System.Text.Json.Serialization.JsonPropertyName("POP_TOTAL")]
-        public long POP_TOTAL { get; set; }
-        
         [System.Text.Json.Serialization.JsonPropertyName("pop_total")]
-        public long pop_total { get; set; }
-
-        public string GeoId => !string.IsNullOrEmpty(GEOID) ? GEOID : (geoid ?? "");
-        public string Name => !string.IsNullOrEmpty(NAME) ? NAME : (name ?? "");
-        public long PopTotal => POP_TOTAL > 0 ? POP_TOTAL : pop_total;
+        public long PopTotal { get; set; }
     }
 }

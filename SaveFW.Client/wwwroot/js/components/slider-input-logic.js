@@ -228,7 +228,7 @@ window.SliderInputLogic = (function ()
                         <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto whitespace-nowrap">
                             <span>${marker.label}</span>
                             <span class="material-symbols-outlined text-[12px]">info</span>
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-900 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 max-w-xs w-max p-2 bg-slate-900 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                 ${marker.tooltipDescription || ''}
                             </div>
                         </div>
