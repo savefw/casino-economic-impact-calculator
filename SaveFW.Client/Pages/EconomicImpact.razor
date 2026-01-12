@@ -76,7 +76,8 @@
                                          InputType="MoneyMM" DecimalPlaces="2"
                                          MajorTickInterval="200" MinorTickInterval="50"
                                          MarkerColor="green"
-                                         Tooltip="Total gambling losses from all players, before taxes and expenses." />
+                                         Tooltip="Total gambling losses from all players, before taxes and expenses."
+                                         Markers='@(new List<SliderMarker> { new() { Label="Default", Value=112, TooltipDescription="Spectrum Gaming Projection" } })' />
 
                             <!-- Tax Details (Always Visible) -->
                             <div id="tax-details-container"
@@ -86,7 +87,7 @@
                         </div>
 
                         <!-- Revenue Input -->
-                        <div class="border-b border-slate-700 pb-8">
+                        <div class="border-b border-slate-700 pb-8 mt-8">
                             <SliderInput Id="revenue" Label="Tax Revenue" Value="27.5"
                                          MinValue="0" MaxValue="400" Step="0.5"
                                          InputType="MoneyMM" DecimalPlaces="2"
