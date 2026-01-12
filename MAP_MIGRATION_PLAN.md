@@ -36,7 +36,9 @@ This is a **unified plan** covering two parallel workstreams:
 | Geocoder (Representative) | L.Control.Geocoder.photon | 🟡 Medium |
 | **NEW: Valhalla Isochrones** | Not yet implemented | 🔴 MapLibre-first |
 
-### Key Custom Solutions in map.js (~1,800 lines)
+### Key Custom Solutions
+
+**Source file**: `SaveFW.Client/wwwroot/js/components/map.js` (~1,800 lines)
 
 1. **State/County Drill-down UI** - Three-step navigation: US → State → County
 2. **Regional Context Caching** - 50-mile radius block groups, lite/full modes
@@ -81,9 +83,11 @@ This is a **unified plan** covering two parallel workstreams:
 - [ ] Implement county highlight layer (dashed border)
 - [ ] Port hover/click interactions
 
-### 2.3 Block Group Heatmap Layer
-- [ ] Implement as native MapLibre heatmap layer OR fill-extrusion
-- [ ] Port density normalization and color scale
+### 2.3 Block Group Heatmap Layer (Gaussian)
+- [ ] Implement as native MapLibre `heatmap` layer (GPU-accelerated Gaussian blur)
+- [ ] Use block group centroids as weight points with `POP_ADULT` as intensity
+- [ ] Configure `heatmap-radius`, `heatmap-weight`, `heatmap-intensity` properties
+- [ ] Port color scale gradient: blue → lime → yellow → orange → red
 
 ### 2.4 Census Tract Layer
 - [ ] Port `turf.dissolve()` logic (or move server-side)
@@ -127,6 +131,13 @@ This is a **unified plan** covering two parallel workstreams:
 ---
 
 ## Phase 5: Valhalla Isochrone Integration
+
+### 5.0 Pre-requisite: Verify Backend
+- [ ] Verify `ValhallaController.cs` and `ValhallaClient.cs` exist in `SaveFW.Server`
+- [ ] Ensure endpoint returns MapLibre-compatible GeoJSON:
+  ```json
+  { "type": "FeatureCollection", "features": [{ "properties": { "contour": 15 }, "geometry": {...} }] }
+  ```
 
 ### 5.1 API Integration
 - [ ] Create `/api/valhalla/isochrone` endpoint (if not exists)
@@ -247,7 +258,8 @@ This is a **unified plan** covering two parallel workstreams:
       zip                TEXT NULL,
       geom               GEOMETRY(Point, 4326) NOT NULL,
       raw                JSONB NULL,
-      source_rank        SMALLINT NOT NULL DEFAULT 99
+      source_rank        SMALLINT NOT NULL DEFAULT 99,
+      usps_dpv_key       TEXT NULL  -- Optional: for future USPS validation integration
   );
   ```
 - [ ] Create unique index on `(source, source_id)`
@@ -278,6 +290,7 @@ This is a **unified plan** covering two parallel workstreams:
 - [ ] Parse address components from NAD/OA sources
 - [ ] Produce `street_name_norm` consistently across sources
 - [ ] Normalize casing, whitespace, directionals, street types
+- [ ] **TIGER compatibility**: Map abbreviations bidirectionally (ST↔STREET, AVE↔AVENUE, etc.)
 - [ ] Preserve `street_name_raw` for traceability
 
 ### 10.2 Upsert Logic (Incremental-Friendly)
@@ -370,8 +383,8 @@ This is a **unified plan** covering two parallel workstreams:
 
 # DECISION POINTS (Requires User Input)
 
-1. **Tile Source Strategy**:
-   - [ ] Option A: Protomaps (self-hosted `.pmtiles`)
+1. **Tile Source Strategy**: *(Recommended: Protomaps)*
+   - [x] Option A: Protomaps (self-hosted `.pmtiles`) — **RECOMMENDED** for existing Docker setup
    - [ ] Option B: OpenMapTiles Docker
    - [ ] Option C: Stay with raster tiles initially
 
