@@ -80,7 +80,7 @@ window.SliderInputLogic = (function ()
                     }
                     .tick-minor {
                         width: 1px;
-                        height: 12px;
+                        height: 16px;
                         opacity: 0.5;
                     }
                     .tick-label {
