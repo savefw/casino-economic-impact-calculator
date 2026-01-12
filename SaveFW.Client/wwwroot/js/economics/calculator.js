@@ -2,6 +2,7 @@ window.EconomicCalculator = (function ()
 {
     // Track initialization state
     let isInitialized = false;
+    let isSyncing = false;
 
     const getCountyData = () => window.CurrentCountyList || [];
 
@@ -40,7 +41,7 @@ window.EconomicCalculator = (function ()
     function initElements()
     {
         els = {
-            inCounty: document.getElementById('input-county'),
+            // inCounty removed - managed by Map state
             inRevenue: document.getElementById('input-revenue'),
             inAGR: document.getElementById('input-agr'),
             inRate: document.getElementById('input-rate'),
@@ -409,6 +410,8 @@ window.EconomicCalculator = (function ()
 
     function calculate(e)
     {
+        if (isSyncing) return;
+
         const fmtInput = (v, dec = 0) => v.toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const isTextInput = e ? e.isTextInput : false;
 
@@ -454,8 +457,9 @@ window.EconomicCalculator = (function ()
         }
 
         // Update Title
-        const selectedOption = els.inCounty.options[els.inCounty.selectedIndex];
-        const countyName = selectedOption.text.split(' (')[0];
+        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
+        const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || "");
+        const countyName = countyIndex.get(subjectCountyFips) || "Subject";
         const titleSuffix = hasLocation ? `${countyName} County ` : "";
         els.deficitTitle.innerHTML = `<span class="material-symbols-outlined text-red-500 align-middle mr-2">calculate</span> ${titleSuffix}Casino Net Economic Impact Analysis`;
 
@@ -473,9 +477,13 @@ window.EconomicCalculator = (function ()
             taxResult = calculateTax(agrM * 1000000);
             revenueM = taxResult.total / 1000000;
 
-            // Update Revenue Slider (Snap disabled for calculated updates)
+            // Update Revenue (Dependent)
             els.inRevenue.value = revenueM.toFixed(2);
-            els.inRevenue.dispatchEvent(new Event('slider-update'));
+            if (els.valRevenue && document.activeElement !== els.valRevenue) els.valRevenue.value = revenueM.toFixed(2);
+            // Update AGR (Self)
+            if (els.valAGR && document.activeElement !== els.valAGR) els.valAGR.value = agrM.toFixed(2);
+
+            try { isSyncing = true; els.inRevenue.dispatchEvent(new Event('input', { bubbles: true })); } finally { isSyncing = false; }
         } else if (sourceId === 'input-revenue')
         {
             // Master: Revenue
@@ -485,9 +493,13 @@ window.EconomicCalculator = (function ()
             agrM = agr / 1000000;
             taxResult = calculateTax(agr); // Recalculate for breakdown
 
-            // Update AGR Slider
-            els.inAGR.value = agrM.toFixed(1);
-            els.inAGR.dispatchEvent(new Event('slider-update'));
+            // Update AGR (Dependent)
+            els.inAGR.value = agrM.toFixed(2);
+            if (els.valAGR && document.activeElement !== els.valAGR) els.valAGR.value = agrM.toFixed(2);
+            // Update Revenue (Self)
+            if (els.valRevenue && document.activeElement !== els.valRevenue) els.valRevenue.value = revenueM.toFixed(2);
+
+            try { isSyncing = true; els.inAGR.dispatchEvent(new Event('input', { bubbles: true })); } finally { isSyncing = false; }
         } else
         {
             // Init or other inputs: Default to Revenue as Master (e.g. 27.5M)
@@ -499,14 +511,16 @@ window.EconomicCalculator = (function ()
             taxResult = calculateTax(agr); // Recalculate for breakdown
             if (!source)
             {
-                els.inAGR.value = agrM.toFixed(1); // Only update on init
-                els.inAGR.dispatchEvent(new Event('slider-update'));
+                els.inAGR.value = agrM.toFixed(2); // Only update on init
+                if (els.valAGR && document.activeElement !== els.valAGR) els.valAGR.value = agrM.toFixed(2);
+                if (els.valRevenue && document.activeElement !== els.valRevenue) els.valRevenue.value = revenueM.toFixed(2);
+                try { isSyncing = true; els.inAGR.dispatchEvent(new Event('input', { bubbles: true })); } finally { isSyncing = false; }
             }
         }
 
-        // Update Displays
-        els.valRevenue.textContent = '$' + revenueM.toFixed(1) + 'MM';
-        els.valAGR.textContent = '$' + agrM.toFixed(1) + 'MM';
+        // Update Displays - Handled by SliderInput component logic via 'input' event dispatch
+        // els.valRevenue.textContent = '$' + revenueM.toFixed(1) + 'MM';
+        // els.valAGR.textContent = '$' + agrM.toFixed(1) + 'MM';
 
         // RENDER TAX BREAKDOWN
         const container = document.getElementById('tax-details-container');
@@ -630,15 +644,17 @@ window.EconomicCalculator = (function ()
 
         // Update value displays
         // els.valRevenue.textContent = '$' + revenueM.toFixed(1) + ' M'; // Already updated above
-        els.valRate.textContent = rate.toFixed(1) + '%';
+        // els.valRate.textContent = rate.toFixed(1) + '%';
 
         els.valCostTotal.textContent = '$' + costPer.toLocaleString();
-        if ((sourceId === 'input-cost-crime' && !isTextInput) || document.activeElement !== els.valCostCrime) els.valCostCrime.value = fmtInput(cCrime);
-        if ((sourceId === 'input-cost-business' && !isTextInput) || document.activeElement !== els.valCostBusiness) els.valCostBusiness.value = fmtInput(cBusiness);
-        if ((sourceId === 'input-cost-bankruptcy' && !isTextInput) || document.activeElement !== els.valCostBankruptcy) els.valCostBankruptcy.value = fmtInput(cBankruptcy);
-        if ((sourceId === 'input-cost-illness' && !isTextInput) || document.activeElement !== els.valCostIllness) els.valCostIllness.value = fmtInput(cIllness);
-        if ((sourceId === 'input-cost-services' && !isTextInput) || document.activeElement !== els.valCostServices) els.valCostServices.value = fmtInput(cServices);
-        if ((sourceId === 'input-cost-abused' && !isTextInput) || document.activeElement !== els.valCostAbused) els.valCostAbused.value = fmtInput(cAbused);
+        
+        // Force update text inputs if they are not focused (fallback for SliderInputLogic)
+        if (document.activeElement !== els.valCostCrime) els.valCostCrime.value = fmtInput(cCrime);
+        if (document.activeElement !== els.valCostBusiness) els.valCostBusiness.value = fmtInput(cBusiness);
+        if (document.activeElement !== els.valCostBankruptcy) els.valCostBankruptcy.value = fmtInput(cBankruptcy);
+        if (document.activeElement !== els.valCostIllness) els.valCostIllness.value = fmtInput(cIllness);
+        if (document.activeElement !== els.valCostServices) els.valCostServices.value = fmtInput(cServices);
+        if (document.activeElement !== els.valCostAbused) els.valCostAbused.value = fmtInput(cAbused);
 
         // Logic
         const totalPopEl = document.getElementById('disp-pop-impact-zones');
@@ -648,7 +664,7 @@ window.EconomicCalculator = (function ()
             currentPop = !isNaN(val) && val > 0 ? val : 0;
         } else
         {
-            currentPop = parseInt(els.inCounty.options[els.inCounty.selectedIndex]?.dataset?.pop || '0');
+            currentPop = 0; // Fallback if no display element
         }
 
         // Retrieve Adult Population from Map DOM (populated by map.js)
@@ -813,8 +829,6 @@ window.EconomicCalculator = (function ()
         const totalCostPrivate = totalCostAbused + totalCostEmployment;
         const netTotalBalance = totalRevenue - totalCost;
 
-        const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || (els.inCounty && els.inCounty.value) || "");
-        const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
         const subjectCountyName = countyIndex.get(subjectCountyFips) || subjectCountyFips || "Subject County";
         const subjectStateName = String((lastImpactBreakdown && lastImpactBreakdown.stateName) || "").trim();
 
@@ -1565,204 +1579,37 @@ window.EconomicCalculator = (function ()
 		        }
 		    }
 
-	    // Initialize sliders with tick marks - called during init()
-	    function initSliders()
-	    {
-        const sliderConfigs = [
-            { id: 'input-rate', stepMajor: 1.0, stepMinor: 0.5, format: v => v + '%' },
-            { id: 'input-agr', stepMajor: 100, stepMinor: 25, format: v => '$' + v + 'MM' },
-            { id: 'input-revenue', stepMajor: 50, stepMinor: 10, format: v => '$' + v + 'MM' },
-            { id: 'input-cost-crime', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-business', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-bankruptcy', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-illness', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-services', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() },
-            { id: 'input-cost-abused', stepMajor: 2000, stepMinor: 500, format: v => '$' + parseInt(v).toLocaleString() }
-        ];
-
-        sliderConfigs.forEach(cfg =>
-        {
-            const input = document.getElementById(cfg.id);
-            if (!input) return;
-
-            const container = input.parentElement;
-
-            // Clear existing ticks/tracks
-            const children = Array.from(container.children);
-            children.forEach(child =>
-            {
-                if (child.className && (child.className.includes('slider-tick') || child.className.includes('tick-label') || child.className.includes('slider-tooltip') || child.className.includes('slider-track')))
-                {
-                    child.remove();
-                }
-            });
-
-            // Bind Radio Buttons (for sliders with preset values)
-            const radios = container.querySelectorAll('input[type="radio"]');
-            radios.forEach(radio =>
-            {
-                radio.addEventListener('change', () =>
-                {
-                    input.value = radio.value;
-                    input.dispatchEvent(new Event('input'));
-                    input.dispatchEvent(new Event('change'));
-                });
-
-                input.addEventListener('input', () =>
-                {
-                    if (Math.abs(parseFloat(input.value) - parseFloat(radio.value)) < 0.1)
-                    {
-                        radio.checked = true;
-                    } else
-                    {
-                        radio.checked = false;
-                    }
-                });
-            });
-
-            // Make input transparent so track shows through
-            input.classList.remove('bg-slate-700');
-            input.classList.add('bg-transparent');
-            input.style.backgroundColor = 'transparent';
-
-            // Add track
-            const track = document.createElement('div');
-            track.className = 'slider-track';
-            container.insertBefore(track, input);
-
-            const min = parseFloat(input.min);
-            const max = parseFloat(input.max);
-            const range = max - min;
-
-            function addTick(val, typeClass, labelText = null, labelExtraClass = '')
-            {
-                const tick = document.createElement('div');
-                tick.className = `slider-tick ${typeClass}`;
-                const pct = ((val - min) / range) * 100;
-                tick.style.left = `${pct}%`;
-                container.insertBefore(tick, input);
-
-                if (labelText)
-                {
-                    const label = document.createElement('div');
-                    label.className = `tick-label ${labelExtraClass}`.trim();
-                    label.textContent = labelText;
-                    label.style.left = `${pct}%`;
-                    container.insertBefore(label, input);
-                }
-            }
-
-            if (range > 0)
-            {
-                // Add major ticks with labels
-                const startMajor = Math.ceil(min / cfg.stepMajor) * cfg.stepMajor;
-                for (let v = startMajor; v <= max; v += cfg.stepMajor)
-                {
-                    let labelClass = '';
-                    // On mobile, skip every other label for AGR and Revenue sliders to prevent bunching
-                    if ((cfg.id === 'input-agr' || cfg.id === 'input-revenue') && (Math.round(v / cfg.stepMajor) % 2 !== 0))
-                    {
-                        labelClass = 'hidden sm:block';
-                    }
-                    addTick(v, 'tick-major', cfg.format(v), labelClass);
-                }
-
-                // Add minor ticks (no labels)
-                const startMinor = Math.ceil(min / cfg.stepMinor) * cfg.stepMinor;
-                for (let v = startMinor; v <= max; v += cfg.stepMinor)
-                {
-                    if (v % cfg.stepMajor !== 0)
-                    {
-                        addTick(v, 'tick-minor');
-                    }
-                }
-            }
-        });
-    }
-
-    // Initialize all listeners - called during init()
     function initListeners()
     {
-        if (els.inCounty) els.inCounty.addEventListener('change', calculate);
-        if (els.inRevenue) els.inRevenue.addEventListener('input', calculate);
-        if (els.inAGR) els.inAGR.addEventListener('input', calculate);
-        if (els.inRate) els.inRate.addEventListener('input', calculate);
-        if (els.inAllocation) els.inAllocation.addEventListener('input', calculate);
-
-        if (els.inCostCrime) els.inCostCrime.addEventListener('input', calculate);
-        if (els.inCostBusiness) els.inCostBusiness.addEventListener('input', calculate);
-        if (els.inCostBankruptcy) els.inCostBankruptcy.addEventListener('input', calculate);
-        if (els.inCostIllness) els.inCostIllness.addEventListener('input', calculate);
-        if (els.inCostServices) els.inCostServices.addEventListener('input', calculate);
-        if (els.inCostAbused) els.inCostAbused.addEventListener('input', calculate);
-
-        // Text Input Listeners (Sync)
-        const textInputs = [
-            { text: els.valAGR, slider: els.inAGR },
-            { text: els.valRevenue, slider: els.inRevenue },
-            { text: els.valCostCrime, slider: els.inCostCrime },
-            { text: els.valCostBusiness, slider: els.inCostBusiness },
-            { text: els.valCostBankruptcy, slider: els.inCostBankruptcy },
-            { text: els.valCostIllness, slider: els.inCostIllness },
-            { text: els.valCostServices, slider: els.inCostServices },
-            { text: els.valCostAbused, slider: els.inCostAbused }
+        const inputs = [
+            els.inRevenue, els.inAGR, els.inAllocation,
+            els.inCostCrime, els.inCostBusiness, els.inCostBankruptcy,
+            els.inCostIllness, els.inCostServices, els.inCostAbused,
+            els.inRate
         ];
-        textInputs.forEach(pair => {
-            if (pair.text && pair.slider) {
-                pair.text.addEventListener('input', (e) => {
-                    const rawVal = e.target.value.replace(/,/g, '');
-                    if (rawVal === '' || rawVal === '-') return;
 
-                    let val = parseFloat(rawVal);
-                    if (isNaN(val)) return;
+        inputs.forEach(input =>
+        {
+            if (input) input.addEventListener('input', calculate);
+        });
 
-                    // Clamp
-                    const min = parseFloat(pair.slider.min);
-                    const max = parseFloat(pair.slider.max);
-                    let clamped = val;
-                    if (val > max) clamped = max;
-                    if (val < min) clamped = min;
-
-                    // Sync Slider
-                    pair.slider.value = clamped;
-
-                    // Format Input
-                    const step = parseFloat(pair.slider.step);
-                    const isDecimal = step < 1;
-                    const formatted = clamped.toLocaleString(undefined, { maximumFractionDigits: isDecimal ? 2 : 0 });
-
-                    let shouldFormat = true;
-                    // Don't format if user is typing a decimal and we are within bounds
-                    if (isDecimal && (e.target.value.endsWith('.') || e.target.value.endsWith('.0') || e.target.value.endsWith('.00'))) {
-                        if (val === clamped) shouldFormat = false;
-                    }
-
-                    if (shouldFormat && e.target.value !== formatted) {
-                        e.target.value = formatted;
-                    }
-
-                    calculate({ target: pair.slider, isTextInput: true });
-                });
+        // Listen for map updates (replaces old county select logic)
+        window.addEventListener('impact-breakdown-updated', (e) => {
+            if (e.detail) {
+                lastImpactBreakdown = e.detail;
+                
+                // Update local state if needed
+                if (lastImpactBreakdown.county && lastImpactBreakdown.county.total) {
+                    currentPop = lastImpactBreakdown.county.total;
+                }
+                
+                calculate();
             }
         });
 
-        // Map Event Listener
-        window.addEventListener('county-selected-map', (e) =>
-        {
-            selectCounty(e.detail.name, e.detail.geoid, e.detail.pop);
-        });
-
-        // Watch for Map Reset (e.g., navigating back to State/Nationwide)
-        window.addEventListener('map-state-reset', () =>
-        {
-            lastImpactBreakdown = null;
-            calculate();
-        });
-
-        window.addEventListener('impact-breakdown-updated', (e) =>
-        {
-            lastImpactBreakdown = (e && e.detail) ? e.detail : null;
-            calculate();
+        // Global listener for custom events from SliderInput
+        window.addEventListener('slider-input-sync', (e) => {
+            calculate(e);
         });
     }
 
@@ -1780,17 +1627,8 @@ window.EconomicCalculator = (function ()
         // Populate DOM references
         initElements();
 
-        // Initialize menu logic
-        initMenuLogic();
-
-        // Initialize sliders with tick marks
-        initSliders();
-
         // Set up event listeners
         initListeners();
-
-        // Initialize counties dropdown
-        initCounties();
 
         // Run initial calculation
         calculate();

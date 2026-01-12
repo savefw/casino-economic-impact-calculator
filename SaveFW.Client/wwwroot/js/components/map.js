@@ -1772,11 +1772,19 @@ window.ImpactMap = (function ()
 
             window._ImpactMapInstance = {
                 navigateToStep: navigateToStep,
-                updateMapNavUI: updateMapNavUI
+                updateMapNavUI: updateMapNavUI,
+                loadState: loadStateCounties,
+                loadCounty: loadCounty
             };
         },
         navigateToStep: (step) => {
             if (window._ImpactMapInstance) window._ImpactMapInstance.navigateToStep(step);
+        },
+        loadState: (fips) => {
+            if (window._ImpactMapInstance) window._ImpactMapInstance.loadState(fips);
+        },
+        loadCounty: (fips) => {
+            if (window._ImpactMapInstance) window._ImpactMapInstance.loadCounty(fips);
         }
     };
 })();
