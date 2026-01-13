@@ -38,7 +38,7 @@ window.MapLibreImpactMap = (function ()
     };
 
     const DEFAULT_CENTER = [-98.35, 39.5];
-    const DEFAULT_ZOOM = 4;
+    const DEFAULT_ZOOM = 3.5; // Zoomed out enough to see continental US
 
     // === STATE ===
     let map = null;
