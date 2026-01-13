@@ -79,6 +79,7 @@ window.MapLibreImpactMap = (function ()
 
     // Current basemap
     let currentBasemap = 'satellite';
+    let mapDarkMode = true; // Default to dark mode for streets/terrain
 
     // Basemap configurations
     const BASEMAPS = {
@@ -100,12 +101,16 @@ window.MapLibreImpactMap = (function ()
         streets: {
             name: 'Streets',
             icon: 'map',
-            style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+            darkStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+            lightStyle: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+            get style() { return mapDarkMode ? this.darkStyle : this.lightStyle; }
         },
         terrain: {
             name: 'Terrain',
             icon: 'terrain',
-            style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
+            darkStyle: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+            lightStyle: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+            get style() { return mapDarkMode ? this.darkStyle : this.lightStyle; }
         },
         hybrid: {
             name: 'Hybrid',
@@ -920,6 +925,14 @@ window.MapLibreImpactMap = (function ()
                 </label>
             </div>
             <div class="panel-section">
+                <span class="section-label">Map Theme</span>
+                <label class="toggle-row">
+                    <span>Dark Mode</span>
+                    <input type="checkbox" id="toggle-darkmode" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="panel-section">
                 <span class="section-label">3D Features</span>
                 <label class="toggle-row">
                     <span>3D Terrain</span>
@@ -967,6 +980,22 @@ window.MapLibreImpactMap = (function ()
                 checkbox.onchange = () => toggleLayerVisibility(layer, checkbox.checked);
             }
         });
+
+        // Dark mode toggle handler
+        const darkModeToggle = document.getElementById('toggle-darkmode');
+        if (darkModeToggle)
+        {
+            darkModeToggle.checked = mapDarkMode;
+            darkModeToggle.onchange = () =>
+            {
+                mapDarkMode = darkModeToggle.checked;
+                // Re-apply current basemap if it's streets or terrain
+                if (currentBasemap === 'streets' || currentBasemap === 'terrain')
+                {
+                    switchBasemap(currentBasemap);
+                }
+            };
+        }
 
         // Add panel CSS if not exists
         if (!document.getElementById('hamburger-menu-styles'))
