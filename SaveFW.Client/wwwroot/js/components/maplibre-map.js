@@ -1639,7 +1639,40 @@ window.MapLibreImpactMap = (function ()
 
         navigateToStep: function (step)
         {
-            if (step === 1) { currentStateFips = currentCountyFips = null; markerPosition = null; resetImpactStats(); map.setLayoutProperty('states-fill', 'visibility', 'visible'); map.setLayoutProperty('states-line', 'visibility', 'visible'); setLayerVisibility('counties-fill', false); setLayerVisibility('counties-line', false); map.flyTo({ center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM }); updateMapNavUI(1); }
+            if (step === 1)
+            {
+                // Reset state
+                currentStateFips = null;
+                currentCountyFips = null;
+                markerPosition = null;
+                resetImpactStats();
+
+                // Remove marker if exists
+                if (marker)
+                {
+                    marker.remove();
+                    marker = null;
+                }
+
+                // Clear circles
+                if (map.getSource('impact-circles'))
+                {
+                    map.getSource('impact-circles').setData({ type: 'FeatureCollection', features: [] });
+                }
+
+                // Show state layers
+                setLayerVisibility('states-fill', true);
+                setLayerVisibility('states-line', true);
+
+                // Hide county layers
+                setLayerVisibility('counties-fill', false);
+                setLayerVisibility('counties-line', false);
+                setLayerVisibility('county-highlight-line', false);
+
+                // Fly to nationwide view
+                map.flyTo({ center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
+                updateMapNavUI(1);
+            }
             else if (step === 2 && currentStateFips) drillToState(currentStateFips);
         },
 
