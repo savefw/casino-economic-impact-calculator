@@ -20,6 +20,8 @@ This is a **unified plan** covering two parallel workstreams:
 
 ### Core Features to Migrate
 
+#### Part A: Map Migration (Leaflet → MapLibre GL JS)
+
 | Feature | Current Implementation | Complexity | Status | Notes |
 |---------|----------------------|------------|--------|-------|
 | Base map (satellite/street) | ArcGIS/OSM tile layers | 🟢 Easy | ✅ Complete | |
@@ -40,6 +42,16 @@ This is a **unified plan** covering two parallel workstreams:
 | **NEW: Dark/Light Mode** | N/A | 🟢 Easy | ✅ Complete | |
 | **NEW: 3D Terrain** | N/A | 🔴 Hard | ❌ Not Supported | MapLibre lacks sky layer; no DEM tiles available |
 | **NEW: 3D Buildings** | N/A | 🔴 Hard | ⚠️ Partial | Only works on vector basemaps with building data |
+
+#### Part B: Address Point Data Infrastructure
+
+| Feature | Description | Complexity | Status | Notes |
+|---------|-------------|------------|--------|-------|
+| Address Points Schema | NAD + OpenAddresses table with source identity | 🟡 Medium | ⏸️ Deferred | Phase 9 - Not started |
+| TIGER Ranges Schema | Separate table for interpolation fallback | 🟡 Medium | ⏸️ Deferred | Phase 9 - Not started |
+| Ingestion Pipeline | Extract, normalize, upsert address data | 🔴 Hard | ⏸️ Deferred | Phase 10 - Not started |
+| Deduplication Strategy | Non-destructive preferred view approach | 🟡 Medium | ⏸️ Deferred | Phase 11 - Not started |
+| Query Strategy | Exact match + fallback tiers + TIGER interpolation | 🟡 Medium | ⏸️ Deferred | Phase 12 - Not started |
 
 **Status Legend**: ✅ Complete | 🔄 In Progress | ⏸️ Deferred | ⚠️ Partial | ❌ Not Supported
 
