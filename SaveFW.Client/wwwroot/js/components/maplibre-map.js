@@ -929,6 +929,11 @@ window.MapLibreImpactMap = (function ()
                     <input type="checkbox" id="toggle-isochrones" />
                     <span class="toggle-slider"></span>
                 </label>
+                <label class="toggle-row">
+                    <span>Census Tracts</span>
+                    <input type="checkbox" id="toggle-tracts" />
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
             <div class="panel-section">
                 <span class="section-label">Map Theme</span>
@@ -973,6 +978,7 @@ window.MapLibreImpactMap = (function ()
             'toggle-boundary': 'boundary',
             'toggle-heatmap': 'heatmap',
             'toggle-isochrones': 'isochrones',
+            'toggle-tracts': 'tracts',
             'toggle-terrain3d': 'terrain3d',
             'toggle-buildings3d': 'buildings3d'
         };
@@ -1140,6 +1146,7 @@ window.MapLibreImpactMap = (function ()
             setupCircleLayers();
             setupHeatmapLayer();
             setupIsochroneLayers();
+            setupTractLayer();
 
             // Re-add terrain if enabled
             if (layersVisible.terrain3d) enableTerrain3d(true);
@@ -1190,6 +1197,10 @@ window.MapLibreImpactMap = (function ()
                 setLayerVisibility('isochrone-fill', visible);
                 setLayerVisibility('isochrone-line', visible);
                 if (visible && markerPosition) updateIsochrones(markerPosition);
+                break;
+            case 'tracts':
+                setLayerVisibility('tract-lines', visible);
+                if (visible && currentCountyFips) loadTracts(currentCountyFips);
                 break;
             case 'terrain3d':
                 enableTerrain3d(visible);
@@ -1348,6 +1359,62 @@ window.MapLibreImpactMap = (function ()
         });
     }
 
+    /**
+     * Setup census tract layer with dashed line pattern
+     */
+    function setupTractLayer()
+    {
+        if (!map) return;
+        if (map.getSource('tracts')) return; // Already exists
+
+        map.addSource('tracts', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        map.addLayer({
+            id: 'tract-lines',
+            type: 'line',
+            source: 'tracts',
+            paint: {
+                'line-color': '#94a3b8',
+                'line-width': 1,
+                'line-dasharray': [2, 2],
+                'line-opacity': 0.6
+            },
+            layout: {
+                visibility: layersVisible.tracts ? 'visible' : 'none'
+            }
+        });
+    }
+
+    /**
+     * Load census tract boundaries for a county
+     */
+    async function loadTracts(countyFips)
+    {
+        if (!countyFips) return;
+
+        try
+        {
+            const resp = await fetch(`/api/census/tracts/${countyFips}`);
+            if (!resp.ok)
+            {
+                console.warn(`Failed to load tracts for county ${countyFips}`);
+                return;
+            }
+            const data = await resp.json();
+
+            if (map.getSource('tracts'))
+            {
+                map.getSource('tracts').setData(data);
+            } else
+            {
+                setupTractLayer();
+                map.getSource('tracts').setData(data);
+            }
+        } catch (e)
+        {
+            console.warn('Error loading tracts:', e.message);
+        }
+    }
+
     function setupStateLayer(data)
     {
         if (!map) return;
@@ -1451,6 +1518,9 @@ window.MapLibreImpactMap = (function ()
         }
 
         calculateImpact();
+
+        // Load tract boundaries if tracts layer is enabled
+        if (layersVisible.tracts) loadTracts(countyFips);
 
         if (els.displayCounty && countyFeature) els.displayCounty.textContent = countyFeature.properties.NAME;
         window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { geoid: countyFips, name: countyFeature?.properties.NAME } }));

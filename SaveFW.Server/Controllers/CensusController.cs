@@ -185,5 +185,73 @@ namespace SaveFW.Server.Controllers
             await _seeder.EnsureSeededAsync();
             return Ok("Seeding triggered.");
         }
+
+        /// <summary>
+        /// Get census tract boundaries for a county, dissolved from block groups.
+        /// Tract GEOID = first 11 characters of block group GEOID (state 2 + county 3 + tract 6).
+        /// </summary>
+        [HttpGet("tracts/{countyFips}")]
+        public async Task<IActionResult> GetTracts(string countyFips)
+        {
+            var cacheKey = $"census_tracts_{countyFips}_geojson";
+            if (_cache.TryGetValue(cacheKey, out string? cachedJson) && !string.IsNullOrEmpty(cachedJson))
+            {
+                return Content(cachedJson, "application/json");
+            }
+
+            try 
+            {
+                var conn = _db.Database.GetDbConnection();
+                await conn.OpenAsync();
+                using var cmd = conn.CreateCommand();
+                // Dissolve block groups into tracts using ST_Union grouped by tract GEOID (first 11 chars)
+                // Returns boundaries as LineStrings using ST_Boundary
+                cmd.CommandText = @"
+                    WITH tract_geoms AS (
+                        SELECT 
+                            substring(geoid, 1, 11) AS tract_geoid,
+                            SUM(pop_total) AS pop_total,
+                            SUM(pop_18_plus) AS pop_adult,
+                            ST_Union(geom) AS geom
+                        FROM census_block_groups
+                        WHERE substring(geoid, 1, 5) = @fips
+                        GROUP BY 1
+                    )
+                    SELECT json_build_object(
+                        'type', 'FeatureCollection',
+                        'features', COALESCE(json_agg(
+                            json_build_object(
+                                'type', 'Feature',
+                                'geometry', ST_AsGeoJSON(ST_Boundary(geom))::json,
+                                'properties', json_build_object(
+                                    'GEOID', tract_geoid,
+                                    'POP_TOTAL', COALESCE(pop_total, 0),
+                                    'POP_ADULT', COALESCE(pop_adult, 0)
+                                )
+                            )
+                        ), '[]'::json)
+                    )::text
+                    FROM tract_geoms;
+                ";
+                
+                var p = cmd.CreateParameter();
+                p.ParameterName = "fips";
+                p.Value = countyFips;
+                cmd.Parameters.Add(p);
+
+                var json = (string?)await cmd.ExecuteScalarAsync();
+                
+                if (!string.IsNullOrEmpty(json))
+                {
+                    _cache.Set(cacheKey, json, TimeSpan.FromHours(24));
+                    return Content(json, "application/json");
+                }
+                return NotFound($"No tract data found for county {countyFips}.");
+            }
+            catch (Exception ex)
+            {
+                 return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
