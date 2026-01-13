@@ -31,6 +31,8 @@ window.SliderInputLogic = (function ()
                         z-index: 40;
                         margin: 0;
                         padding: 0;
+                        width: calc(100% + 16px); /* Extend logic width so thumb center reaches edges */
+                        left: -8px; /* Offset to align thumb center with 0% */
                         -webkit-appearance: none;
                         appearance: none;
                         background: transparent;
@@ -92,6 +94,7 @@ window.SliderInputLogic = (function ()
                         font-weight: 600;
                         white-space: nowrap;
                         pointer-events: none;
+                        z-index: 35;
                     }
                 `;
                 document.head.appendChild(style);
@@ -177,25 +180,29 @@ window.SliderInputLogic = (function ()
                 markers.forEach((marker) =>
                 {
                     const pct = ((marker.value - min) / range) * 100;
-                    const leftStyle = `calc(${pct}% + (${8 - 16 * (pct / 100)}px))`;
+
+                    // Align matches the simple percentage of tick markers. 
+                    // Note: This may slightly misalign with the native slider thumb at the extremes if the thumb is inset,
+                    // but it guarantees alignment with the visible tick marks.
+                    const leftStyle = `${pct}%`;
 
                     // --- RADIO BUTTON ---
-                    const radio = document.createElement('input');
-                    radio.type = 'radio';
-                    radio.name = rangeInput.id + '_marker';
-                    radio.style.position = 'absolute';
-                    radio.style.left = leftStyle;
-                    radio.style.top = '50%';
-                    radio.style.transform = 'translate(-50%, -50%) scale(1.1)';
-                    radio.style.width = '16px';
-                    radio.style.height = '16px';
-                    radio.style.zIndex = '30';
-                    radio.style.pointerEvents = 'none';
-                    radio.style.appearance = 'none';
-                    radio.style.backgroundColor = '#0f172a';
-                    radio.style.border = '2px solid #94a3b8';
-                    radio.style.borderRadius = '50%';
-                    radio.style.transition = 'all 0.2s';
+                    const radio = document.createElement('input'); // Create input element
+                    radio.type = 'radio'; // Set as radio button
+                    radio.name = rangeInput.id + '_marker'; // Group by slider ID
+                    radio.style.position = 'absolute'; // Absolute positioning relative to container
+                    radio.style.left = leftStyle; // Position horizontally based on value
+                    radio.style.top = '50%'; // Center vertically
+                    radio.style.transform = 'translate(-50%, -50%) scale(1.1)'; // Center origin and scale up slightly
+                    radio.style.width = '16px'; // Set width
+                    radio.style.height = '16px'; // Set height
+                    radio.style.zIndex = '30'; // Ensure it sits above track but below tooltip
+                    radio.style.pointerEvents = 'none'; // Click-through (purely visual)
+                    radio.style.appearance = 'none'; // Remove browser default styling
+                    radio.style.backgroundColor = '#0f172a'; // Dark background
+                    radio.style.border = '2px solid #94a3b8'; // Light gray border
+                    radio.style.borderRadius = '50%'; // Make it circular
+                    radio.style.transition = 'all 0.2s'; // Smooth transition for state changes
 
                     const updateRadio = () =>
                     {

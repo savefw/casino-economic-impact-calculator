@@ -219,6 +219,7 @@ Managed via `package.json` and built using `npm run build:css` / `copy-libs`.
 | **@turf/turf** | ^7.3.1 | Geospatial analysis engine (Client-side) |
 | **chart.js** | ^4.5.1 | Interactive charts and graphs |
 | **html2canvas** | ^1.4.1 | Canvas generation for PDF reports |
+| **terra-draw** | ^1.22.0 | Map drawing primitives and adapter |
 | **@fontsource-variable/public-sans** | ^5.2.7 | Typography (Variable Font) |
 | **@fontsource-variable/material-symbols-outlined** | ^5.2.30 | Iconography (Variable Font) |
 
@@ -230,16 +231,21 @@ Managed via NuGet in `SaveFW.Server.csproj`.
 | **Npgsql.EntityFrameworkCore.PostgreSQL** | 10.0.0 | Database Provider for PostgreSQL |
 | **Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite** | 10.0.0 | Spatial Support (PostGIS) |
 | **NetTopologySuite.IO.ShapeFile** | 2.1.0 | SHP File Ingestion (Census Data) |
+| **NetTopologySuite.IO.Esri.Shapefile** | 1.2.0 | Extended Shapefile Support |
 | **QuestPDF** | 2025.12.1 | PDF Report Generation |
 | **Microsoft.AspNetCore.Components.WebAssembly.Server** | 10.0.1 | Blazor Server Hosting |
+| **Microsoft.EntityFrameworkCore.Design** | 10.0.1 | EF Core Migration Tooling |
+| **Microsoft.AspNetCore.OpenApi** | 9.0.11 | Swagger/OpenAPI Generation |
 
 ### Vendored Libraries
 These libraries are manually included in `wwwroot/js/lib` or `wwwroot/css` to avoid external fetch requests.
 
-*   **MapLibre GL JS / maplibre-gl.css:** GPU-accelerated vector maps.
-*   **PMTiles.js:** Offline vector tile protocol for Protomaps.
-*   **PDF.js:** Client-side PDF rendering.
-*   **PageFlip:** Flipbook animation effect.
+| Library | Version | Purpose |
+| :--- | :--- | :--- |
+| **MapLibre GL JS** | v4.x | GPU-accelerated vector maps |
+| **PMTiles.js** | v2.x | Offline vector tile protocol for Protomaps |
+| **PDF.js** | v3.x | Client-side PDF rendering |
+| **PageFlip** | v2.x | Flipbook animation effect |
 
 ---
 

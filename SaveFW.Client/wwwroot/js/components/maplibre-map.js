@@ -42,6 +42,7 @@ window.MapLibreImpactMap = (function ()
 
     // === STATE ===
     let map = null;
+    let draw = null;
     let marker = null;
     let currentStateFips = null;
     let currentCountyFips = null;
@@ -218,22 +219,29 @@ window.MapLibreImpactMap = (function ()
     async function loadStates()
     {
         if (cache.states) return cache.states;
-        const res = await fetch('/api/census/states');
-        const data = await res.json();
-        if (data && Array.isArray(data.features))
+        toggleLoading(true, "Loading State Map...");
+        try 
         {
-            data.features.forEach((f, i) =>
+            const res = await fetch('/api/census/states');
+            const data = await res.json();
+            if (data && Array.isArray(data.features))
             {
-                if (!f.properties) f.properties = {};
-                f.properties.GEOID = String(f.properties.geoid || f.properties.GEOID || '').padStart(2, '0');
-                f.properties.NAME = f.properties.NAME || f.properties.name || '';
-                f.properties.POP_TOTAL = f.properties.POP_TOTAL || f.properties.pop_total || 0;
-                f.id = i;
-            });
+                data.features.forEach((f, i) =>
+                {
+                    if (!f.properties) f.properties = {};
+                    f.properties.GEOID = String(f.properties.geoid || f.properties.GEOID || '').padStart(2, '0');
+                    f.properties.NAME = f.properties.NAME || f.properties.name || '';
+                    f.properties.POP_TOTAL = f.properties.POP_TOTAL || f.properties.pop_total || 0;
+                    f.id = i;
+                });
+            }
+            cache.states = data;
+            stateData = data;
+            return data;
+        } finally 
+        {
+            toggleLoading(false);
         }
-        cache.states = data;
-        stateData = data;
-        return data;
     }
 
     async function loadCounties(stateFips)
@@ -261,7 +269,7 @@ window.MapLibreImpactMap = (function ()
     let activeContextLoad = null;
     let contextLoadSeq = 0;
 
-    async function loadCountyContext(fips, lite = false)
+    async function loadCountyContext(fips, lite = false, loadingText = "Loading Data...")
     {
         fips = normalizeCountyFips(fips);
         if (!fips) return false;
@@ -293,7 +301,7 @@ window.MapLibreImpactMap = (function ()
         const timeoutMs = lite ? 45000 : 90000;
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-        toggleLoading(true);
+        toggleLoading(true, loadingText);
 
         const promise = (async () =>
         {
@@ -577,6 +585,16 @@ window.MapLibreImpactMap = (function ()
                 countyFips: currentCountyFips,
                 stateFips,
                 stateName,
+                countyName: (function ()
+                {
+                    if (!stateFips || !cache.counties[stateFips]) return "";
+                    const f = cache.counties[stateFips].features.find(feat =>
+                    {
+                        const gid = feat.properties.GEOID || feat.properties.geoid || "";
+                        return gid === String(currentCountyFips);
+                    });
+                    return f ? (f.properties.NAME || f.properties.name || "") : "";
+                })(),
                 baselineRate,
                 county: {
                     adults: countyAdults,
@@ -644,23 +662,35 @@ window.MapLibreImpactMap = (function ()
 
     // === UI FUNCTIONS ===
 
-    function toggleLoading(show)
+    function toggleLoading(show, text = "Loading...")
     {
         const mapEl = document.getElementById('impact-map');
         if (!mapEl) return;
         let overlay = document.getElementById('map-loading-overlay');
+
         if (!overlay && show)
         {
             overlay = document.createElement('div');
             overlay.id = 'map-loading-overlay';
             overlay.className = 'absolute inset-0 z-[500] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300';
-            overlay.innerHTML = `<div class="flex flex-col items-center gap-4"><div class="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div><div class="text-white font-bold" id="map-loading-text">Loading...</div></div>`;
+            overlay.innerHTML = `<div class="flex flex-col items-center gap-4"><div class="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div><div class="text-white font-bold" id="map-loading-text">${text}</div></div>`;
             mapEl.parentElement.appendChild(overlay);
         }
+        else if (overlay && show) 
+        {
+            // Update text if overlay exists
+            const textEl = document.getElementById('map-loading-text');
+            if (textEl) textEl.textContent = text;
+        }
+
         if (overlay)
         {
             overlay.style.opacity = show ? '1' : '0';
             overlay.style.pointerEvents = show ? 'auto' : 'none';
+            if (!show) 
+            {
+                setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+            }
         }
     }
 
@@ -1503,7 +1533,7 @@ window.MapLibreImpactMap = (function ()
         currentCountyFips = countyFips;
         const countyFeature = countyData?.features.find(f => f.properties.GEOID === countyFips);
 
-        await loadCountyContext(countyFips, true);
+        await loadCountyContext(countyFips, true, "Loading County Data...");
 
         if (countyFeature && typeof turf !== 'undefined')
         {
@@ -1567,7 +1597,7 @@ window.MapLibreImpactMap = (function ()
                     {
                         currentCountyFips = newCountyFips;
                         // Use lite=true to get all block groups within 50-mile radius, not just this county
-                        loadCountyContext(newCountyFips, true).then(() =>
+                        loadCountyContext(newCountyFips, true, "Loading Impact Analysis...").then(() =>
                         {
                             calculateImpact();
                         });
@@ -1603,6 +1633,136 @@ window.MapLibreImpactMap = (function ()
             map.addSource('county-highlight', { type: 'geojson', data: feature });
             map.addLayer({ id: 'county-highlight-line', type: 'line', source: 'county-highlight', paint: { 'line-color': '#fff', 'line-width': 3, 'line-dasharray': [1, 2] } });
         }
+    }
+
+    // === DRAWING TOOLS ===
+
+    function setupDrawingTools()
+    {
+        if (!map || !window.TerraDraw) 
+        {
+            console.warn("TerraDraw not loaded");
+            return;
+        }
+
+        try 
+        {
+            draw = new TerraDraw.TerraDraw({
+                adapter: new TerraDraw.TerraDrawMapLibreGLAdapter({
+                    map: map
+                }),
+                modes: [
+                    new TerraDraw.TerraDrawSelectMode({
+                        flags: {
+                            polygon: {
+                                feature: {
+                                    draggable: true,
+                                    rotateable: true,
+                                    scaleable: true,
+                                    coordinates: {
+                                        midpoints: true,
+                                        draggable: true,
+                                        deletable: true
+                                    }
+                                }
+                            }
+                        }
+                    }),
+                    new TerraDraw.TerraDrawPointMode(),
+                    new TerraDraw.TerraDrawLineStringMode(),
+                    new TerraDraw.TerraDrawPolygonMode(),
+                    new TerraDraw.TerraDrawRectangleMode(),
+                    new TerraDraw.TerraDrawCircleMode(),
+                    new TerraDraw.TerraDrawFreehandMode()
+                ]
+            });
+
+            draw.start();
+            setupDrawingUI();
+        } catch (e) 
+        {
+            console.warn("Failed to init TerraDraw:", e);
+        }
+    }
+
+    function setupDrawingUI()
+    {
+        const container = map.getContainer();
+        const wrapper = document.createElement('div');
+        wrapper.id = 'drawing-tools-wrapper';
+        wrapper.style.cssText = 'position: absolute; top: 12px; left: 50px; z-index: 60; display: flex; flex-direction: column; gap: 4px;';
+
+        // Toggle Button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'draw-toggle-btn';
+        toggleBtn.title = 'Drawing Tools';
+        toggleBtn.className = 'bg-slate-950/40 backdrop-blur-sm w-[30px] h-[30px] flex items-center justify-center rounded-lg shadow-lg border border-white/5 text-white hover:bg-slate-900/60 transition-colors cursor-pointer';
+        toggleBtn.innerHTML = '<span class="material-symbols-outlined text-xl leading-none">edit</span>';
+
+        // Tools Panel
+        const panel = document.createElement('div');
+        panel.id = 'drawing-panel';
+        panel.style.cssText = 'display: none; flex-direction: column; gap: 4px; margin-top: 4px; background: rgba(15, 23, 42, 0.9); padding: 4px; rounded-lg; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1);';
+
+        const modes = [
+            { mode: 'select', icon: 'near_me_disabled', title: 'Select/Edit' },
+            { mode: 'point', icon: 'location_on', title: 'Point' },
+            { mode: 'linestring', icon: 'timeline', title: 'Line' },
+            { mode: 'polygon', icon: 'hexagon', title: 'Polygon' },
+            { mode: 'rectangle', icon: 'check_box_outline_blank', title: 'Rectangle' },
+            { mode: 'circle', icon: 'radio_button_unchecked', title: 'Circle' },
+            { mode: 'freehand', icon: 'gesture', title: 'Freehand' },
+            { mode: 'clear', icon: 'delete', title: 'Clear All' }
+        ];
+
+        let currentMode = 'static';
+
+        modes.forEach(m =>
+        {
+            const btn = document.createElement('button');
+            btn.className = 'draw-tool-btn w-8 h-8 flex items-center justify-center rounded hover:bg-slate-700/50 text-slate-300 transition-colors';
+            btn.title = m.title;
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm">${m.icon}</span>`;
+
+            btn.onclick = () =>
+            {
+                if (m.mode === 'clear')
+                {
+                    if (draw)
+                    {
+                        draw.clear();
+                    }
+                    return;
+                }
+
+                // Toggle logic
+                if (currentMode === m.mode)
+                {
+                    draw.setMode('static');
+                    currentMode = 'static';
+                    panel.querySelectorAll('.draw-tool-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                } else
+                {
+                    draw.setMode(m.mode);
+                    currentMode = m.mode;
+                    panel.querySelectorAll('.draw-tool-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                    btn.classList.add('bg-blue-600', 'text-white');
+                }
+            };
+            panel.appendChild(btn);
+        });
+
+        // Toggle visibility
+        toggleBtn.onclick = () =>
+        {
+            const isVisible = panel.style.display !== 'none';
+            panel.style.display = isVisible ? 'none' : 'flex';
+            toggleBtn.classList.toggle('bg-blue-600', !isVisible);
+        };
+
+        wrapper.appendChild(toggleBtn);
+        wrapper.appendChild(panel);
+        container.parentElement.appendChild(wrapper);
     }
 
     function setLayerVisibility(id, visible)
@@ -1661,6 +1821,7 @@ window.MapLibreImpactMap = (function ()
                 const data = await loadStates();
                 if (data) setupStateLayer(data);
                 updateMapNavUI(1);
+                setupDrawingTools();
                 console.log('MapLibreImpactMap v2.0 initialized');
             });
 

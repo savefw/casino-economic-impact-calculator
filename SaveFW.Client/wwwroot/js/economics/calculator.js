@@ -467,7 +467,7 @@ window.EconomicCalculator = (function ()
         // Update Title
         const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
         const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || "");
-        const countyName = countyIndex.get(subjectCountyFips) || "Subject";
+        const countyName = (lastImpactBreakdown && lastImpactBreakdown.countyName) || countyIndex.get(subjectCountyFips) || "Subject";
         const titleSuffix = hasLocation ? `${countyName} County ` : "";
         els.deficitTitle.innerHTML = `<span class="material-symbols-outlined text-red-500 align-middle mr-2">calculate</span> ${titleSuffix}Casino Net Economic Impact Analysis`;
 
@@ -837,7 +837,7 @@ window.EconomicCalculator = (function ()
         const totalCostPrivate = totalCostAbused + totalCostEmployment;
         const netTotalBalance = totalRevenue - totalCost;
 
-        const subjectCountyName = countyIndex.get(subjectCountyFips) || subjectCountyFips || "Subject County";
+        const subjectCountyName = (lastImpactBreakdown && lastImpactBreakdown.countyName) || countyIndex.get(subjectCountyFips) || subjectCountyFips || "Subject County";
         const subjectStateName = String((lastImpactBreakdown && lastImpactBreakdown.stateName) || "").trim();
 
         const otherCosts = computeOtherCountyCosts({
@@ -1133,7 +1133,7 @@ window.EconomicCalculator = (function ()
         {
             const subjectCountyFips = String((lastImpactBreakdown && lastImpactBreakdown.countyFips) || (els.inCounty && els.inCounty.value) || "");
             const countyIndex = new Map(getCountyData().map(c => [String(c.geoid || c.id || ""), String(c.name || "").trim()]));
-            const subjectCountyName = countyIndex.get(subjectCountyFips) || "Selected";
+            const subjectCountyName = (lastImpactBreakdown && lastImpactBreakdown.countyName) || countyIndex.get(subjectCountyFips) || "Selected";
             const subjectStateName = String((lastImpactBreakdown && lastImpactBreakdown.stateName) || "Indiana").trim();
 
             const costRatio = totalRevenue > 0 ? (totalCost / totalRevenue).toFixed(2) : "N/A";

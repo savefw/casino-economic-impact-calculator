@@ -69,6 +69,12 @@ namespace SaveFW.Server.Controllers
         [HttpGet("states")]
         public async Task<IActionResult> GetStates()
         {
+            var cacheKey = "tiger_states_geojson";
+            if (_cache.TryGetValue(cacheKey, out string? cachedJson) && !string.IsNullOrEmpty(cachedJson))
+            {
+                return Content(cachedJson, "application/json");
+            }
+
             try 
             {
                 var conn = _db.Database.GetDbConnection();
@@ -106,6 +112,7 @@ namespace SaveFW.Server.Controllers
                 
                 if (!string.IsNullOrEmpty(json))
                 {
+                    _cache.Set(cacheKey, json, TimeSpan.FromHours(24));
                     return Content(json, "application/json");
                 }
                 return NotFound("No state data found.");
