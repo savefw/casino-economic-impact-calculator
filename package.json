@@ -1,6 +1,6 @@
 {
   "name": "savefw",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "SaveFW - Economic Impact Analysis",
   "scripts": {
     "build:css": "BROWSERSLIST_IGNORE_OLD_DATA=true tailwindcss -i ./SaveFW.Client/Styles/app.css -o ./SaveFW.Client/wwwroot/css/app.css --minify",
