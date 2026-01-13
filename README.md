@@ -24,7 +24,7 @@
     <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/workers"><img src="https://img.shields.io/badge/Worker_Service-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt="Worker Service" /></a>
     <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
     <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
-    <a href="https://leafletjs.com/"><img src="https://img.shields.io/badge/Leaflet-199903?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet" /></a>
+    <a href="https://maplibre.org/"><img src="https://img.shields.io/badge/MapLibre_GL_JS-396CB2?style=for-the-badge&logo=maplibre&logoColor=white" alt="MapLibre GL JS" /></a>
   </p>
 
 </div>
@@ -91,7 +91,7 @@ A visual metaphor for the marketing strategies used to sell the casino project. 
 <br /><br />
 
 ## Impact Zone Visualizer
-This Leaflet.js-based geospatial tool currently visualizes the geographic scope of problem gambling using standard radius zones (0-10 miles for high risk, 10-20 miles for elevated risk). While this provides a baseline estimate, work is underway to integrate **Valhalla** to generate precise drive-time polygons (isochrones). Future updates will transition to a **1-hour drive time** impact zone, widely cited in academic literature (Grinols, 2011 & 2016) as the primary catchment area for local problem gambling prevalence.
+This MapLibre GL JS-based geospatial tool visualizes the geographic scope of problem gambling using standard radius zones (0-10 miles for high risk, 10-20 miles for elevated risk). Work is underway to integrate **Valhalla** to generate precise drive-time polygons (isochrones). Future updates will transition to a **1-hour drive time** impact zone, widely cited in academic literature (Grinols, 2011 & 2016) as the primary catchment area for local problem gambling prevalence.
 <br /><br />
 <img src="docs/examples/Casino-Impact-Zone-Visualizer-Example.png" alt="Map Visualizer" width="600" />
 <br /><br />
@@ -114,7 +114,7 @@ This project is built using a modern .NET 10 distributed architecture:
 *   **Database:** PostgreSQL 18 + PostGIS (Dockerized) with automated data seeding.
 *   **Routing:** Self-hosted Valhalla engine for offline isochrone generation.
 *   **Management:** CloudBeaver for web-based database administration.
-*   **Maps:** Leaflet.js integrated via JavaScript Interop.
+*   **Maps:** MapLibre GL JS with Protomaps PMTiles for offline vector maps.
 *   **Deployment:** Fully containerized environment via Docker Compose.
 
 ---
@@ -216,7 +216,7 @@ Managed via `package.json` and built using `npm run build:css` / `copy-libs`.
 | Package | Version | Purpose |
 | :--- | :--- | :--- |
 | **tailwindcss** | ^3.4.0 | Utility-first CSS framework (Built via CLI) |
-| **leaflet-control-geocoder** | ^3.3.1 | Map search and geocoding controls |
+
 | **@turf/turf** | ^7.3.1 | Geospatial analysis engine (Client-side) |
 | **chart.js** | ^4.5.1 | Interactive charts and graphs |
 | **html2canvas** | ^1.4.1 | Canvas generation for PDF reports |
@@ -237,8 +237,8 @@ Managed via NuGet in `SaveFW.Server.csproj`.
 ### Vendored Libraries
 These libraries are manually included in `wwwroot/js/lib` or `wwwroot/css` to avoid external fetch requests.
 
-*   **Leaflet.js / Leaflet.css:** Interactive mapping core.
-*   **Leaflet Heat:** Heatmap visualization plugin.
+*   **MapLibre GL JS / maplibre-gl.css:** GPU-accelerated vector maps.
+*   **PMTiles.js:** Offline vector tile protocol for Protomaps.
 *   **PDF.js:** Client-side PDF rendering.
 *   **PageFlip:** Flipbook animation effect.
 
