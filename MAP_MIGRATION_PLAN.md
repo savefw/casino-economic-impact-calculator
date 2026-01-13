@@ -10,7 +10,7 @@ This is a **unified plan** covering two parallel workstreams:
 
 1. **Frontend Map Migration** (Phases 1-8): Transition from Leaflet.js to MapLibre GL JS for GPU-accelerated rendering, native vector tiles, and efficient isochrone visualization.
 
-2. **Backend Data Infrastructure** (Phases 9-12): Build a reliable, updatable, deduplicated address-point layer for geocoding and spatial analytics using NAD, OpenAddresses, and TIGER data.
+2. **Address Classification Infrastructure** (Phases 9-12): Implement a lightweight TIGER-based address range lookup system to efficiently classify user addresses into block groups, tracts, and districts without the overhead of storing individual address points.
 
 ---
 
@@ -43,15 +43,14 @@ This is a **unified plan** covering two parallel workstreams:
 | **NEW: 3D Terrain** | N/A | 🔴 Hard | ❌ Not Supported | MapLibre lacks sky layer; no DEM tiles available |
 | **NEW: 3D Buildings** | N/A | 🔴 Hard | ⚠️ Partial | Only works on vector basemaps with building data |
 
-#### Part B: Address Point Data Infrastructure
+#### Part B: Address Classification Infrastructure (TIGER-Only)
 
 | Feature | Description | Complexity | Status | Notes |
 |---------|-------------|------------|--------|-------|
-| Address Points Schema | NAD + OpenAddresses table with source identity | 🟡 Medium | ⏸️ Deferred | Phase 9 - Not started |
-| TIGER Ranges Schema | Separate table for interpolation fallback | 🟡 Medium | ⏸️ Deferred | Phase 9 - Not started |
-| Ingestion Pipeline | Extract, normalize, upsert address data | 🔴 Hard | ⏸️ Deferred | Phase 10 - Not started |
-| Deduplication Strategy | Non-destructive preferred view approach | 🟡 Medium | ⏸️ Deferred | Phase 11 - Not started |
-| Query Strategy | Exact match + fallback tiers + TIGER interpolation | 🟡 Medium | ⏸️ Deferred | Phase 12 - Not started |
+| TIGER Ranges Schema | Optimized table for address range lookups | 🟢 Easy | ✅ Complete | Created 003_tiger_address_ranges.sql |
+| Range Ingestion | Import TIGER/Line Address Ranges | 🟡 Medium | ✅ Complete | Updated TigerIngestionService.cs |
+| Range Lookup Logic | Determine lat/long from address range | 🟡 Medium | ✅ Complete | Created 004_tiger_geocoding_functions.sql |
+| Classification API | Map lat/long to jurisdiction (BG/Tract/Dist) | 🟢 Easy | ✅ Complete | Included in 004 script |
 
 **Status Legend**: ✅ Complete | 🔄 In Progress | ⏸️ Deferred | ⚠️ Partial | ❌ Not Supported
 
@@ -222,15 +221,14 @@ This is a **unified plan** covering two parallel workstreams:
 
 ---
 
-# PART B: ADDRESS POINT DATA INFRASTRUCTURE
+# PART B: ADDRESS CLASSIFICATION INFRASTRUCTURE (TIGER-BASED)
 
 ## Design Principles
 
-1. **Source precedence**: NAD > OpenAddresses > TIGER
-2. **Identity is mandatory**: every point must be traceable to upstream record
-3. **Deduplication must be attribute-aware**: proximity alone is insufficient
-4. **Keep TIGER separate**: ranges used for interpolation only, not mixed into points
-5. **Query semantics must reflect real address lookups**: ZIP + street alone is not unique
+1.  **Minimize Storage**: Use TIGER address ranges instead of millions of individual address points.
+2.  **Classification Focus**: Exact rooftop precision is not required; determining the correct Block Group is the goal.
+3.  **Leverage Existing Data**: Use the existing Block Group / Tract / County polygons for spatial joins.
+4.  **Simple Interpolation**: Geocode by finding the correct TIGER range and interpolating the approximate location.
 
 ---
 
@@ -238,66 +236,50 @@ This is a **unified plan** covering two parallel workstreams:
 
 | Tier | Source | Usage | Update Cadence |
 |------|--------|-------|----------------|
-| 1 | NAD (National Address Database) | Preferred address points | Monthly |
-| 2 | OpenAddresses | Fill coverage gaps | As available |
-| 3 | TIGER/Line Address Ranges | Interpolation fallback only | Annual |
+| 1 | TIGER/Line Address Ranges | Address range lookup and interpolation | Annual |
 
 ---
 
-## Phase 9: Database Schema ⏸️ DEFERRED
+## Phase 9: TIGER Address Range Schema ✅ COMPLETE
 
-### 9.1 Address Points Table (NAD + OpenAddresses)
-- [ ] Create `address_points` table with source identity fields
-- [ ] Create unique index on `(source, source_id)`
-- [ ] Create GIST index on `geom`
-- [ ] Create lookup indexes for `(state, zip, street_name_norm, house_number)`
-
-### 9.2 TIGER Ranges Table (Separate)
-- [ ] Create `tiger_address_ranges` table
-- [ ] Create GIST and lookup indexes
+### 9.1 Address Ranges Table
+- [x] Create `tiger_address_ranges` table optimized for range queries
+- [x] Schema: `tlid`, `side`, `from_hn`, `to_hn`, `zip`, `street_name`, `geom`
+- [x] Create GIST index on `geom` for spatial lookups
+- [x] Create B-Tree indexes on `zip` and `street_name`
 
 ---
 
-## Phase 10: Ingestion Pipeline ⏸️ DEFERRED
+## Phase 10: TIGER Ingestion Pipeline ✅ COMPLETE
 
-### 10.1 Extract + Normalize
-- [ ] Parse address components from NAD/OA sources
-- [ ] Produce `street_name_norm` consistently across sources
-- [ ] Normalize casing, whitespace, directionals, street types
-- [ ] **TIGER compatibility**: Map abbreviations bidirectionally
-- [ ] Preserve `street_name_raw` for traceability
-
-### 10.2 Upsert Logic (Incremental-Friendly)
-- [ ] Implement upsert using `(source, source_id)` as key
-
-### 10.3 Deactivation Pass (Tombstone Strategy)
-- [ ] Mark records inactive if not seen in current run window
+### 10.1 Downloader & Parser
+- [x] Expand `TigerIngestionService` to handle `tl_2020_us_addrfeat.zip` (Address Ranges)
+- [x] Parse DBF attributes: `FROMHN`, `TOHN`, `ZIPL`, `ZIPR`, `FULLNAME`
+- [x] Standardize street names during ingestion
 
 ---
 
-## Phase 11: Deduplication Strategy ⏸️ DEFERRED
+## Phase 11: Geocoding Logic (Range Interpolation) ✅ COMPLETE
 
-### 11.1 Non-Destructive Approach
-- [ ] Keep both rows in `address_points`
-- [ ] Create preferred view for single-row results
+### 11.1 Reference Search
+- [x] Implement query to find matching TIGER segment by Zip + Street Name + House Number range
+- [x] Handle parity (odd/even) to select the correct side of the street
+
+### 11.2 Interpolation
+- [x] Calculate percentage distance along the segment based on house number
+- [x] Use `ST_LineInterpolatePoint` to generate an approximate coordinate
 
 ---
 
-## Phase 12: Query Strategy & TIGER Fallback ⏸️ DEFERRED
+## Phase 12: Classification Service ✅ COMPLETE
 
-### 12.1 Exact Match Query (Primary)
-- [ ] Query must use: `state` + `zip` + `street_name_norm` + `house_number` + optionally `unit`
-- [ ] Do NOT query on `Zip + StreetName` alone (not unique)
-
-### 12.2 Fallback Tiers
-- [ ] Nearby street number match (same street, nearest point)
-- [ ] Nearest neighbor within radius (if approximate location known)
-- [ ] TIGER interpolation if no points exist
-
-### 12.3 TIGER Interpolation
-- [ ] Find candidate street segments matching `state + name_norm`
-- [ ] Pick nearest segment
-- [ ] Interpolate along segment based on left/right ranges and parity
+### 12.1 Spatial Join API
+- [x] Input: User Address String
+- [x] Process:
+    1. Parse Address
+    2. Lookup TIGER Range -> Get Coordinate
+    3. Perform point-in-polygon check against `block_groups` and `districts` layers
+- [x] Output: `BlockGroupId`, `TractId`, `CountyFips`, `DistrictId`
 
 ---
 
@@ -325,8 +307,8 @@ This is a **unified plan** covering two parallel workstreams:
 | 5 | Valhalla Isochrones | 6-8 hours | 🔄 In Progress |
 | 6 | Geocoder Migration | 4-6 hours | ⏸️ Deferred |
 | 7-8 | Testing + Cleanup | 6-10 hours | ✅ Complete |
-| 9-10 | Address Point Schema + Ingestion | 8-12 hours | ⏸️ Deferred |
-| 11-12 | Deduplication + Query Strategy | 4-6 hours | ⏸️ Deferred |
+| 9-10 | TIGER Range Schema + Ingestion | 4-6 hours | ✅ Complete |
+| 11-12 | Range Lookup + Classification | 4-6 hours | ✅ Complete |
 | **Total** | | **50-76 hours** | ~70% Complete |
 
 ---
@@ -342,9 +324,9 @@ This is a **unified plan** covering two parallel workstreams:
 3. **Migration Strategy**: ✅ Big bang replacement
    - [x] Option A: Big bang replacement (Leaflet fully removed)
 
-4. **Address Data Priority**: ⏸️ Deferred
-   - [ ] Option A: NAD-first (full national coverage)
-   - [ ] Option B: Indiana-only initial deployment
+4. **Address Data Strategy**: ✅ TIGER Ranges (Lightweight)
+   - [x] Option B: TIGER Address Ranges (Classification Focus)
+   - [ ] ~~Option A: Full Address Points (High Storage)~~
 
 ---
 

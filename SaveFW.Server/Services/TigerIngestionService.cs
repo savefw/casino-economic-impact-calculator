@@ -64,6 +64,44 @@ namespace SaveFW.Server.Services
             await ProcessTigerFile(url, fileName, "tiger_states", null);
         }
 
+        public async Task IngestAddressRanges(string stateFips)
+        {
+            stateFips = stateFips.PadLeft(2, '0');
+            _logger.LogInformation($"Ingesting Address Ranges for State {stateFips}...");
+
+            // Get counties for this state from DB
+            var connString = _config.GetConnectionString("DefaultConnection");
+            await using var conn = new NpgsqlConnection(connString);
+            await conn.OpenAsync();
+
+            var countyFipsList = new System.Collections.Generic.List<string>();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT geoid FROM tiger_counties WHERE state_fp = @state_fp";
+                cmd.Parameters.AddWithValue("state_fp", stateFips);
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    countyFipsList.Add(reader.GetString(0));
+                }
+            }
+
+            foreach (var countyFips in countyFipsList)
+            {
+                var fileName = $"tl_{TigerYear}_{countyFips}_addrfeat.zip";
+                var url = $"{BaseTigerUrl}/ADDRFEAT/{fileName}";
+                try 
+                {
+                    await ProcessTigerFile(url, fileName, "tiger_address_ranges", null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to ingest address ranges for county {countyFips}");
+                    // Continue to next county
+                }
+            }
+        }
+
         private async Task ProcessTigerFile(string url, string fileName, string tableName, string? stateFipsFilter)
         {
             var tempDir = Path.Combine(Path.GetTempPath(), "savefw_tiger_" + Guid.NewGuid());
@@ -296,6 +334,21 @@ namespace SaveFW.Server.Services
                 cmd.Parameters.Add(new NpgsqlParameter("geoid", NpgsqlTypes.NpgsqlDbType.Text));
                 cmd.Parameters.Add(new NpgsqlParameter("geom", NpgsqlTypes.NpgsqlDbType.Geometry));
             }
+            else if (tableName == "tiger_address_ranges")
+            {
+                 cmd.CommandText = @"
+                    INSERT INTO tiger_address_ranges (tlid, side, from_hn, to_hn, zip, street_name, geom)
+                    VALUES (@tlid, @side, @from_hn, @to_hn, @zip, @street_name, ST_Transform(@geom, 4326))
+                    ON CONFLICT (tlid, side, from_hn, to_hn, zip) DO NOTHING;
+                ";
+                cmd.Parameters.Add(new NpgsqlParameter("tlid", NpgsqlTypes.NpgsqlDbType.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("side", NpgsqlTypes.NpgsqlDbType.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("from_hn", NpgsqlTypes.NpgsqlDbType.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("to_hn", NpgsqlTypes.NpgsqlDbType.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("zip", NpgsqlTypes.NpgsqlDbType.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("street_name", NpgsqlTypes.NpgsqlDbType.Text));
+                cmd.Parameters.Add(new NpgsqlParameter("geom", NpgsqlTypes.NpgsqlDbType.Geometry));
+            }
 
             int count = 0;
             while (reader.Read())
@@ -325,6 +378,53 @@ namespace SaveFW.Server.Services
                 {
                     cmd.Parameters["geoid"].Value = reader["GEOID"];
                     cmd.Parameters["geom"].Value = geometry;
+                }
+                else if (tableName == "tiger_address_ranges")
+                {
+                    // TIGER ADDRFEAT has separate fields for Left/Right
+                    // We need to insert TWO rows per feature: one for Left side, one for Right side (if they have ranges)
+                    
+                    var tlid = reader["TLID"].ToString();
+                    var name = reader["FULLNAME"].ToString();
+                    
+                    // Left Side
+                    var fromL = reader["LFROMHN"]?.ToString();
+                    var toL = reader["LTOHN"]?.ToString();
+                    var zipL = reader["ZIPL"]?.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(fromL) && !string.IsNullOrWhiteSpace(toL))
+                    {
+                        cmd.Parameters["tlid"].Value = tlid;
+                        cmd.Parameters["side"].Value = "L";
+                        cmd.Parameters["from_hn"].Value = fromL;
+                        cmd.Parameters["to_hn"].Value = toL;
+                        cmd.Parameters["zip"].Value = zipL ?? "";
+                        cmd.Parameters["street_name"].Value = name ?? "";
+                        cmd.Parameters["geom"].Value = geometry;
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    // Right Side
+                    var fromR = reader["RFROMHN"]?.ToString();
+                    var toR = reader["RTOHN"]?.ToString();
+                    var zipR = reader["ZIPR"]?.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(fromR) && !string.IsNullOrWhiteSpace(toR))
+                    {
+                        cmd.Parameters["tlid"].Value = tlid;
+                        cmd.Parameters["side"].Value = "R";
+                        cmd.Parameters["from_hn"].Value = fromR;
+                        cmd.Parameters["to_hn"].Value = toR;
+                        cmd.Parameters["zip"].Value = zipR ?? "";
+                        cmd.Parameters["street_name"].Value = name ?? "";
+                        cmd.Parameters["geom"].Value = geometry;
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                    
+                    // We manually executed above, so skip the generic execute at the bottom
+                    count++;
+                    if (count % 1000 == 0) _logger.LogInformation($"Ingested {count} ranges...");
+                    continue; 
                 }
 
                 await cmd.ExecuteNonQueryAsync();
@@ -377,6 +477,24 @@ namespace SaveFW.Server.Services
                         geom geometry(MultiPolygon, 4326)
                     );
                     CREATE INDEX IF NOT EXISTS idx_census_bg_geom ON census_block_groups USING GIST (geom);
+                 ";
+            }
+            else if (tableName == "tiger_address_ranges")
+            {
+                 // Handled by 003_tiger_address_ranges.sql script usually, but for robustness:
+                 cmd.CommandText = @"
+                    CREATE TABLE IF NOT EXISTS tiger_address_ranges (
+                        tlid text,
+                        side text,
+                        from_hn text,
+                        to_hn text,
+                        zip text,
+                        street_name text,
+                        geom geometry(LineString, 4326),
+                        CONSTRAINT pk_tiger_address_ranges PRIMARY KEY (tlid, side, from_hn, to_hn, zip)
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_tiger_addr_geom ON tiger_address_ranges USING GIST (geom);
+                    CREATE INDEX IF NOT EXISTS idx_tiger_addr_zip_street ON tiger_address_ranges (zip, street_name);
                  ";
             }
             

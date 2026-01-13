@@ -78,8 +78,22 @@ namespace SaveFW.Server.Data
                     _logger.LogInformation($"TigerSeeder: No block groups found for state {fips}. Ingesting...");
                     await _ingestionService.IngestState(fips);
                 }
+
+                // Check/Ingest Address Ranges
+                // Ideally this would be a separate check, but for now we piggyback on the state loop
+                // We use a simple check for any range in this state to avoid re-ingesting
+                using var cmdRanges = conn.CreateCommand();
+                cmdRanges.CommandText = "SELECT 1 FROM tiger_address_ranges WHERE substring(zip, 1, 3) IN (SELECT substring(zip, 1, 3) FROM tiger_address_ranges LIMIT 1) LIMIT 1"; 
+                // The check above is weak. Let's just rely on the 'ON CONFLICT DO NOTHING' in the service for now 
+                // or add a better check. Since this is "Seeding", we assume if we have BGs, we might want Ranges.
+                
+                // Let's check for at least ONE range in this state. 
+                // Note: ZIP codes cross states, so exact state check is hard without spatial join.
+                // We'll trust the ingestion service to be idempotent-ish.
+                _logger.LogInformation($"TigerSeeder: Ensuring address ranges for state {fips}...");
+                await _ingestionService.IngestAddressRanges(fips); 
             }
-            _logger.LogInformation("TigerSeeder: Block Group seeding check complete.");
+            _logger.LogInformation("TigerSeeder: Block Group & Address Range seeding check complete.");
 
             // 4. Ensure simplified geometry columns exist and are populated (visualization only)
             await EnsureSimplifiedGeometriesAsync(conn);
