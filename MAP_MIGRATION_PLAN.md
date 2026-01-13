@@ -20,26 +20,26 @@ This is a **unified plan** covering two parallel workstreams:
 
 ### Core Features to Migrate
 
-| Feature | Current Implementation | Complexity | Status |
-|---------|----------------------|------------|--------|
-| Base map (satellite/street) | ArcGIS/OSM tile layers | 🟢 Easy | ✅ Complete |
-| State/County drill-down | L.geoJSON + click handlers | 🟡 Medium | ✅ Complete |
-| Casino marker | L.icon (SVG) with drag events | 🟡 Medium | ✅ Complete |
-| Impact circles (10/20/50 mi) | L.circle | 🟡 Medium | ✅ Complete |
-| County highlight | L.geoJSON dashed border | 🟢 Easy | ✅ Complete |
-| Block group heatmap | L.geoJSON + custom styling | 🟢 Easy | ✅ Complete |
-| Tract layer | Turf.dissolve + L.geoJSON | 🟡 Medium | ⏸️ Deferred |
-| Fullscreen toggle | L.control custom | 🟢 Easy | ✅ Complete |
-| Risk legend overlay | L.control custom | 🟢 Easy | ✅ Complete |
-| Loading overlay | DOM manipulation | 🟢 Easy | ✅ Complete |
-| Navigation progress UI | DOM manipulation | 🟢 Easy | ✅ Complete |
-| Geocoder (Representative) | L.Control.Geocoder.photon | 🟡 Medium | ⏸️ Deferred |
-| **NEW: Valhalla Isochrones** | Not yet implemented | 🔴 MapLibre-first | 🔄 In Progress |
-| **NEW: Layer Switcher** | N/A | 🟡 Medium | ✅ Complete |
-| **NEW: Hamburger Menu** | N/A | 🟡 Medium | ✅ Complete |
-| **NEW: Dark/Light Mode** | N/A | 🟢 Easy | ✅ Complete |
-| **NEW: 3D Terrain** | N/A | 🔴 Hard | ❌ Not Supported |
-| **NEW: 3D Buildings** | N/A | 🔴 Hard | ⚠️ Partial |
+| Feature | Current Implementation | Complexity | Status | Notes |
+|---------|----------------------|------------|--------|-------|
+| Base map (satellite/street) | ArcGIS/OSM tile layers | 🟢 Easy | ✅ Complete | |
+| State/County drill-down | L.geoJSON + click handlers | 🟡 Medium | ✅ Complete | |
+| Casino marker | L.icon (SVG) with drag events | 🟡 Medium | ✅ Complete | |
+| Impact circles (10/20/50 mi) | L.circle | 🟡 Medium | ✅ Complete | |
+| County highlight | L.geoJSON dashed border | 🟢 Easy | ✅ Complete | |
+| Block group heatmap | L.geoJSON + custom styling | 🟢 Easy | ✅ Complete | |
+| Tract layer | Turf.dissolve + L.geoJSON | 🟡 Medium | ✅ Complete | Server-side ST_Union dissolve |
+| Fullscreen toggle | L.control custom | 🟢 Easy | ✅ Complete | |
+| Risk legend overlay | L.control custom | 🟢 Easy | ✅ Complete | |
+| Loading overlay | DOM manipulation | 🟢 Easy | ✅ Complete | |
+| Navigation progress UI | DOM manipulation | 🟢 Easy | ✅ Complete | |
+| Geocoder (Representative) | L.Control.Geocoder.photon | 🟡 Medium | ⏸️ Deferred | Low priority; address search not used in main flow |
+| **NEW: Valhalla Isochrones** | Not yet implemented | 🔴 MapLibre-first | 🔄 In Progress | Backend ready; needs dynamic refresh on marker drag |
+| **NEW: Layer Switcher** | N/A | 🟡 Medium | ✅ Complete | |
+| **NEW: Hamburger Menu** | N/A | 🟡 Medium | ✅ Complete | |
+| **NEW: Dark/Light Mode** | N/A | 🟢 Easy | ✅ Complete | |
+| **NEW: 3D Terrain** | N/A | 🔴 Hard | ❌ Not Supported | MapLibre lacks sky layer; no DEM tiles available |
+| **NEW: 3D Buildings** | N/A | 🔴 Hard | ⚠️ Partial | Only works on vector basemaps with building data |
 
 **Status Legend**: ✅ Complete | 🔄 In Progress | ⏸️ Deferred | ⚠️ Partial | ❌ Not Supported
 
