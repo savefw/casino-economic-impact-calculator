@@ -1323,9 +1323,14 @@ window.EconomicCalculator = (function ()
 
         const baselineRateCandidate = Number((impact && impact.baselineRate) || (options && options.baselineRate) || 2.3);
         const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
-        const r1 = (baselineRate * 2.0) / 100;
-        const r2 = (baselineRate * 1.5) / 100;
-        const r3 = (baselineRate * 1.0) / 100;
+
+        // Delta rates for NET NEW calculation (increase above baseline)
+        // T1 (≤10mi): 2x baseline rate → delta = baseline (e.g., 2.3% increase)
+        // T2 (10-20mi): 1.5x baseline rate → delta = 0.5x baseline (e.g., 1.15% increase)
+        // T3 (20-50mi): 1x baseline rate → delta = 0 (no increase)
+        const d1 = baselineRate / 100;        // e.g., 0.023 for 2.3% baseline
+        const d2 = (baselineRate * 0.5) / 100; // e.g., 0.0115 for 2.3% baseline
+        const d3 = 0;                          // No increase in baseline zone
 
         const perVictimCosts = (options && options.perVictimCosts) ? options.perVictimCosts : {};
         const costsPerVictim = {
@@ -1363,7 +1368,7 @@ window.EconomicCalculator = (function ()
             const t2Adults = Number(c.t2Pop || 0);
             const t3Adults = Number(c.t3Pop || 0);
             const adultsWithin50 = t1Adults + t2Adults + t3Adults;
-            const victimsWithin50 = (t1Adults * r1) + (t2Adults * r2) + (t3Adults * r3);
+            const victimsWithin50 = (t1Adults * d1) + (t2Adults * d2) + (t3Adults * d3);
             if (!Number.isFinite(victimsWithin50) || victimsWithin50 <= 0) continue;
 
             const name = countyIndex.get(fips) || fips;

@@ -177,7 +177,7 @@ window.SliderInputLogic = (function ()
                 markers.forEach((marker) =>
                 {
                     const pct = ((marker.value - min) / range) * 100;
-                    const leftStyle = `${pct}%`;
+                    const leftStyle = `calc(${pct}% + (${8 - 16 * (pct / 100)}px))`;
 
                     // --- RADIO BUTTON ---
                     const radio = document.createElement('input');
@@ -223,7 +223,7 @@ window.SliderInputLogic = (function ()
                     labelDiv.style.top = 'calc(50%)';
                     labelDiv.style.transform = 'translateX(-50%)';
 
-                    const tooltipId = `tooltip-${rangeInput.id}-${marker.value}`;
+                    const tooltipId = `tooltip-${rangeInput.id}-${String(marker.value).replace(/\./g, '_')}`;
                     labelDiv.innerHTML = `
                         <div style="height: 32px; width: 1px; background-color: rgba(100,116,139,0.5); margin-bottom: 4px; pointer-events: none;"></div>
                         <div class="marker-hover-trigger relative flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">
