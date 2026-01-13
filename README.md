@@ -216,7 +216,6 @@ Managed via `package.json` and built using `npm run build:css` / `copy-libs`.
 | Package | Version | Purpose |
 | :--- | :--- | :--- |
 | **tailwindcss** | ^3.4.0 | Utility-first CSS framework (Built via CLI) |
-
 | **@turf/turf** | ^7.3.1 | Geospatial analysis engine (Client-side) |
 | **chart.js** | ^4.5.1 | Interactive charts and graphs |
 | **html2canvas** | ^1.4.1 | Canvas generation for PDF reports |
