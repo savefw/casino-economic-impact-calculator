@@ -28,7 +28,7 @@ This is a **unified plan** covering two parallel workstreams:
 | Impact circles (10/20/50 mi) | L.circle | 🟡 Medium | ✅ Complete | |
 | County highlight | L.geoJSON dashed border | 🟢 Easy | ✅ Complete | |
 | Block group heatmap | L.geoJSON + custom styling | 🟢 Easy | ✅ Complete | |
-| Tract layer | Turf.dissolve + L.geoJSON | 🟡 Medium | ✅ Complete | Server-side ST_Union dissolve |
+| Tract layer | Turf.dissolve + L.geoJSON | 🟡 Medium | ✅ Complete | Uses PostGIS ST_Union instead of client-side Turf.dissolve |
 | Fullscreen toggle | L.control custom | 🟢 Easy | ✅ Complete | |
 | Risk legend overlay | L.control custom | 🟢 Easy | ✅ Complete | |
 | Loading overlay | DOM manipulation | 🟢 Easy | ✅ Complete | |
