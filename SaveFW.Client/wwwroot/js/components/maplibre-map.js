@@ -202,6 +202,10 @@ window.MapLibreImpactMap = (function ()
     function updateCircles(lngLat)
     {
         if (!map) return;
+
+        // Ensure source exists
+        if (!map.getSource('impact-circles')) setupCircleLayers();
+
         const circles = {
             type: 'FeatureCollection',
             features: [
@@ -944,6 +948,11 @@ window.MapLibreImpactMap = (function ()
                     <span class="toggle-slider"></span>
                 </label>
                 <label class="toggle-row">
+                    <span>Risk Zone Labels</span>
+                    <input type="checkbox" id="toggle-risklabels" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-row">
                     <span>County Boundaries</span>
                     <input type="checkbox" id="toggle-boundary" checked />
                     <span class="toggle-slider"></span>
@@ -1035,6 +1044,17 @@ window.MapLibreImpactMap = (function ()
                 {
                     switchBasemap(currentBasemap);
                 }
+            };
+        }
+
+        // Risk Labels toggle handler
+        const riskLabelToggle = document.getElementById('toggle-risklabels');
+        if (riskLabelToggle)
+        {
+            riskLabelToggle.onchange = () =>
+            {
+                const el = document.getElementById('map-overlay-topright');
+                if (el) el.style.display = riskLabelToggle.checked ? 'flex' : 'none';
             };
         }
 
@@ -1166,39 +1186,61 @@ window.MapLibreImpactMap = (function ()
         // Restore state after style loads
         map.once('style.load', async () =>
         {
-            map.setCenter(center);
-            map.setZoom(zoom);
-            map.setPitch(pitch);
-            map.setBearing(bearing);
-
-            // Re-add all custom layers
-            setupCircleLayers();
-            setupHeatmapLayer();
-            setupIsochroneLayers();
-            setupTractLayer();
-
-            // Re-add terrain if enabled
-            if (layersVisible.terrain3d) enableTerrain3d(true);
-            if (layersVisible.buildings3d) enable3dBuildings(true);
-
-            // Reload state/county data
-            const data = await loadStates();
-            if (data) setupStateLayer(data);
-
-            if (currentStateFips)
+            try
             {
-                const countyData = await loadCounties(currentStateFips);
-                setupCountyLayer(countyData);
-                map.setLayoutProperty('counties-fill', 'visibility', 'visible');
-                map.setLayoutProperty('counties-line', 'visibility', 'visible');
-            }
+                map.setCenter(center);
+                map.setZoom(zoom);
+                map.setPitch(pitch);
+                map.setBearing(bearing);
 
-            // Restore marker
-            if (markerPosition)
+                // Re-add all custom layers
+                setupCircleLayers();
+                setupHeatmapLayer();
+                setupIsochroneLayers();
+                setupTractLayer();
+
+                // Re-add terrain if enabled
+                if (layersVisible.terrain3d) enableTerrain3d(true);
+                if (layersVisible.buildings3d) enable3dBuildings(true);
+
+                // Reload state/county data
+                const data = await loadStates();
+                if (data) setupStateLayer(data);
+
+                if (currentStateFips)
+                {
+                    // If in state view, hide state layers
+                    map.setLayoutProperty('states-fill', 'visibility', 'none');
+                    map.setLayoutProperty('states-line', 'visibility', 'none');
+
+                    const countyData = await loadCounties(currentStateFips);
+                    setupCountyLayer(countyData);
+                    map.setLayoutProperty('counties-fill', 'visibility', 'visible');
+                    map.setLayoutProperty('counties-line', 'visibility', 'visible');
+
+                    if (currentCountyFips)
+                    {
+                        const countyFeature = countyData?.features.find(f => f.properties.GEOID === currentCountyFips);
+                        if (countyFeature) highlightCounty(countyFeature);
+                    }
+                }
+
+                // Re-apply visibility based on current toggles
+                Object.keys(layersVisible).forEach(key => toggleLayerVisibility(key, layersVisible[key]));
+
+                // Restore marker
+                if (markerPosition)
+                {
+                    marker = null; // Force recreation
+                    updateMarker(markerPosition);
+                    updateCircles(markerPosition);
+                }
+
+                // Re-init drawing tools if they were loaded
+                setupDrawingTools();
+            } catch (err)
             {
-                marker = null; // Force recreation
-                updateMarker(markerPosition);
-                updateCircles(markerPosition);
+                console.error("Error restoring map state after style switch:", err);
             }
         });
     }
@@ -1338,12 +1380,15 @@ window.MapLibreImpactMap = (function ()
     function setupCircleLayers()
     {
         if (!map) return;
+        if (map.getSource('impact-circles')) return;
+
         map.addSource('impact-circles', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
 
         [{ tier: 3, color: TIER_COLORS.tier3, opacity: 0.12, dash: [2, 6] },
         { tier: 2, color: TIER_COLORS.tier2, opacity: 0.35, dash: [5, 5] },
         { tier: 1, color: TIER_COLORS.tier1, opacity: 0.25, dash: null }].forEach(cfg =>
         {
+            if (map.getLayer(`circle-tier${cfg.tier}-fill`)) return;
             map.addLayer({
                 id: `circle-tier${cfg.tier}-fill`, type: 'fill', source: 'impact-circles',
                 filter: ['==', ['get', 'tier'], cfg.tier],
@@ -1361,7 +1406,15 @@ window.MapLibreImpactMap = (function ()
     function setupHeatmapLayer()
     {
         if (!map) return;
+        if (map.getSource('block-groups')) return;
+
         map.addSource('block-groups', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+
+        if (map.getLayer('block-groups-heat')) return;
+
+        const firstLayer = map.getStyle().layers.find(l => l.type === 'symbol');
+        const beforeId = firstLayer ? firstLayer.id : undefined;
+
         map.addLayer({
             id: 'block-groups-heat', type: 'heatmap', source: 'block-groups',
             paint: {
@@ -1371,7 +1424,7 @@ window.MapLibreImpactMap = (function ()
                 'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(178,226,226,0)', 0.2, '#ADD8E6', 0.4, '#FEB24C', 0.6, '#FC4E2A', 0.8, '#E31A1C', 1, '#800026'],
                 'heatmap-opacity': 0.6
             }
-        }, 'circle-tier3-fill');
+        }, beforeId);
     }
 
     function setupIsochroneLayers()
@@ -1447,9 +1500,19 @@ window.MapLibreImpactMap = (function ()
     function setupStateLayer(data)
     {
         if (!map) return;
-        map.addSource('states', { type: 'geojson', data, promoteId: 'GEOID' });
-        map.addLayer({ id: 'states-fill', type: 'fill', source: 'states', paint: { 'fill-color': '#94a3b8', 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.3, 0.05] } });
-        map.addLayer({ id: 'states-line', type: 'line', source: 'states', paint: { 'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#60a5fa', '#94a3b8'], 'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 1] } });
+        if (!map.getSource('states')) 
+        {
+            map.addSource('states', { type: 'geojson', data, promoteId: 'GEOID' });
+        }
+
+        if (!map.getLayer('states-fill'))
+        {
+            map.addLayer({ id: 'states-fill', type: 'fill', source: 'states', paint: { 'fill-color': '#94a3b8', 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.3, 0.05] } });
+        }
+        if (!map.getLayer('states-line'))
+        {
+            map.addLayer({ id: 'states-line', type: 'line', source: 'states', paint: { 'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#60a5fa', '#94a3b8'], 'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 1] } });
+        }
 
         let hoveredStateId = null;
         map.on('mousemove', 'states-fill', (e) =>
@@ -1501,9 +1564,18 @@ window.MapLibreImpactMap = (function ()
     function setupCountyLayer(data)
     {
         if (!map) return;
-        map.addSource('counties', { type: 'geojson', data, promoteId: 'GEOID' });
-        map.addLayer({ id: 'counties-fill', type: 'fill', source: 'counties', paint: { 'fill-color': '#94a3b8', 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.3, 0.08] }, layout: { visibility: 'none' } });
-        map.addLayer({ id: 'counties-line', type: 'line', source: 'counties', paint: { 'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#60a5fa', '#94a3b8'], 'line-width': 1 }, layout: { visibility: 'none' } });
+        if (!map.getSource('counties'))
+        {
+            map.addSource('counties', { type: 'geojson', data, promoteId: 'GEOID' });
+        }
+        if (!map.getLayer('counties-fill'))
+        {
+            map.addLayer({ id: 'counties-fill', type: 'fill', source: 'counties', paint: { 'fill-color': '#94a3b8', 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.3, 0.08] }, layout: { visibility: 'none' } });
+        }
+        if (!map.getLayer('counties-line'))
+        {
+            map.addLayer({ id: 'counties-line', type: 'line', source: 'counties', paint: { 'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#60a5fa', '#94a3b8'], 'line-width': 1 }, layout: { visibility: 'none' } });
+        }
 
         let hoveredId = null;
         map.on('mousemove', 'counties-fill', (e) =>
@@ -1627,7 +1699,15 @@ window.MapLibreImpactMap = (function ()
     {
         if (!map) return;
         const src = map.getSource('county-highlight');
-        if (src) src.setData(feature);
+        if (src) 
+        {
+            src.setData(feature);
+            // Ensure layer exists too
+            if (!map.getLayer('county-highlight-line'))
+            {
+                map.addLayer({ id: 'county-highlight-line', type: 'line', source: 'county-highlight', paint: { 'line-color': '#fff', 'line-width': 3, 'line-dasharray': [1, 2] } });
+            }
+        }
         else
         {
             map.addSource('county-highlight', { type: 'geojson', data: feature });
