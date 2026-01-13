@@ -871,11 +871,10 @@ window.MapLibreImpactMap = (function ()
                     flex-direction: row !important;
                 }
                 .maplibregl-ctrl-group button {
-                    border-bottom: none !important;
-                    border-right: 1px solid rgba(255,255,255,0.05) !important;
+                    border: none !important;
                 }
-                .maplibregl-ctrl-group button:last-child {
-                    border-right: none !important;
+                .maplibregl-ctrl-group button:not(:first-child) {
+                    border-left: 1px solid rgba(255,255,255,0.1) !important;
                 }
             `;
             document.head.appendChild(style);
