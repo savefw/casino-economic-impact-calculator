@@ -1566,7 +1566,8 @@ window.MapLibreImpactMap = (function ()
                     if (newCountyFips && newCountyFips !== currentCountyFips)
                     {
                         currentCountyFips = newCountyFips;
-                        loadCountyContext(newCountyFips).then(() =>
+                        // Use lite=true to get all block groups within 50-mile radius, not just this county
+                        loadCountyContext(newCountyFips, true).then(() =>
                         {
                             calculateImpact();
                         });
