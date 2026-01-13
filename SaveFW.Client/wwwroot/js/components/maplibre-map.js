@@ -1167,6 +1167,8 @@ window.MapLibreImpactMap = (function ()
 
     /**
      * Enable/disable 3D terrain
+     * NOTE: 3D terrain requires a proper terrain tile source and is not available
+     * in the current configuration. The MapLibre demo tiles are no longer available.
      */
     function enableTerrain3d(enable)
     {
@@ -1174,48 +1176,28 @@ window.MapLibreImpactMap = (function ()
 
         if (enable)
         {
-            // Add terrain source if not exists
-            if (!map.getSource('terrain-dem'))
-            {
-                map.addSource('terrain-dem', {
-                    type: 'raster-dem',
-                    url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
-                    tileSize: 256
-                });
-            }
-
-            map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
-
-            // Add sky layer for atmosphere
-            if (!map.getLayer('sky'))
-            {
-                map.addLayer({
-                    id: 'sky',
-                    type: 'sky',
-                    paint: {
-                        'sky-type': 'atmosphere',
-                        'sky-atmosphere-sun': [0.0, 90.0],
-                        'sky-atmosphere-sun-intensity': 15
-                    }
-                });
-            }
-
-            // Tilt the map slightly for 3D effect
-            map.easeTo({ pitch: 45, duration: 500 });
-        } else
-        {
-            map.setTerrain(null);
-            if (map.getLayer('sky')) map.removeLayer('sky');
-            map.easeTo({ pitch: 0, duration: 500 });
+            console.warn('3D terrain is not available in this configuration. Requires a DEM tile source.');
+            // Uncheck the toggle since feature is not available
+            const checkbox = document.getElementById('toggle-terrain3d');
+            if (checkbox) checkbox.checked = false;
+            layersVisible.terrain3d = false;
         }
     }
 
     /**
      * Enable/disable 3D buildings (vector basemaps only)
+     * NOTE: Requires a vector basemap with building data (e.g., CARTO styles)
      */
     function enable3dBuildings(enable)
     {
         if (!map) return;
+
+        const uncheckToggle = () =>
+        {
+            const checkbox = document.getElementById('toggle-buildings3d');
+            if (checkbox) checkbox.checked = false;
+            layersVisible.buildings3d = false;
+        };
 
         if (enable)
         {
@@ -1223,34 +1205,49 @@ window.MapLibreImpactMap = (function ()
             if (currentBasemap === 'satellite' || currentBasemap === 'hybrid')
             {
                 console.warn('3D buildings require Streets or Terrain basemap');
+                uncheckToggle();
                 return;
             }
 
             if (!map.getLayer('buildings-3d'))
             {
-                // Try to add building layer if source has building data
-                const layers = map.getStyle().layers;
+                // Try to find building layer in current style
+                const layers = map.getStyle().layers || [];
                 const buildingLayer = layers.find(l => l['source-layer'] === 'building');
 
                 if (buildingLayer)
                 {
-                    map.addLayer({
-                        id: 'buildings-3d',
-                        type: 'fill-extrusion',
-                        source: buildingLayer.source,
-                        'source-layer': 'building',
-                        filter: ['==', 'extrude', 'true'],
-                        paint: {
-                            'fill-extrusion-color': '#444',
-                            'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 16, ['get', 'height']],
-                            'fill-extrusion-base': ['get', 'min_height'],
-                            'fill-extrusion-opacity': 0.7
-                        }
-                    });
+                    try
+                    {
+                        map.addLayer({
+                            id: 'buildings-3d',
+                            type: 'fill-extrusion',
+                            source: buildingLayer.source,
+                            'source-layer': 'building',
+                            filter: ['==', 'extrude', 'true'],
+                            paint: {
+                                'fill-extrusion-color': '#444',
+                                'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 16, ['get', 'height']],
+                                'fill-extrusion-base': ['get', 'min_height'],
+                                'fill-extrusion-opacity': 0.7
+                            }
+                        });
+                        // Tilt for 3D view
+                        map.easeTo({ pitch: 45, duration: 500 });
+                    } catch (e)
+                    {
+                        console.warn('Failed to add 3D buildings layer:', e.message);
+                        uncheckToggle();
+                    }
+                } else
+                {
+                    console.warn('No building data available in current basemap');
+                    uncheckToggle();
                 }
             } else
             {
                 map.setLayoutProperty('buildings-3d', 'visibility', 'visible');
+                map.easeTo({ pitch: 45, duration: 500 });
             }
         } else
         {
