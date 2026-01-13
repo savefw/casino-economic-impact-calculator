@@ -72,7 +72,60 @@ window.MapLibreImpactMap = (function ()
         tracts: false,
         heatmap: false,
         streets: false,
-        isochrones: false
+        isochrones: false,
+        terrain3d: false,
+        buildings3d: false
+    };
+
+    // Current basemap
+    let currentBasemap = 'satellite';
+
+    // Basemap configurations
+    const BASEMAPS = {
+        satellite: {
+            name: 'Satellite',
+            icon: 'satellite_alt',
+            style: {
+                version: 8,
+                sources: {
+                    'satellite-tiles': {
+                        type: 'raster',
+                        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                        tileSize: 256
+                    }
+                },
+                layers: [{ id: 'satellite-layer', type: 'raster', source: 'satellite-tiles' }]
+            }
+        },
+        streets: {
+            name: 'Streets',
+            icon: 'map',
+            style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+        },
+        terrain: {
+            name: 'Terrain',
+            icon: 'terrain',
+            style: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json'
+        },
+        hybrid: {
+            name: 'Hybrid',
+            icon: 'layers',
+            style: {
+                version: 8,
+                sources: {
+                    'satellite-tiles': {
+                        type: 'raster',
+                        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                        tileSize: 256
+                    },
+                    'labels': {
+                        type: 'vector',
+                        url: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+                    }
+                },
+                layers: [{ id: 'satellite-layer', type: 'raster', source: 'satellite-tiles' }]
+            }
+        }
     };
 
     // DOM Elements cache
@@ -691,6 +744,467 @@ window.MapLibreImpactMap = (function ()
         });
     }
 
+    /**
+     * Setup layer switcher control (Google Maps style thumbnails)
+     */
+    function setupLayerSwitcher(container)
+    {
+        const switcher = document.createElement('div');
+        switcher.id = 'layer-switcher';
+        switcher.style.cssText = 'position: absolute; bottom: 100px; right: 12px; z-index: 60; display: flex; gap: 8px;';
+
+        Object.entries(BASEMAPS).forEach(([key, config]) =>
+        {
+            const card = document.createElement('button');
+            card.className = `layer-card ${key === currentBasemap ? 'active' : ''}`;
+            card.dataset.basemap = key;
+            card.title = config.name;
+            card.innerHTML = `
+                <span class="material-symbols-outlined">${config.icon}</span>
+                <span class="layer-card-label">${config.name}</span>
+            `;
+            card.onclick = () => switchBasemap(key);
+            switcher.appendChild(card);
+        });
+
+        container.parentElement.appendChild(switcher);
+
+        // Add CSS if not exists
+        if (!document.getElementById('layer-switcher-styles'))
+        {
+            const style = document.createElement('style');
+            style.id = 'layer-switcher-styles';
+            style.textContent = `
+                .layer-card {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    width: 56px;
+                    height: 56px;
+                    background: rgba(15, 23, 42, 0.7);
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                    color: rgba(255, 255, 255, 0.7);
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 10px;
+                    gap: 2px;
+                }
+                .layer-card:hover {
+                    background: rgba(30, 41, 59, 0.9);
+                    border-color: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    transform: scale(1.05);
+                }
+                .layer-card.active {
+                    background: rgba(59, 130, 246, 0.4);
+                    border-color: rgba(59, 130, 246, 0.6);
+                    color: white;
+                }
+                .layer-card .material-symbols-outlined {
+                    font-size: 20px;
+                }
+                .layer-card-label {
+                    font-weight: 500;
+                    white-space: nowrap;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    /**
+     * Setup hamburger menu control (slide-out drawer)
+     */
+    function setupHamburgerMenu(container)
+    {
+        // Hamburger button
+        const menuBtn = document.createElement('button');
+        menuBtn.id = 'map-menu-btn';
+        menuBtn.title = 'Layer Options';
+        menuBtn.style.cssText = 'position: absolute; top: 12px; left: 12px; z-index: 70;';
+        menuBtn.className = 'bg-slate-950/40 backdrop-blur-sm w-[30px] h-[30px] flex items-center justify-center rounded-lg shadow-lg border border-white/5 text-white hover:bg-slate-900/60 transition-colors cursor-pointer';
+        menuBtn.innerHTML = '<span class="material-symbols-outlined text-xl leading-none">menu</span>';
+        container.parentElement.appendChild(menuBtn);
+
+        // Slide-out panel
+        const panel = document.createElement('div');
+        panel.id = 'map-options-panel';
+        panel.className = 'map-options-panel';
+        panel.innerHTML = `
+            <div class="panel-header">
+                <span class="panel-title">Map Options</span>
+                <button id="close-panel-btn" class="close-btn">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="panel-section">
+                <span class="section-label">Overlays</span>
+                <label class="toggle-row">
+                    <span>Impact Zones</span>
+                    <input type="checkbox" id="toggle-zones" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-row">
+                    <span>County Boundaries</span>
+                    <input type="checkbox" id="toggle-boundary" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-row">
+                    <span>Heatmap</span>
+                    <input type="checkbox" id="toggle-heatmap" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-row">
+                    <span>Drive-Time Isochrones</span>
+                    <input type="checkbox" id="toggle-isochrones" />
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="panel-section">
+                <span class="section-label">3D Features</span>
+                <label class="toggle-row">
+                    <span>3D Terrain</span>
+                    <input type="checkbox" id="toggle-terrain3d" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-row">
+                    <span>3D Buildings</span>
+                    <input type="checkbox" id="toggle-buildings3d" />
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        `;
+        container.parentElement.appendChild(panel);
+
+        // Panel toggle logic
+        menuBtn.onclick = () => panel.classList.add('open');
+        document.getElementById('close-panel-btn').onclick = () => panel.classList.remove('open');
+
+        // Close on click outside
+        document.addEventListener('click', (e) =>
+        {
+            if (!panel.contains(e.target) && !menuBtn.contains(e.target))
+            {
+                panel.classList.remove('open');
+            }
+        });
+
+        // Toggle handlers
+        const toggles = {
+            'toggle-zones': 'zones',
+            'toggle-boundary': 'boundary',
+            'toggle-heatmap': 'heatmap',
+            'toggle-isochrones': 'isochrones',
+            'toggle-terrain3d': 'terrain3d',
+            'toggle-buildings3d': 'buildings3d'
+        };
+
+        Object.entries(toggles).forEach(([id, layer]) =>
+        {
+            const checkbox = document.getElementById(id);
+            if (checkbox)
+            {
+                checkbox.checked = layersVisible[layer];
+                checkbox.onchange = () => toggleLayerVisibility(layer, checkbox.checked);
+            }
+        });
+
+        // Add panel CSS if not exists
+        if (!document.getElementById('hamburger-menu-styles'))
+        {
+            const style = document.createElement('style');
+            style.id = 'hamburger-menu-styles';
+            style.textContent = `
+                .map-options-panel {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 220px;
+                    height: 100%;
+                    background: rgba(15, 23, 42, 0.95);
+                    backdrop-filter: blur(12px);
+                    border-right: 1px solid rgba(255, 255, 255, 0.1);
+                    z-index: 80;
+                    transform: translateX(-100%);
+                    transition: transform 0.3s ease;
+                    display: flex;
+                    flex-direction: column;
+                    color: white;
+                }
+                .map-options-panel.open {
+                    transform: translateX(0);
+                }
+                .panel-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                .panel-title {
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+                .close-btn {
+                    background: none;
+                    border: none;
+                    color: rgba(255, 255, 255, 0.6);
+                    cursor: pointer;
+                    padding: 4px;
+                    display: flex;
+                }
+                .close-btn:hover { color: white; }
+                .panel-section {
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                }
+                .section-label {
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    color: rgba(255, 255, 255, 0.4);
+                    margin-bottom: 8px;
+                    display: block;
+                }
+                .toggle-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 8px 0;
+                    font-size: 13px;
+                    cursor: pointer;
+                    position: relative;
+                }
+                .toggle-row input[type="checkbox"] {
+                    appearance: none;
+                    width: 36px;
+                    height: 20px;
+                    background: rgba(100, 116, 139, 0.5);
+                    border-radius: 10px;
+                    position: relative;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .toggle-row input[type="checkbox"]:checked {
+                    background: rgba(59, 130, 246, 0.7);
+                }
+                .toggle-row input[type="checkbox"]::before {
+                    content: '';
+                    position: absolute;
+                    top: 2px;
+                    left: 2px;
+                    width: 16px;
+                    height: 16px;
+                    background: white;
+                    border-radius: 50%;
+                    transition: transform 0.2s;
+                }
+                .toggle-row input[type="checkbox"]:checked::before {
+                    transform: translateX(16px);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    /**
+     * Switch basemap style
+     */
+    async function switchBasemap(basemapKey)
+    {
+        if (basemapKey === currentBasemap) return;
+
+        const config = BASEMAPS[basemapKey];
+        if (!config) return;
+
+        // Store current state
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        const pitch = map.getPitch();
+        const bearing = map.getBearing();
+
+        currentBasemap = basemapKey;
+
+        // Update active card
+        document.querySelectorAll('.layer-card').forEach(card =>
+        {
+            card.classList.toggle('active', card.dataset.basemap === basemapKey);
+        });
+
+        // Switch style
+        map.setStyle(config.style);
+
+        // Restore state after style loads
+        map.once('style.load', async () =>
+        {
+            map.setCenter(center);
+            map.setZoom(zoom);
+            map.setPitch(pitch);
+            map.setBearing(bearing);
+
+            // Re-add all custom layers
+            setupCircleLayers();
+            setupHeatmapLayer();
+            setupIsochroneLayers();
+
+            // Re-add terrain if enabled
+            if (layersVisible.terrain3d) enableTerrain3d(true);
+            if (layersVisible.buildings3d) enable3dBuildings(true);
+
+            // Reload state/county data
+            const data = await loadStates();
+            if (data) setupStateLayer(data);
+
+            if (currentStateFips)
+            {
+                const countyData = await loadCounties(currentStateFips);
+                setupCountyLayer(countyData);
+                map.setLayoutProperty('counties-fill', 'visibility', 'visible');
+                map.setLayoutProperty('counties-line', 'visibility', 'visible');
+            }
+
+            // Restore marker
+            if (markerPosition)
+            {
+                marker = null; // Force recreation
+                updateMarker(markerPosition);
+                updateCircles(markerPosition);
+            }
+        });
+    }
+
+    /**
+     * Toggle layer visibility with proper handling
+     */
+    function toggleLayerVisibility(layerType, visible)
+    {
+        layersVisible[layerType] = visible;
+
+        switch (layerType)
+        {
+            case 'zones':
+                ['circle-tier1-fill', 'circle-tier1-line', 'circle-tier2-fill', 'circle-tier2-line', 'circle-tier3-fill', 'circle-tier3-line']
+                    .forEach(id => setLayerVisibility(id, visible));
+                break;
+            case 'boundary':
+                ['counties-fill', 'counties-line', 'county-highlight-line'].forEach(id => setLayerVisibility(id, visible));
+                break;
+            case 'heatmap':
+                setLayerVisibility('block-groups-heat', visible);
+                break;
+            case 'isochrones':
+                setLayerVisibility('isochrone-fill', visible);
+                setLayerVisibility('isochrone-line', visible);
+                if (visible && markerPosition) updateIsochrones(markerPosition);
+                break;
+            case 'terrain3d':
+                enableTerrain3d(visible);
+                break;
+            case 'buildings3d':
+                enable3dBuildings(visible);
+                break;
+        }
+    }
+
+    /**
+     * Enable/disable 3D terrain
+     */
+    function enableTerrain3d(enable)
+    {
+        if (!map) return;
+
+        if (enable)
+        {
+            // Add terrain source if not exists
+            if (!map.getSource('terrain-dem'))
+            {
+                map.addSource('terrain-dem', {
+                    type: 'raster-dem',
+                    url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+                    tileSize: 256
+                });
+            }
+
+            map.setTerrain({ source: 'terrain-dem', exaggeration: 1.5 });
+
+            // Add sky layer for atmosphere
+            if (!map.getLayer('sky'))
+            {
+                map.addLayer({
+                    id: 'sky',
+                    type: 'sky',
+                    paint: {
+                        'sky-type': 'atmosphere',
+                        'sky-atmosphere-sun': [0.0, 90.0],
+                        'sky-atmosphere-sun-intensity': 15
+                    }
+                });
+            }
+
+            // Tilt the map slightly for 3D effect
+            map.easeTo({ pitch: 45, duration: 500 });
+        } else
+        {
+            map.setTerrain(null);
+            if (map.getLayer('sky')) map.removeLayer('sky');
+            map.easeTo({ pitch: 0, duration: 500 });
+        }
+    }
+
+    /**
+     * Enable/disable 3D buildings (vector basemaps only)
+     */
+    function enable3dBuildings(enable)
+    {
+        if (!map) return;
+
+        if (enable)
+        {
+            // Only works with vector basemaps
+            if (currentBasemap === 'satellite' || currentBasemap === 'hybrid')
+            {
+                console.warn('3D buildings require Streets or Terrain basemap');
+                return;
+            }
+
+            if (!map.getLayer('buildings-3d'))
+            {
+                // Try to add building layer if source has building data
+                const layers = map.getStyle().layers;
+                const buildingLayer = layers.find(l => l['source-layer'] === 'building');
+
+                if (buildingLayer)
+                {
+                    map.addLayer({
+                        id: 'buildings-3d',
+                        type: 'fill-extrusion',
+                        source: buildingLayer.source,
+                        'source-layer': 'building',
+                        filter: ['==', 'extrude', 'true'],
+                        paint: {
+                            'fill-extrusion-color': '#444',
+                            'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 16, ['get', 'height']],
+                            'fill-extrusion-base': ['get', 'min_height'],
+                            'fill-extrusion-opacity': 0.7
+                        }
+                    });
+                }
+            } else
+            {
+                map.setLayoutProperty('buildings-3d', 'visibility', 'visible');
+            }
+        } else
+        {
+            if (map.getLayer('buildings-3d'))
+            {
+                map.setLayoutProperty('buildings-3d', 'visibility', 'none');
+            }
+        }
+    }
+
     // === LAYER SETUP ===
 
     function setupCircleLayers()
@@ -993,6 +1507,10 @@ window.MapLibreImpactMap = (function ()
 
             // Add overlay controls (fullscreen button + legend)
             setupOverlayControls(container);
+
+            // Add layer switcher and hamburger menu
+            setupLayerSwitcher(container);
+            setupHamburgerMenu(container);
 
             // CTRL + Scroll zoom handling
             container.addEventListener('wheel', (e) =>
