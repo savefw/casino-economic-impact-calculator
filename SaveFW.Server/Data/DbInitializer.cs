@@ -11,6 +11,9 @@ public static class DbInitializer
         // 1. Ensure database is created
         await db.Database.EnsureCreatedAsync();
 
+        // 1b. Initialize Address Points infrastructure (views, functions)
+        await InitializeAddressPointsInfrastructure(db);
+
         // 2. Seed Impact Facts
         if (!await db.ImpactFacts.AnyAsync())
         {
@@ -135,4 +138,69 @@ public static class DbInitializer
         result.Add(current.ToString());
         return result;
     }
+
+    /// <summary>
+    /// Initialize address points infrastructure (views, functions) for geocoding.
+    /// Uses CREATE OR REPLACE for idempotency - safe to run on every startup.
+    /// </summary>
+    private static async Task InitializeAddressPointsInfrastructure(AppDbContext db)
+    {
+        try
+        {
+            // Check if we have the address_points table (schema exists)
+            var tableExists = await db.Database.ExecuteSqlRawAsync(@"
+                SELECT 1 FROM information_schema.tables 
+                WHERE table_name = 'address_points' LIMIT 1");
+
+            // Only proceed if the table exists
+            if (tableExists == 0) return;
+
+            // Create street name normalization function
+            await db.Database.ExecuteSqlRawAsync(@"
+                CREATE OR REPLACE FUNCTION normalize_street_name(raw_name TEXT)
+                RETURNS TEXT AS $$
+                DECLARE result TEXT;
+                BEGIN
+                    result := UPPER(TRIM(raw_name));
+                    result := REGEXP_REPLACE(result, '\bNORTH\b', 'N', 'g');
+                    result := REGEXP_REPLACE(result, '\bSOUTH\b', 'S', 'g');
+                    result := REGEXP_REPLACE(result, '\bEAST\b', 'E', 'g');
+                    result := REGEXP_REPLACE(result, '\bWEST\b', 'W', 'g');
+                    result := REGEXP_REPLACE(result, '\bNORTHEAST\b', 'NE', 'g');
+                    result := REGEXP_REPLACE(result, '\bNORTHWEST\b', 'NW', 'g');
+                    result := REGEXP_REPLACE(result, '\bSOUTHEAST\b', 'SE', 'g');
+                    result := REGEXP_REPLACE(result, '\bSOUTHWEST\b', 'SW', 'g');
+                    result := REGEXP_REPLACE(result, '\bST\b$', 'STREET', 'g');
+                    result := REGEXP_REPLACE(result, '\bAVE\b$', 'AVENUE', 'g');
+                    result := REGEXP_REPLACE(result, '\bBLVD\b$', 'BOULEVARD', 'g');
+                    result := REGEXP_REPLACE(result, '\bDR\b$', 'DRIVE', 'g');
+                    result := REGEXP_REPLACE(result, '\bLN\b$', 'LANE', 'g');
+                    result := REGEXP_REPLACE(result, '\bRD\b$', 'ROAD', 'g');
+                    result := REGEXP_REPLACE(result, '\bCT\b$', 'COURT', 'g');
+                    result := REGEXP_REPLACE(result, '\bPL\b$', 'PLACE', 'g');
+                    result := REGEXP_REPLACE(result, '\s+', ' ', 'g');
+                    RETURN result;
+                END;
+                $$ LANGUAGE plpgsql IMMUTABLE;
+            ");
+
+            // Create preferred view for deduplication
+            await db.Database.ExecuteSqlRawAsync(@"
+                CREATE OR REPLACE VIEW address_points_preferred AS
+                SELECT DISTINCT ON (state, COALESCE(zip, ''), street_name_norm, house_number, COALESCE(unit, '')) *
+                FROM address_points
+                WHERE is_active = TRUE
+                ORDER BY state, COALESCE(zip, ''), street_name_norm, house_number, COALESCE(unit, ''),
+                    source_rank ASC, source_updated_at DESC NULLS LAST, ingested_at DESC;
+            ");
+
+            Console.WriteLine("Address points infrastructure initialized successfully.");
+        }
+        catch (Exception ex)
+        {
+            // Log but don't fail startup - this is optional infrastructure
+            Console.WriteLine($"Warning: Could not initialize address points infrastructure: {ex.Message}");
+        }
+    }
 }
+

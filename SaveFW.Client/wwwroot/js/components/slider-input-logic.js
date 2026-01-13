@@ -177,7 +177,7 @@ window.SliderInputLogic = (function ()
                 markers.forEach((marker) =>
                 {
                     const pct = ((marker.value - min) / range) * 100;
-                    const leftStyle = `calc(${pct}% + (${8 - 16 * (pct / 100)}px))`;
+                    const leftStyle = `${pct}%`;
 
                     // --- RADIO BUTTON ---
                     const radio = document.createElement('input');
@@ -186,7 +186,7 @@ window.SliderInputLogic = (function ()
                     radio.style.position = 'absolute';
                     radio.style.left = leftStyle;
                     radio.style.top = '50%';
-                    radio.style.transform = 'translateY(-50%)';
+                    radio.style.transform = 'translate(-50%, -50%) scale(1.1)';
                     radio.style.width = '16px';
                     radio.style.height = '16px';
                     radio.style.zIndex = '30';
@@ -205,12 +205,12 @@ window.SliderInputLogic = (function ()
                         {
                             radio.style.backgroundImage = activeGrad;
                             radio.style.borderColor = activeBorder;
-                            radio.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                            radio.style.transform = 'translate(-50%, -50%) scale(1.15)';
                         } else
                         {
                             radio.style.backgroundImage = 'none';
                             radio.style.borderColor = '#94a3b8';
-                            radio.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                            radio.style.transform = 'translate(-50%, -50%) scale(1.0)';
                         }
                     };
 
@@ -218,23 +218,33 @@ window.SliderInputLogic = (function ()
 
                     // --- MARKER LINE & LABEL ---
                     const labelDiv = document.createElement('div');
-                    labelDiv.className = "absolute flex flex-col items-center group-lbl z-[29] pointer-events-none";
+                    labelDiv.className = "absolute flex flex-col items-center z-[29]";
                     labelDiv.style.left = leftStyle;
                     labelDiv.style.top = 'calc(50%)';
                     labelDiv.style.transform = 'translateX(-50%)';
 
+                    const tooltipId = `tooltip-${rangeInput.id}-${marker.value}`;
                     labelDiv.innerHTML = `
-                        <div style="height: 32px; width: 1px; background-color: rgba(100,116,139,0.5); margin-bottom: 4px;"></div>
-                        <div class="flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider pointer-events-auto whitespace-nowrap">
+                        <div style="height: 32px; width: 1px; background-color: rgba(100,116,139,0.5); margin-bottom: 4px; pointer-events: none;"></div>
+                        <div class="marker-hover-trigger relative flex items-center gap-1 cursor-help hover:text-blue-500 transition-colors text-[10px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">
                             <span>${marker.label}</span>
                             <span class="material-symbols-outlined text-[12px]">info</span>
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 max-w-xs w-max p-2 bg-slate-900 text-white text-xs leading-tight rounded border border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
+                            <div id="${tooltipId}" style="bottom: calc(100% + 70px); opacity: 0;" class="absolute left-1/2 -translate-x-1/2 max-w-xs w-max p-2 bg-slate-900 text-white text-xs leading-tight rounded border border-slate-600 transition-opacity pointer-events-none z-50 normal-case font-normal text-center shadow-lg">
                                 ${marker.tooltipDescription || ''}
                             </div>
                         </div>
                     `;
 
                     relativeContainer.appendChild(labelDiv);
+
+                    // Add JS hover handlers for tooltip
+                    const trigger = labelDiv.querySelector('.marker-hover-trigger');
+                    const tooltip = labelDiv.querySelector(`#${tooltipId}`);
+                    if (trigger && tooltip)
+                    {
+                        trigger.addEventListener('mouseenter', () => { tooltip.style.opacity = '1'; });
+                        trigger.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+                    }
 
                     rangeInput.addEventListener('input', updateRadio);
                     updateRadio();

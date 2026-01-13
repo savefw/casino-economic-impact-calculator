@@ -4,34 +4,49 @@
 @using SaveFW.Client.Components
 
 <style>
-    .leaflet-control-zoom-in {
-        border-top-left-radius: 12px !important;
-        border-top-right-radius: 12px !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-        background-color: rgba(2, 6, 23, 0.4) !important;
-        color: white !important;
-        backdrop-filter: blur(4px);
-    }
-    .leaflet-control-zoom-out {
-        border-bottom-left-radius: 12px !important;
-        border-bottom-right-radius: 12px !important;
-        border-top-left-radius: 0 !important;
-        border-top-right-radius: 0 !important;
-        background-color: rgba(2, 6, 23, 0.4) !important;
-        color: white !important;
-        backdrop-filter: blur(4px);
-    }
-    .leaflet-control-zoom {
-        border: 1px solid rgba(255,255,255,0.05) !important;
+    /* MapLibre GL JS Navigation Controls */
+    .maplibregl-ctrl-group {
         border-radius: 12px !important;
-        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.1) !important;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        overflow: hidden;
+        background-color: rgba(2, 6, 23, 0.5) !important;
+        backdrop-filter: blur(4px);
     }
-    .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
-        background-color: rgba(2, 6, 23, 0.6) !important;
+    .maplibregl-ctrl-group button {
+        background-color: rgba(2, 6, 23, 0.5) !important;
         color: white !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        transition: all 0.15s ease !important;
+    }
+    .maplibregl-ctrl-group button:hover {
+        background-color: rgba(59, 130, 246, 0.4) !important;
+        box-shadow: inset 0 0 12px rgba(59, 130, 246, 0.3) !important;
+    }
+    .maplibregl-ctrl-group button:active {
+        background-color: rgba(59, 130, 246, 0.6) !important;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+        transform: scale(0.95);
+    }
+    .maplibregl-ctrl-group button span {
+        filter: invert(1);
+    }
+    .maplibregl-ctrl-group button:last-child {
+        border-bottom: none !important;
+    }
+    /* Fullscreen and Layer button styles */
+    #fs-toggle-btn, #map-layers-button {
+        transition: all 0.15s ease !important;
+    }
+    #fs-toggle-btn:hover, #map-layers-button:hover {
+        background-color: rgba(59, 130, 246, 0.4) !important;
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) !important;
+        border-color: rgba(59, 130, 246, 0.5) !important;
+    }
+    #fs-toggle-btn:active, #map-layers-button:active {
+        background-color: rgba(59, 130, 246, 0.6) !important;
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+        transform: scale(0.92);
     }
     #impact-visualizer button,
     #impact-visualizer .cursor-pointer,
@@ -100,7 +115,7 @@
                     <div class="bg-slate-950/40 backdrop-blur-sm p-2 rounded-2xl border border-white/5">
                         <div class="grid grid-cols-3 gap-3">
                             <!-- Step 1: Nationwide -->
-                            <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.ImpactMap && window.ImpactMap.navigateToStep(1)">
+                            <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.MapLibreImpactMap && window.MapLibreImpactMap.navigateToStep(1)">
                                 <div id="map-nav-bar-1"
                                     class="h-1.5 w-full bg-blue-500 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
                                 </div>
@@ -108,14 +123,14 @@
                                     class="text-[9px] sm:text-[10px] font-bold text-blue-400 uppercase tracking-widest text-center transition-colors duration-300"><span class="sm:hidden">Ntl.</span><span class="hidden sm:inline">Nationwide</span></span>
                             </div>
                             <!-- Step 2: State -->
-                            <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.ImpactMap && window.ImpactMap.navigateToStep(2)">
+                            <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.MapLibreImpactMap && window.MapLibreImpactMap.navigateToStep(2)">
                                 <div id="map-nav-bar-2"
                                     class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
                                 <span id="map-nav-label-2"
                                     class="text-[9px] sm:text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center transition-colors duration-300"><span class="sm:hidden">St.</span><span class="hidden sm:inline">State</span></span>
                             </div>
                             <!-- Step 3: County -->
-                            <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.ImpactMap && window.ImpactMap.navigateToStep(3)">
+                            <div class="flex flex-col gap-1.5 group cursor-pointer" onclick="window.MapLibreImpactMap && window.MapLibreImpactMap.navigateToStep(3)">
                                 <div id="map-nav-bar-3"
                                     class="h-1.5 w-full bg-slate-700 rounded-full transition-all duration-300"></div>
                                 <span id="map-nav-label-3"
@@ -193,12 +208,13 @@
             </div>
 
             <!-- Problem Gambling Slider -->
-            <div class="mb-12 mt-10">
-                 <SliderInput Id="rate" Label="Baseline Gambling Prevalence Rate" Value="2.3"
+            <div class="mt-10" style="margin-bottom: 6rem;">
+                 <SliderInput Id="rate" Label="Baseline Problem Gambling Prevalence Rate" Value="2.3"
                              MinValue="0" MaxValue="10" Step="0.1"
                              InputType="Percent" DecimalPlaces="1"
                              MajorTickInterval="2" MinorTickInterval="0.5"
                              Tooltip="The percentage of the adult population that develops problem gambling behaviors."
+                             Description="The existing problem gambling rate for the subject impact area prior to the construction/opening of a new casino."
                              Markers='@(new List<SliderMarker> { 
                                  new() { Label="Diagnosed", Value=2.3, TooltipDescription="Hoosiers meeting clinical criteria for Gambling Disorder (2023)." },
                                  new() { Label="Problem", Value=3.0, TooltipDescription="Self-reported \"problems with gambling\" in state surveys." },
@@ -309,18 +325,18 @@
                     <div class="text-xl font-mono text-indigo-300 text-right" id="disp-pop-adults">-</div>
                 </div>
                 <div class="h-px bg-slate-700 my-3"></div>
-                <!-- 2. Effective Rate -->
+                <!-- 2. Total Prevalence Rate -->
                 <div class="flex flex-col sm:flex-row items-center justify-between py-1">
                     <div class="flex items-center gap-3 mb-2 sm:mb-0">
                         <div class="p-2 bg-orange-500/20 rounded-full text-orange-400"><span class="material-symbols-outlined">trending_up</span></div>
-                        <div class="text-left"><div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Effective Rate</div><div class="text-sm text-slate-500">Adult Population (18+)</div></div>
+                        <div class="text-left"><div class="text-xs text-slate-400 uppercase font-bold tracking-widest">Total Prevalence Rate</div><div class="text-sm text-slate-500">Adult Population (18+)</div></div>
                     </div>
                     <div class="text-xl font-mono text-orange-400 text-right" id="disp-rate-adult">-</div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center justify-between py-1 border-t border-slate-800/50 mt-1 pt-2">
                     <div class="flex items-center gap-3 mb-2 sm:mb-0">
                         <div class="p-2 bg-orange-500/10 rounded-full text-orange-400/70"><span class="material-symbols-outlined text-[20px]">trending_flat</span></div>
-                        <div class="text-left"><div class="text-xs text-slate-500 uppercase font-bold tracking-widest">Effective Rate</div><div class="text-sm text-slate-600">Total Population (All Ages)</div></div>
+                        <div class="text-left"><div class="text-xs text-slate-500 uppercase font-bold tracking-widest">Total Prevalence Rate</div><div class="text-sm text-slate-600">Total Population (All Ages)</div></div>
                     </div>
                     <div class="text-xl font-mono text-orange-400/70 text-right" id="disp-rate-total">-</div>
                 </div>
@@ -378,7 +394,7 @@
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("window.ImpactMap.init", "impact-map");
+            await JSRuntime.InvokeVoidAsync("window.MapLibreImpactMap.init", "impact-map");
         }
     }
 
@@ -415,7 +431,7 @@
         try
         {
             // Reset UI for Step 2
-            await JSRuntime.InvokeVoidAsync("window.ImpactMap.navigateToStep", 2);
+            await JSRuntime.InvokeVoidAsync("window.MapLibreImpactMap.navigateToStep", 2);
 
             var data = await Http.GetFromJsonAsync<CensusFeatureCollection>($"/api/census/counties/{item.Value}");
             if (data?.Features != null)
@@ -437,7 +453,7 @@
             SelectedCountyId = "";
             
             // Trigger Map Update
-            await JSRuntime.InvokeVoidAsync("window.ImpactMap.loadState", item.Value);
+            await JSRuntime.InvokeVoidAsync("window.MapLibreImpactMap.loadState", item.Value);
         }
         catch (Exception ex) { Console.WriteLine($"Error loading counties: {ex}"); }
     }
@@ -445,7 +461,7 @@
     private async Task OnCountySelected(DropdownItem item)
     {
         SelectedCountyId = item.Value;
-        await JSRuntime.InvokeVoidAsync("window.ImpactMap.loadCounty", item.Value);
+        await JSRuntime.InvokeVoidAsync("window.MapLibreImpactMap.loadCounty", item.Value);
     }
 
     // JSON Models

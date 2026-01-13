@@ -144,7 +144,8 @@ window.SlotMachine = (function ()
         // leftBulbs was generated Top->Bottom (y increasing), so we reverse it.
         const bulbs = [...leftBulbs.reverse(), ...arcBulbs, ...rightBulbs];
 
-        bulbs.forEach((li, i) => {
+        bulbs.forEach((li, i) =>
+        {
             // Store metadata for the animation loop
             li.dataset.group = i % 6;
             li.dataset.index = i;
@@ -238,6 +239,10 @@ window.SlotMachine = (function ()
         reels.forEach((reel, index) =>
         {
             if (!reel) return;
+
+            // Mobile performance: hint GPU to prepare for transforms
+            reel.style.willChange = 'transform';
+
             let content = "";
 
             for (let i = 0; i < SLOT_COUNT; i++)
@@ -263,7 +268,7 @@ window.SlotMachine = (function ()
                 const theta = 360 / SLOT_COUNT;
                 const angle = theta * i;
 
-                content += `<div class="${className}" style="transform: rotateX(${angle}deg) translateZ(${RADIUS}px)">${word}</div>`;
+                content += `<div class="${className}" style="transform: rotateX(${angle}deg) translateZ(${RADIUS}px)">` + word + `</div>`;
             }
 
             reel.style.transition = 'none';
@@ -393,6 +398,10 @@ window.SlotMachine = (function ()
             startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
             lever.style.transition = 'none';
             knob.style.transition = 'none';
+
+            // Mobile performance: hint GPU
+            lever.style.willChange = 'transform';
+            knob.style.willChange = 'transform';
         }
 
         function moveDrag(e)
@@ -423,6 +432,13 @@ window.SlotMachine = (function ()
 
             lever.style.transform = `rotateX(0deg)`;
             knob.style.transform = `translateX(-50%) translateZ(10px) rotateX(0deg)`;
+
+            // Remove will-change after transition completes
+            setTimeout(() =>
+            {
+                lever.style.willChange = 'auto';
+                knob.style.willChange = 'auto';
+            }, 450);
 
             if (Math.abs(currentDeg) > 45)
             {

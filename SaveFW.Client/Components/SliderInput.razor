@@ -2,7 +2,7 @@
 @inject IJSRuntime JSRuntime
 @namespace SaveFW.Client.Components
 
-<div class="space-y-2 mb-8" @ref="containerRef">
+<div class="space-y-2 mb-8">
     <div class="flex justify-between items-center mb-1">
         <div class="flex items-center gap-1.5">
             <label class="text-sm font-medium text-slate-400">@Label</label>
@@ -35,6 +35,10 @@
             }
         </div>
     </div>
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <p class="text-sm text-slate-500 italic -mt-1 mb-2">@Description</p>
+    }
     <div class="relative w-full group overflow-visible select-none" style="height: 20px;" @ref="containerRef">
         <div class="slider-track"></div>
         <input @ref="rangeInputRef" type="range" id="input-@Id" min="@MinValue" max="@MaxValue" step="@Step" value="@Value"
@@ -46,6 +50,7 @@
     [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString("N");
     [Parameter] public string Label { get; set; } = "";
     [Parameter] public string Tooltip { get; set; } = "";
+    [Parameter] public string Description { get; set; } = "";
     
     [Parameter] public string InputType { get; set; } = "Number"; // Default: Numerical
     [Parameter] public int DecimalPlaces { get; set; } = 2;       // Default: 2

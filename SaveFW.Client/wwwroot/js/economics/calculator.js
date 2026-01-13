@@ -1636,6 +1636,11 @@ window.EconomicCalculator = (function ()
 
         console.log('Initializing EconomicCalculator...');
 
+        // Reset stale data from previous navigation
+        lastImpactBreakdown = null;
+        lastCalculationResult = null;
+        currentPop = 0;
+
         // Populate DOM references
         initElements();
 
