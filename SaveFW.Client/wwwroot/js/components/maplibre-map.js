@@ -1568,42 +1568,45 @@ window.MapLibreImpactMap = (function ()
             setupLayerSwitcher(container);
             setupHamburgerMenu(container);
 
-            // CTRL + Scroll zoom handling
+            // CTRL + Scroll zoom handling - use native scroll zoom when CTRL is held
+            let ctrlPressed = false;
+
+            // Enable/disable scroll zoom based on CTRL key
+            document.addEventListener('keydown', (e) =>
+            {
+                if (e.key === 'Control' && !ctrlPressed && !document.fullscreenElement)
+                {
+                    ctrlPressed = true;
+                    map.scrollZoom.enable();
+                }
+            });
+
+            document.addEventListener('keyup', (e) =>
+            {
+                if (e.key === 'Control' && ctrlPressed && !document.fullscreenElement)
+                {
+                    ctrlPressed = false;
+                    map.scrollZoom.disable();
+                }
+            });
+
+            // Show hint when scrolling without CTRL
             container.addEventListener('wheel', (e) =>
             {
-                if (document.fullscreenElement) return; // Normal scroll zoom in fullscreen
+                if (document.fullscreenElement) return;
+                if (ctrlPressed) return; // Let native zoom handle it
 
-                if (e.ctrlKey)
+                const hint = document.getElementById('map-zoom-hint');
+                if (hint)
                 {
-                    e.preventDefault();
-                    // Use smaller zoom step for smoother experience
-                    const zoomStep = 0.15;
-                    const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
-                    const rect = container.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const lngLat = map.unproject([x, y]);
-                    map.easeTo({
-                        zoom: map.getZoom() + delta,
-                        center: lngLat,
-                        duration: 150,
-                        easing: (t) => t * (2 - t) // ease-out quad
-                    });
-                } else
-                {
-                    // Show hint overlay
-                    const hint = document.getElementById('map-zoom-hint');
-                    if (hint)
-                    {
-                        hint.style.opacity = '1';
-                        clearTimeout(hint._hideTimeout);
-                        hint._hideTimeout = setTimeout(() => { hint.style.opacity = '0'; }, 1500);
-                    }
+                    hint.style.opacity = '1';
+                    clearTimeout(hint._hideTimeout);
+                    hint._hideTimeout = setTimeout(() => { hint.style.opacity = '0'; }, 1500);
                 }
-            }, { passive: false });
+            }, { passive: true });
 
             // CTRL + Plus/Minus keyboard zoom
-            container.setAttribute('tabindex', '0'); // Make focusable
+            container.setAttribute('tabindex', '0');
             container.addEventListener('keydown', (e) =>
             {
                 if (document.fullscreenElement) return;
@@ -1612,11 +1615,11 @@ window.MapLibreImpactMap = (function ()
                 if (e.key === '+' || e.key === '=')
                 {
                     e.preventDefault();
-                    map.easeTo({ zoom: map.getZoom() + 0.25, duration: 250 });
+                    map.zoomIn({ duration: 300 });
                 } else if (e.key === '-' || e.key === '_')
                 {
                     e.preventDefault();
-                    map.easeTo({ zoom: map.getZoom() - 0.25, duration: 250 });
+                    map.zoomOut({ duration: 300 });
                 }
             });
 
