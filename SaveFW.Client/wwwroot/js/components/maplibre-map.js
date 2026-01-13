@@ -1576,15 +1576,18 @@ window.MapLibreImpactMap = (function ()
                 if (e.ctrlKey)
                 {
                     e.preventDefault();
-                    const delta = e.deltaY > 0 ? -1 : 1;
+                    // Use smaller zoom step for smoother experience
+                    const zoomStep = 0.15;
+                    const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
                     const rect = container.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     const lngLat = map.unproject([x, y]);
                     map.easeTo({
-                        zoom: map.getZoom() + delta * 0.5,
+                        zoom: map.getZoom() + delta,
                         center: lngLat,
-                        duration: 200
+                        duration: 150,
+                        easing: (t) => t * (2 - t) // ease-out quad
                     });
                 } else
                 {
@@ -1609,11 +1612,11 @@ window.MapLibreImpactMap = (function ()
                 if (e.key === '+' || e.key === '=')
                 {
                     e.preventDefault();
-                    map.zoomTo(map.getZoom() + 0.5, { duration: 200 });
+                    map.easeTo({ zoom: map.getZoom() + 0.25, duration: 250 });
                 } else if (e.key === '-' || e.key === '_')
                 {
                     e.preventDefault();
-                    map.zoomTo(map.getZoom() - 0.5, { duration: 200 });
+                    map.easeTo({ zoom: map.getZoom() - 0.25, duration: 250 });
                 }
             });
 
