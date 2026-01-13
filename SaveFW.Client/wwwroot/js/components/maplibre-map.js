@@ -745,13 +745,26 @@ window.MapLibreImpactMap = (function ()
     }
 
     /**
-     * Setup layer switcher control (Google Maps style thumbnails)
+     * Setup layer switcher control (Google Maps style thumbnails - collapsible)
      */
     function setupLayerSwitcher(container)
     {
-        const switcher = document.createElement('div');
-        switcher.id = 'layer-switcher';
-        switcher.style.cssText = 'position: absolute; bottom: 100px; right: 12px; z-index: 60; display: flex; gap: 8px;';
+        // Container for layer button + cards
+        const wrapper = document.createElement('div');
+        wrapper.id = 'layer-switcher-wrapper';
+        wrapper.style.cssText = 'position: absolute; bottom: 12px; right: 56px; z-index: 60; display: flex; align-items: center; gap: 8px;';
+
+        // Layer toggle button
+        const layerBtn = document.createElement('button');
+        layerBtn.id = 'layer-toggle-btn';
+        layerBtn.title = 'Change Map Style';
+        layerBtn.className = 'bg-slate-950/40 backdrop-blur-sm w-[30px] h-[30px] flex items-center justify-center rounded-lg shadow-lg border border-white/5 text-white hover:bg-slate-900/60 transition-colors cursor-pointer';
+        layerBtn.innerHTML = '<span class="material-symbols-outlined text-xl leading-none">layers</span>';
+
+        // Cards container (hidden by default)
+        const cardsContainer = document.createElement('div');
+        cardsContainer.id = 'layer-cards';
+        cardsContainer.style.cssText = 'display: none; flex-direction: row; gap: 6px; align-items: center;';
 
         Object.entries(BASEMAPS).forEach(([key, config]) =>
         {
@@ -763,11 +776,38 @@ window.MapLibreImpactMap = (function ()
                 <span class="material-symbols-outlined">${config.icon}</span>
                 <span class="layer-card-label">${config.name}</span>
             `;
-            card.onclick = () => switchBasemap(key);
-            switcher.appendChild(card);
+            card.onclick = (e) =>
+            {
+                e.stopPropagation();
+                switchBasemap(key);
+            };
+            cardsContainer.appendChild(card);
         });
 
-        container.parentElement.appendChild(switcher);
+        wrapper.appendChild(cardsContainer);
+        wrapper.appendChild(layerBtn);
+        container.parentElement.appendChild(wrapper);
+
+        // Toggle cards visibility
+        let cardsVisible = false;
+        layerBtn.onclick = (e) =>
+        {
+            e.stopPropagation();
+            cardsVisible = !cardsVisible;
+            cardsContainer.style.display = cardsVisible ? 'flex' : 'none';
+            layerBtn.classList.toggle('active', cardsVisible);
+        };
+
+        // Close on click outside
+        document.addEventListener('click', (e) =>
+        {
+            if (!wrapper.contains(e.target) && cardsVisible)
+            {
+                cardsVisible = false;
+                cardsContainer.style.display = 'none';
+                layerBtn.classList.remove('active');
+            }
+        });
 
         // Add CSS if not exists
         if (!document.getElementById('layer-switcher-styles'))
@@ -780,35 +820,51 @@ window.MapLibreImpactMap = (function ()
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    width: 56px;
-                    height: 56px;
-                    background: rgba(15, 23, 42, 0.7);
+                    width: 52px;
+                    height: 52px;
+                    background: rgba(15, 23, 42, 0.85);
                     backdrop-filter: blur(8px);
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     border-radius: 8px;
                     color: rgba(255, 255, 255, 0.7);
                     cursor: pointer;
                     transition: all 0.2s ease;
-                    font-size: 10px;
+                    font-size: 9px;
                     gap: 2px;
                 }
                 .layer-card:hover {
-                    background: rgba(30, 41, 59, 0.9);
+                    background: rgba(30, 41, 59, 0.95);
                     border-color: rgba(255, 255, 255, 0.2);
                     color: white;
                     transform: scale(1.05);
                 }
                 .layer-card.active {
-                    background: rgba(59, 130, 246, 0.4);
-                    border-color: rgba(59, 130, 246, 0.6);
+                    background: rgba(59, 130, 246, 0.5);
+                    border-color: rgba(59, 130, 246, 0.7);
                     color: white;
                 }
                 .layer-card .material-symbols-outlined {
-                    font-size: 20px;
+                    font-size: 18px;
                 }
                 .layer-card-label {
                     font-weight: 500;
                     white-space: nowrap;
+                }
+                #layer-toggle-btn.active {
+                    background: rgba(59, 130, 246, 0.4) !important;
+                    border-color: rgba(59, 130, 246, 0.5) !important;
+                }
+                /* Horizontal zoom controls */
+                .maplibregl-ctrl-group.maplibregl-ctrl {
+                    display: flex !important;
+                    flex-direction: row !important;
+                }
+                .maplibregl-ctrl-group button {
+                    border-bottom: none !important;
+                    border-right: 1px solid rgba(255,255,255,0.05) !important;
+                }
+                .maplibregl-ctrl-group button:last-child {
+                    border-right: none !important;
                 }
             `;
             document.head.appendChild(style);
@@ -1597,16 +1653,6 @@ window.toggleLayer = function (id)
     if (cb && window.MapLibreImpactMap)
     {
         window.MapLibreImpactMap.toggleLayer(id);
-    }
-};
-
-window.toggleMapOverlay = function ()
-{
-    const panel = document.getElementById('map-overlay-panel');
-    if (panel)
-    {
-        if (panel.classList.contains('translate-x-[120%]')) panel.classList.remove('translate-x-[120%]');
-        else panel.classList.add('translate-x-[120%]');
     }
 };
 
