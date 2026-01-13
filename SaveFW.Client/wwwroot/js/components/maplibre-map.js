@@ -749,10 +749,10 @@ window.MapLibreImpactMap = (function ()
      */
     function setupLayerSwitcher(container)
     {
-        // Container for layer button + cards
+        // Container for layer button + cards (positioned left of zoom controls)
         const wrapper = document.createElement('div');
         wrapper.id = 'layer-switcher-wrapper';
-        wrapper.style.cssText = 'position: absolute; bottom: 12px; right: 56px; z-index: 60; display: flex; align-items: center; gap: 8px;';
+        wrapper.style.cssText = 'position: absolute; bottom: 12px; right: 90px; z-index: 60; display: flex; align-items: center; gap: 8px;';
 
         // Layer toggle button
         const layerBtn = document.createElement('button');
