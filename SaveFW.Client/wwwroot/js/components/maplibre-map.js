@@ -446,8 +446,12 @@ window.MapLibreImpactMap = (function ()
         const countyAdultsWithin50 = t1PopCounty + t2PopCounty + t3PopCounty;
 
         const preRate = baselineRate;
+        const baselineIncrease = parseFloat(els.inputBaselineIncrease ? els.inputBaselineIncrease.value : 0);
         const r1 = preRate * 2.0, r2 = preRate * 1.5, r3 = preRate * 1.0;
-        const d1 = Math.max(0, r1 - preRate), d2 = Math.max(0, r2 - preRate), d3 = 0;
+        // Delta rates: proximity effect + statewide baseline increase
+        const d1 = Math.max(0, r1 - preRate) + baselineIncrease;
+        const d2 = Math.max(0, r2 - preRate) + baselineIncrease;
+        const d3 = baselineIncrease; // Baseline tier now includes the statewide increase
 
         const t1PopOther = Math.max(0, t1PopRegional - t1PopCounty);
         const t2PopOther = Math.max(0, t2PopRegional - t2PopCounty);
@@ -505,6 +509,8 @@ window.MapLibreImpactMap = (function ()
         setNum('net-new-t1-other', t1PopOther * (d1 / 100));
         setNum('net-new-t2-county', n2County);
         setNum('net-new-t2-other', t2PopOther * (d2 / 100));
+        setNum('net-new-t3-county', n3County);
+        setNum('net-new-t3-other', t3PopOther * (d3 / 100));
 
         if (els.totalVictims) els.totalVictims.textContent = Math.round(totalNetNewCounty).toLocaleString();
 
@@ -1555,6 +1561,7 @@ window.MapLibreImpactMap = (function ()
                 vicT3: document.getElementById('victims-t3'),
                 totalVictims: document.getElementById('total-gamblers'),
                 inputRate: document.getElementById('input-rate'),
+                inputBaselineIncrease: document.getElementById('input-baseline-increase'),
                 stateDisplay: document.getElementById('state-display'),
                 displayCounty: document.getElementById('display-impact-county')
             };
@@ -1652,6 +1659,7 @@ window.MapLibreImpactMap = (function ()
             new ResizeObserver(() => map?.resize()).observe(container);
 
             if (els.inputRate) els.inputRate.addEventListener('input', () => calculateImpact());
+            if (els.inputBaselineIncrease) els.inputBaselineIncrease.addEventListener('input', () => calculateImpact());
             return map;
         },
 

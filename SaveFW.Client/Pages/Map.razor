@@ -152,7 +152,7 @@
             </div>
 
             <!-- Problem Gambling Slider -->
-            <div class="mt-10" style="margin-bottom: 6rem;">
+            <div class="mt-10" style="margin-bottom: 3rem;">
                  <SliderInput Id="rate" Label="Baseline Problem Gambling Prevalence Rate" Value="2.3"
                              MinValue="0" MaxValue="10" Step="0.1"
                              InputType="Percent" DecimalPlaces="1"
@@ -163,6 +163,19 @@
                                  new() { Label="Dx", Value=2.3, TooltipDescription="Hoosiers meeting clinical criteria for Gambling Disorder (2023)." },
                                  new() { Label="Problem", Value=3.0, TooltipDescription="Self-reported \"problems with gambling\" in state surveys." },
                                  new() { Label="At-Risk", Value=5.5, TooltipDescription="Broader Combined At-Risk & Problem Rate (National Average)." }
+                             })' />
+            </div>
+            <div class="mt-6" style="margin-bottom: 6rem;">
+                 <SliderInput Id="baseline-increase" Label="Expected Baseline Increase (Statewide Effect)" Value="0"
+                             MinValue="0" MaxValue="3" Step="0.1"
+                             InputType="Percent" DecimalPlaces="1"
+                             MajorTickInterval="0.5" MinorTickInterval="0.25"
+                             Tooltip="An expected increase in the statewide baseline problem gambling rate after casino opens."
+                             Description="Set this if you expect the casino to cause a general increase in problem gambling across ALL zones, not just within the proximity tiers. This adds to the net new calculation for every tier, including the baseline 50-mile zone."
+                             Markers='@(new List<SliderMarker> { 
+                                 new() { Label="None", Value=0, TooltipDescription="No expected statewide increase beyond proximity effects." },
+                                 new() { Label="Low", Value=0.5, TooltipDescription="Conservative estimate of statewide increase (+0.5%)." },
+                                 new() { Label="High", Value=1.0, TooltipDescription="Higher estimate based on regional casino studies (+1.0%)." }
                              })' />
             </div>
             <!-- END SLIDER SECTION -->
