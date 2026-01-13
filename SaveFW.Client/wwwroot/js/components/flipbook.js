@@ -150,8 +150,9 @@ window.openFlipbook = async function (e)
         // Instead of hardcoded pixels, we calculate the optimal dimensions to fit the viewport
 
         // 1. Define available space (leaving room for UI/padding)
+        // Reduced from 0.85 to 0.80 to ensure it fits within the 85vh/90vh container without clipping tops/bottoms
         const availableWidth = window.innerWidth * (isMobile ? 0.95 : 0.90);
-        const availableHeight = window.innerHeight * 0.85;
+        const availableHeight = window.innerHeight * 0.80;
 
         // 2. Calculate dimensions for a SINGLE page based on spread mode
         // Desktop = 2 pages side-by-side, so each page gets half the width
