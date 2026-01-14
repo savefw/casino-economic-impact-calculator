@@ -133,32 +133,45 @@ static async Task WarmStateCacheAsync(IServiceProvider services)
 
     try
     {
+        Console.WriteLine("Warming state boundaries cache...");
         var conn = db.Database.GetDbConnection();
         await conn.OpenAsync();
         using var cmd = conn.CreateCommand();
+        
+        // MUST match the query in CensusController.GetStates()
         cmd.CommandText = @"
+            WITH state_pop AS (
+                SELECT substring(geoid, 1, 2) AS state_fips,
+                       SUM(pop_total) AS pop_total,
+                       SUM(pop_18_plus) AS pop_adult
+                FROM census_block_groups
+                GROUP BY 1
+            )
             SELECT json_build_object(
                 'type', 'FeatureCollection',
                 'features', COALESCE(json_agg(
                     json_build_object(
                         'type', 'Feature',
-                        'geometry', ST_AsGeoJSON(geom)::json,
+                        'geometry', ST_AsGeoJSON(COALESCE(geom_simplified, geom))::json,
                         'properties', json_build_object(
                             'geoid', geoid,
                             'name', name,
-                            'stusps', stusps
+                            'stusps', stusps,
+                            'pop_total', COALESCE(sp.pop_total, 0),
+                            'pop_adult', COALESCE(sp.pop_adult, 0)
                         )
                     )
                 ), '[]'::json)
             )::text
-            FROM tiger_states;
+            FROM tiger_states ts
+            LEFT JOIN state_pop sp ON sp.state_fips = ts.geoid;
         ";
 
         var json = (string?)await cmd.ExecuteScalarAsync();
         if (!string.IsNullOrEmpty(json))
         {
             cache.Set("tiger_states_geojson", json, TimeSpan.FromHours(24));
-            Console.WriteLine("State boundaries cache warmed.");
+            Console.WriteLine("State boundaries cache warmed successfully.");
         }
         else
         {

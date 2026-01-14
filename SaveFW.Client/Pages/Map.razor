@@ -97,7 +97,8 @@
                 <label class="text-base font-bold text-slate-300 mb-2 block">Assessed State</label>
                 <div class="mb-4">
                     <SortableDropdownMenu Id="input-state" Placeholder="Select a state" Icon="map"
-                                          Items="@StateOptions" OnSelected="@OnStateSelected" />
+                                          Items="@StateOptions" OnSelected="@OnStateSelected"
+                                          SelectedValue="@SelectedStateId" />
                 </div>
 
                 <label class="text-base font-bold text-slate-300 mb-2 block">Assessed County</label>
@@ -345,12 +346,19 @@
 @code {
     private List<DropdownItem> StateOptions = new();
     private List<DropdownItem> CountyOptions = new();
+    private string? SelectedStateId;
     private string? SelectedCountyId;
+    private DotNetObjectReference<Map>? _objRef;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _objRef = DotNetObjectReference.Create(this);
+            
+            // Register JS→Blazor callbacks for map events
+            await JSRuntime.InvokeVoidAsync("window.registerMapDropdownSync", _objRef);
+            
             await JSRuntime.InvokeVoidAsync("window.MapLibreImpactMap.init", "impact-map");
         }
     }
@@ -368,7 +376,7 @@
                 {
                     Value = f.Properties.GeoId,
                     Text = f.Properties.Name,
-                    Badge = f.Properties.PopTotal.ToString("N0"),
+                    Badge = f.Properties.PopTotal > 0 ? f.Properties.PopTotal.ToString("N0") : "N/A",
                     OrderValue = f.Properties.PopTotal
                 }).OrderBy(i => i.Text).ToList();
                 Console.WriteLine($"Map: StateOptions populated with {StateOptions.Count} items");
@@ -382,8 +390,49 @@
         catch (Exception ex) { Console.WriteLine($"Map Error loading states: {ex}"); }
     }
 
+    [JSInvokable]
+    public async Task OnMapStateSelected(string stateFips, string stateName)
+    {
+        // Map selected a state - update dropdown
+        SelectedStateId = stateFips;
+        
+        // Load counties for this state
+        try
+        {
+            var data = await Http.GetFromJsonAsync<CensusFeatureCollection>($"/api/census/counties/{stateFips}");
+            if (data?.Features != null)
+            {
+                CountyOptions = data.Features.Select(f => new DropdownItem
+                {
+                    Value = f.Properties.GeoId,
+                    Text = f.Properties.Name,
+                    Badge = f.Properties.PopTotal > 0 ? f.Properties.PopTotal.ToString("N0") : "N/A",
+                    OrderValue = f.Properties.PopTotal
+                }).OrderBy(i => i.Text).ToList();
+            }
+            else 
+            {
+                CountyOptions.Clear();
+            }
+            SelectedCountyId = "";
+        }
+        catch (Exception ex) { Console.WriteLine($"Error loading counties for map sync: {ex}"); }
+        
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnMapCountySelected(string countyFips, string countyName)
+    {
+        // Map selected a county - update dropdown
+        SelectedCountyId = countyFips;
+        StateHasChanged();
+    }
+
     private async Task OnStateSelected(DropdownItem item)
     {
+        SelectedStateId = item.Value;
+        
         // Load Counties
         try
         {
@@ -397,7 +446,7 @@
                 {
                     Value = f.Properties.GeoId,
                     Text = f.Properties.Name,
-                    Badge = f.Properties.PopTotal.ToString("N0"),
+                    Badge = f.Properties.PopTotal > 0 ? f.Properties.PopTotal.ToString("N0") : "N/A",
                     OrderValue = f.Properties.PopTotal
                 }).OrderBy(i => i.Text).ToList();
             }
@@ -419,6 +468,11 @@
     {
         SelectedCountyId = item.Value;
         await JSRuntime.InvokeVoidAsync("window.MapLibreImpactMap.loadCounty", item.Value);
+    }
+    
+    public void Dispose()
+    {
+        _objRef?.Dispose();
     }
 
     // JSON Models

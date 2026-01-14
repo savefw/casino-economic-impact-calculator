@@ -1371,7 +1371,8 @@ window.EconomicCalculator = (function ()
             const victimsWithin50 = (t1Adults * d1) + (t2Adults * d2) + (t3Adults * d3);
             if (!Number.isFinite(victimsWithin50) || victimsWithin50 <= 0) continue;
 
-            const name = countyIndex.get(fips) || fips;
+            // Use name from byCountyArray if provided, otherwise lookup, fallback to FIPS
+            const name = c.name || countyIndex.get(fips) || fips;
 
             const health = victimsWithin50 * costsPerVictim.health;
             const crime = victimsWithin50 * costsPerVictim.crime;
