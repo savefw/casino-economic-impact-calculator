@@ -316,10 +316,20 @@ namespace SaveFW.Server.Controllers
         /// <summary>
         /// Serve vector tiles dynamically from PostGIS using ST_AsMVT.
         /// Includes 'states' layer (always) and 'counties' layer (z >= 4).
+        /// Tiles are cached in memory for performance.
         /// </summary>
         [HttpGet("tiles/{z}/{x}/{y}")]
         public async Task<IActionResult> GetTiles(int z, int x, int y)
         {
+            // Cache key based on tile coordinates
+            var cacheKey = $"mvt_tile_{z}_{x}_{y}";
+            
+            // Try to get from cache first
+            if (_cache.TryGetValue(cacheKey, out byte[]? cachedTile) && cachedTile != null)
+            {
+                return File(cachedTile, "application/vnd.mapbox-vector-tile");
+            }
+
             try
             {
                 var conn = _db.Database.GetDbConnection();
@@ -359,7 +369,8 @@ namespace SaveFW.Server.Controllers
 
                 // Only fetch counties if zoom is high enough to matter (approx z4+)
                 // This saves DB load on global views
-                if (z >= 4) 
+                bool includesCounties = z >= 4;
+                if (includesCounties) 
                 {
                     // More aggressive simplification for lower zoom, less for higher zoom
                     // Tolerance in meters (3857): ~1000m at z4, ~100m at z10
@@ -403,7 +414,20 @@ namespace SaveFW.Server.Controllers
                     return NotFound();
                 }
 
-                return File((byte[])mvt, "application/vnd.mapbox-vector-tile");
+                var tileData = (byte[])mvt;
+
+                // Cache the tile: longer TTL for state-only tiles (low zoom), shorter for county tiles
+                // State tiles at low zoom are universal and rarely change
+                var cacheDuration = includesCounties 
+                    ? TimeSpan.FromMinutes(30)  // County tiles: 30 minutes
+                    : TimeSpan.FromHours(2);    // State-only tiles: 2 hours
+
+                _cache.Set(cacheKey, tileData, cacheDuration);
+
+                // Log tile request for analytics (can be used to identify popular regions for pre-warming)
+                Console.WriteLine($"[MVT] Generated tile z={z} x={x} y={y} (counties={includesCounties}, size={tileData.Length} bytes)");
+
+                return File(tileData, "application/vnd.mapbox-vector-tile");
             }
             catch (Exception ex)
             {

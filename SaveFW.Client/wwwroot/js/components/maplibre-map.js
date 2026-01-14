@@ -1224,6 +1224,23 @@ window.MapLibreImpactMap = (function ()
                 if (layersVisible.terrain3d) enableTerrain3d(true);
                 if (layersVisible.buildings3d) enable3dBuildings(true);
 
+                // IMPORTANT: Restore state/county selection state
+                if (currentStateFips)
+                {
+                    // Re-apply county filter for the selected state
+                    setCountyFilter(currentStateFips);
+
+                    // Hide state hover layers since we're in county mode
+                    if (map.getLayer('states-hover'))
+                    {
+                        map.setLayoutProperty('states-hover', 'visibility', 'none');
+                    }
+                    if (map.getLayer('states-line-hover'))
+                    {
+                        map.setLayoutProperty('states-line-hover', 'visibility', 'none');
+                    }
+                }
+
                 // Re-apply visibility based on current toggles
                 Object.keys(layersVisible).forEach(key => toggleLayerVisibility(key, layersVisible[key]));
 
@@ -1233,6 +1250,12 @@ window.MapLibreImpactMap = (function ()
                     marker = null; // Force recreation
                     updateMarker(markerPosition);
                     updateCircles(markerPosition);
+                }
+
+                // Restore county highlight if a county was selected
+                if (currentCountyFips && map.getLayer('county-highlight-line'))
+                {
+                    map.setFilter('county-highlight-line', ['==', 'geoid', currentCountyFips]);
                 }
 
                 // Re-init drawing tools
@@ -1547,254 +1570,281 @@ window.MapLibreImpactMap = (function ()
     // Note: loadStates/loadCounties are still used for UI (dropdown population)
     // Map rendering now uses setupVectorLayers() with MVT tiles
 
+    // Flag to track if vector layer events are registered
+    let vectorLayerEventsRegistered = false;
+
+    // Named event handler functions (for removal)
+    function onStatesMouseMove(e)
+    {
+        if (e.features.length > 0)
+        {
+            const geoid = e.features[0].properties.geoid;
+            map.setFilter('states-hover', ['==', 'geoid', geoid]);
+            map.setFilter('states-line-hover', ['==', 'geoid', geoid]);
+            map.getCanvas().style.cursor = 'pointer';
+        }
+    }
+
+    function onStatesMouseLeave()
+    {
+        map.setFilter('states-hover', ['==', 'geoid', '']);
+        map.setFilter('states-line-hover', ['==', 'geoid', '']);
+        map.getCanvas().style.cursor = '';
+    }
+
+    function onStatesClick(e)
+    {
+        if (e.features.length > 0)
+        {
+            const props = e.features[0].properties;
+            drillToState(props);
+        }
+    }
+
+    let lastHoveredCounty = null;
+
+    function onCountiesMouseMove(e)
+    {
+        if (e.features.length > 0)
+        {
+            const props = e.features[0].properties;
+            const geoid = props.geoid;
+
+            if (geoid === lastHoveredCounty) return;
+
+            if (currentStateFips && props.state_fp === currentStateFips)
+            {
+                lastHoveredCounty = geoid;
+                map.setFilter('counties-hover', ['==', 'geoid', geoid]);
+                map.setFilter('counties-line-hover', ['==', 'geoid', geoid]);
+                map.getCanvas().style.cursor = 'pointer';
+            } else
+            {
+                if (lastHoveredCounty !== null)
+                {
+                    lastHoveredCounty = null;
+                    map.setFilter('counties-hover', ['==', 'geoid', '']);
+                    map.setFilter('counties-line-hover', ['==', 'geoid', '']);
+                }
+                map.getCanvas().style.cursor = '';
+            }
+        }
+    }
+
+    function onCountiesMouseLeave()
+    {
+        lastHoveredCounty = null;
+        map.setFilter('counties-hover', ['==', 'geoid', '']);
+        map.setFilter('counties-line-hover', ['==', 'geoid', '']);
+        map.getCanvas().style.cursor = '';
+    }
+
+    function onCountiesClick(e)
+    {
+        if (e.features.length > 0)
+        {
+            const props = e.features[0].properties;
+            if (currentStateFips && props.state_fp === currentStateFips)
+            {
+                selectCountyFromMVT(props);
+            }
+        }
+    }
+
+    // Helper to remove vector layers before re-adding (needed for style switches)
+    function removeVectorLayers()
+    {
+        if (!map) return;
+
+        // Remove event listeners first
+        if (vectorLayerEventsRegistered)
+        {
+            try
+            {
+                map.off('mousemove', 'states-fill', onStatesMouseMove);
+                map.off('mouseleave', 'states-fill', onStatesMouseLeave);
+                map.off('click', 'states-fill', onStatesClick);
+                map.off('mousemove', 'counties-fill', onCountiesMouseMove);
+                map.off('mouseleave', 'counties-fill', onCountiesMouseLeave);
+                map.off('click', 'counties-fill', onCountiesClick);
+            } catch (e) { /* ignore */ }
+            vectorLayerEventsRegistered = false;
+        }
+
+        const layersToRemove = [
+            'county-highlight-line', 'counties-line-hover', 'counties-line',
+            'counties-hover', 'counties-fill',
+            'states-line-hover', 'states-line', 'states-hover', 'states-fill'
+        ];
+
+        for (const id of layersToRemove)
+        {
+            if (map.getLayer(id))
+            {
+                try { map.removeLayer(id); } catch (e) { /* ignore */ }
+            }
+        }
+
+        if (map.getSource('census-vector'))
+        {
+            try { map.removeSource('census-vector'); } catch (e) { /* ignore */ }
+        }
+    }
+
     // --- Vector Tile Setup ---
+    // This function can be called after style changes - it fully rebuilds layers
     function setupVectorLayers()
     {
         if (!map) return;
 
-        // Check if source exists, if not add it
-        if (!map.getSource('census-vector'))
-        {
-            map.addSource('census-vector', {
-                type: 'vector',
-                tiles: [window.location.origin + '/api/census/tiles/{z}/{x}/{y}'],
-                minzoom: 0,
-                maxzoom: 14
-                // Using server-provided 'id' field in MVT for faster feature lookup
-                // generateId is not needed since we have row_number() in the SQL
-            });
-        }
+        console.log('[MVT] setupVectorLayers called');
+
+        // Remove any existing vector layers first (needed for style switches)
+        removeVectorLayers();
+
+        // Add the vector tile source
+        map.addSource('census-vector', {
+            type: 'vector',
+            tiles: [window.location.origin + '/api/census/tiles/{z}/{x}/{y}'],
+            minzoom: 0,
+            maxzoom: 14
+        });
+
+        console.log('[MVT] Added census-vector source');
 
         // State Fill (transparent base for click detection)
-        if (!map.getLayer('states-fill'))
-        {
-            map.addLayer({
-                'id': 'states-fill',
-                'type': 'fill',
-                'source': 'census-vector',
-                'source-layer': 'states',
-                'paint': {
-                    'fill-color': '#94a3b8',
-                    'fill-opacity': 0.05
-                }
-            });
-        }
+        map.addLayer({
+            'id': 'states-fill',
+            'type': 'fill',
+            'source': 'census-vector',
+            'source-layer': 'states',
+            'paint': {
+                'fill-color': '#94a3b8',
+                'fill-opacity': 0.05
+            }
+        });
 
         // State Hover Highlight Layer (filtered to hovered state only)
-        if (!map.getLayer('states-hover'))
-        {
-            map.addLayer({
-                'id': 'states-hover',
-                'type': 'fill',
-                'source': 'census-vector',
-                'source-layer': 'states',
-                'filter': ['==', 'geoid', ''], // Initially no state highlighted
-                'paint': {
-                    'fill-color': '#60a5fa',
-                    'fill-opacity': 0.3
-                }
-            });
-        }
-
-        // State interaction events
-        map.on('mousemove', 'states-fill', function (e)
-        {
-            if (e.features.length > 0)
-            {
-                const geoid = e.features[0].properties.geoid;
-                map.setFilter('states-hover', ['==', 'geoid', geoid]);
-                map.getCanvas().style.cursor = 'pointer';
+        map.addLayer({
+            'id': 'states-hover',
+            'type': 'fill',
+            'source': 'census-vector',
+            'source-layer': 'states',
+            'filter': ['==', 'geoid', ''], // Initially no state highlighted
+            'paint': {
+                'fill-color': '#60a5fa',
+                'fill-opacity': 0.3
             }
         });
 
-        map.on('mouseleave', 'states-fill', function ()
-        {
-            map.setFilter('states-hover', ['==', 'geoid', '']);
-            map.getCanvas().style.cursor = '';
-        });
-
-        map.on('click', 'states-fill', function (e)
-        {
-            if (e.features.length > 0)
-            {
-                const props = e.features[0].properties;
-                drillToState(props);
+        // State Line
+        map.addLayer({
+            'id': 'states-line',
+            'type': 'line',
+            'source': 'census-vector',
+            'source-layer': 'states',
+            'paint': {
+                'line-color': '#94a3b8',
+                'line-width': 1
             }
         });
-
-        // State Line - with hover highlight
-        if (!map.getLayer('states-line'))
-        {
-            map.addLayer({
-                'id': 'states-line',
-                'type': 'line',
-                'source': 'census-vector',
-                'source-layer': 'states',
-                'paint': {
-                    'line-color': '#94a3b8',
-                    'line-width': 1
-                }
-            });
-        }
 
         // State Line Hover (thicker on hover)
-        if (!map.getLayer('states-line-hover'))
-        {
-            map.addLayer({
-                'id': 'states-line-hover',
-                'type': 'line',
-                'source': 'census-vector',
-                'source-layer': 'states',
-                'filter': ['==', 'geoid', ''],
-                'paint': {
-                    'line-color': '#60a5fa',
-                    'line-width': 2.5
-                }
-            });
-        }
-
-        // Update line hover when fill hover changes
-        map.on('mousemove', 'states-fill', function (e)
-        {
-            if (e.features.length > 0)
-            {
-                const geoid = e.features[0].properties.geoid;
-                map.setFilter('states-line-hover', ['==', 'geoid', geoid]);
+        map.addLayer({
+            'id': 'states-line-hover',
+            'type': 'line',
+            'source': 'census-vector',
+            'source-layer': 'states',
+            'filter': ['==', 'geoid', ''],
+            'paint': {
+                'line-color': '#60a5fa',
+                'line-width': 2.5
             }
-        });
-        map.on('mouseleave', 'states-fill', function ()
-        {
-            map.setFilter('states-line-hover', ['==', 'geoid', '']);
         });
 
         // County Fill (for hover detection) - hidden by default, shown when state selected
-        if (!map.getLayer('counties-fill'))
-        {
-            map.addLayer({
-                'id': 'counties-fill',
-                'type': 'fill',
-                'source': 'census-vector',
-                'source-layer': 'counties',
-                'minzoom': 4,
-                'filter': ['==', 'state_fp', ''], // Initially hidden
-                'paint': {
-                    'fill-color': '#94a3b8',
-                    'fill-opacity': 0.08
-                }
-            });
-        }
-
-        // County Hover Highlight Layer
-        if (!map.getLayer('counties-hover'))
-        {
-            map.addLayer({
-                'id': 'counties-hover',
-                'type': 'fill',
-                'source': 'census-vector',
-                'source-layer': 'counties',
-                'minzoom': 4,
-                'filter': ['==', 'geoid', ''], // Initially no county highlighted
-                'paint': {
-                    'fill-color': '#60a5fa',
-                    'fill-opacity': 0.35
-                }
-            });
-        }
-
-
-        // County interaction events - ONLY for counties in the selected state (not neighbors)
-        // Throttled to reduce lag from frequent mousemove events
-        let lastHoveredCounty = null;
-        let countyHoverThrottle = null;
-
-        map.on('mousemove', 'counties-fill', function (e)
-        {
-            if (e.features.length > 0)
-            {
-                const props = e.features[0].properties;
-                const geoid = props.geoid;
-
-                // Skip if same county as last hover (no change needed)
-                if (geoid === lastHoveredCounty) return;
-
-                // Only allow interaction with counties in the selected state
-                if (currentStateFips && props.state_fp === currentStateFips)
-                {
-                    lastHoveredCounty = geoid;
-                    map.setFilter('counties-hover', ['==', 'geoid', geoid]);
-                    map.setFilter('counties-line-hover', ['==', 'geoid', geoid]);
-                    map.getCanvas().style.cursor = 'pointer';
-                }
-                else
-                {
-                    // Not in selected state - no hover effect
-                    if (lastHoveredCounty !== null)
-                    {
-                        lastHoveredCounty = null;
-                        map.setFilter('counties-hover', ['==', 'geoid', '']);
-                        map.setFilter('counties-line-hover', ['==', 'geoid', '']);
-                    }
-                    map.getCanvas().style.cursor = '';
-                }
+        map.addLayer({
+            'id': 'counties-fill',
+            'type': 'fill',
+            'source': 'census-vector',
+            'source-layer': 'counties',
+            'minzoom': 4,
+            'filter': ['==', 'state_fp', ''], // Initially hidden
+            'paint': {
+                'fill-color': '#94a3b8',
+                'fill-opacity': 0.08
             }
         });
-        map.on('mouseleave', 'counties-fill', function ()
-        {
-            lastHoveredCounty = null;
-            map.setFilter('counties-hover', ['==', 'geoid', '']);
-            map.setFilter('counties-line-hover', ['==', 'geoid', '']);
-            map.getCanvas().style.cursor = '';
-        });
 
-        // County click handler - ONLY for counties in the selected state
-        map.on('click', 'counties-fill', function (e)
-        {
-            if (e.features.length > 0)
-            {
-                const props = e.features[0].properties;
-                // Only allow click on counties in the selected state
-                if (currentStateFips && props.state_fp === currentStateFips)
-                {
-                    selectCountyFromMVT(props);
-                }
+        // County Hover Highlight Layer
+        map.addLayer({
+            'id': 'counties-hover',
+            'type': 'fill',
+            'source': 'census-vector',
+            'source-layer': 'counties',
+            'minzoom': 4,
+            'filter': ['==', 'geoid', ''], // Initially no county highlighted
+            'paint': {
+                'fill-color': '#60a5fa',
+                'fill-opacity': 0.35
             }
         });
 
         // County Line - hidden by default, shown when state selected
-        if (!map.getLayer('counties-line'))
-        {
-            map.addLayer({
-                'id': 'counties-line',
-                'type': 'line',
-                'source': 'census-vector',
-                'source-layer': 'counties',
-                'minzoom': 4,
-                'filter': ['==', 'state_fp', ''], // Initially hidden
-                'paint': {
-                    'line-color': '#64748b',
-                    'line-width': 0.5
-                }
-            });
-        }
-
+        map.addLayer({
+            'id': 'counties-line',
+            'type': 'line',
+            'source': 'census-vector',
+            'source-layer': 'counties',
+            'minzoom': 4,
+            'filter': ['==', 'state_fp', ''], // Initially hidden
+            'paint': {
+                'line-color': '#64748b',
+                'line-width': 0.5
+            }
+        });
 
         // County Line Hover
-        if (!map.getLayer('counties-line-hover'))
-        {
-            map.addLayer({
-                'id': 'counties-line-hover',
-                'type': 'line',
-                'source': 'census-vector',
-                'source-layer': 'counties',
-                'minzoom': 4,
-                'filter': ['==', 'geoid', ''],
-                'paint': {
-                    'line-color': '#60a5fa',
-                    'line-width': 2
-                }
-            });
-        }
-        // Note: counties-line-hover filter is updated in the main mousemove handler above
+        map.addLayer({
+            'id': 'counties-line-hover',
+            'type': 'line',
+            'source': 'census-vector',
+            'source-layer': 'counties',
+            'minzoom': 4,
+            'filter': ['==', 'geoid', ''],
+            'paint': {
+                'line-color': '#60a5fa',
+                'line-width': 2
+            }
+        });
+
+        // County highlight line (selected county)
+        map.addLayer({
+            'id': 'county-highlight-line',
+            'type': 'line',
+            'source': 'census-vector',
+            'source-layer': 'counties',
+            'minzoom': 4,
+            'filter': ['==', 'geoid', ''],
+            'paint': {
+                'line-color': '#22c55e',
+                'line-width': 3
+            }
+        });
+
+        // === EVENT LISTENERS ===
+        // Register named handlers (allows removal via map.off)
+        console.log('[MVT] Registering event handlers');
+
+        map.on('mousemove', 'states-fill', onStatesMouseMove);
+        map.on('mouseleave', 'states-fill', onStatesMouseLeave);
+        map.on('click', 'states-fill', onStatesClick);
+        map.on('mousemove', 'counties-fill', onCountiesMouseMove);
+        map.on('mouseleave', 'counties-fill', onCountiesMouseLeave);
+        map.on('click', 'counties-fill', onCountiesClick);
+
+        vectorLayerEventsRegistered = true;
+        console.log('[MVT] setupVectorLayers complete');
     }
 
     // Neighboring states lookup (contiguous US only, for filtering county display)
@@ -1890,6 +1940,9 @@ window.MapLibreImpactMap = (function ()
         if (!stateFips) return;
 
         currentStateFips = stateFips;
+
+        // Show loading indicator immediately - tiles will be requested after filter change
+        toggleLoading(true, "Loading County Boundaries...");
 
         // Show counties only for this state and its neighbors
         setCountyFilter(stateFips);
@@ -2351,6 +2404,42 @@ window.MapLibreImpactMap = (function ()
                 updateMapNavUI(1);
                 setupDrawingTools();
                 console.log('MapLibreImpactMap v2.0 initialized');
+            });
+
+            // MVT tile loading indicator - track when census-vector tiles are loading
+            let tileLoadingActive = false;
+            let tileLoadingTimeout = null;
+
+            map.on('sourcedataloading', (e) =>
+            {
+                // Only track our census-vector source
+                if (e.sourceId === 'census-vector' && e.tile)
+                {
+                    if (!tileLoadingActive)
+                    {
+                        tileLoadingActive = true;
+                        // Show loading after brief delay to avoid flash for cached tiles
+                        clearTimeout(tileLoadingTimeout);
+                        tileLoadingTimeout = setTimeout(() =>
+                        {
+                            if (tileLoadingActive)
+                            {
+                                toggleLoading(true, "Loading County Boundaries...");
+                            }
+                        }, 150);
+                    }
+                }
+            });
+
+            map.on('idle', () =>
+            {
+                // Map is idle = all tiles are loaded
+                if (tileLoadingActive)
+                {
+                    tileLoadingActive = false;
+                    clearTimeout(tileLoadingTimeout);
+                    toggleLoading(false);
+                }
             });
 
             // Add overlay controls (fullscreen button + legend)

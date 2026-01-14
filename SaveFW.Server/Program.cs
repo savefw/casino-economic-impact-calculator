@@ -93,6 +93,7 @@ _ = Task.Run(async () =>
         Console.WriteLine("TIGER Data Seeding Check Complete.");
 
         await WarmStateCacheAsync(scope.ServiceProvider);
+        await WarmMvtTilesAsync(scope.ServiceProvider);
     }
     catch (Exception ex)
     {
@@ -183,3 +184,142 @@ static async Task WarmStateCacheAsync(IServiceProvider services)
         Console.WriteLine($"State cache warm failed: {ex.Message}");
     }
 }
+
+/// <summary>
+/// Pre-warm MVT tiles for the initial map view (continental US at low zoom).
+/// This ensures first-time visitors get instant state borders.
+/// </summary>
+static async Task WarmMvtTilesAsync(IServiceProvider services)
+{
+    var cache = services.GetRequiredService<IMemoryCache>();
+    var db = services.GetRequiredService<AppDbContext>();
+
+    try
+    {
+        Console.WriteLine("Pre-warming MVT state tiles...");
+        var conn = db.Database.GetDbConnection();
+        if (conn.State != System.Data.ConnectionState.Open)
+            await conn.OpenAsync();
+
+        // Tiles covering continental US at zoom levels 2, 3, and 4 (state-only, no counties)
+        // These are the tiles that will be requested when the map first loads
+        var tilesToWarm = new List<(int z, int x, int y)>
+        {
+            // Z2 - continental US overview
+            (2, 0, 1), (2, 1, 1),
+            // Z3 - main US tiles
+            (3, 0, 2), (3, 1, 2), (3, 2, 2), (3, 3, 2),
+            (3, 0, 3), (3, 1, 3), (3, 2, 3), (3, 3, 3),
+            // Z4 - more detailed state view (common zoom for state selection)
+            (4, 2, 4), (4, 3, 4), (4, 4, 4), (4, 5, 4), (4, 6, 4),
+            (4, 2, 5), (4, 3, 5), (4, 4, 5), (4, 5, 5), (4, 6, 5),
+            (4, 2, 6), (4, 3, 6), (4, 4, 6), (4, 5, 6), (4, 6, 6),
+        };
+
+        int warmed = 0;
+        foreach (var (z, x, y) in tilesToWarm)
+        {
+            var cacheKey = $"mvt_tile_{z}_{x}_{y}";
+            
+            // Skip if already cached
+            if (cache.TryGetValue(cacheKey, out byte[]? _))
+            {
+                warmed++;
+                continue;
+            }
+
+            try
+            {
+                using var cmd = conn.CreateCommand();
+                
+                // State-only MVT query (z < 4 doesn't include counties anyway)
+                bool includesCounties = z >= 4;
+                var simplifyTolerance = includesCounties 
+                    ? Math.Max(100, 5000 / Math.Pow(2, z - 4)) 
+                    : 500;
+
+                var sql = @"
+                    WITH 
+                    bounds_3857 AS (
+                        SELECT ST_TileEnvelope(@z, @x, @y) AS geom
+                    ),
+                    bounds_4326 AS (
+                        SELECT ST_Transform(geom, 4326) AS geom FROM bounds_3857
+                    ),
+                    mvt_states AS (
+                        SELECT ST_AsMVT(q, 'states', 4096, 'geom') AS mvt
+                        FROM (
+                            SELECT
+                                row_number() OVER () AS id,
+                                geoid,
+                                name,
+                                stusps,
+                                ST_AsMVTGeom(
+                                    ST_Simplify(ST_Transform(ts.geom, 3857), 500), 
+                                    (SELECT geom FROM bounds_3857),
+                                    4096, 256, true
+                                ) AS geom
+                            FROM tiger_states ts, bounds_4326 b
+                            WHERE ts.geom && b.geom
+                        ) q
+                        WHERE geom IS NOT NULL
+                    )";
+
+                if (includesCounties)
+                {
+                    sql += $@",
+                    mvt_counties AS (
+                        SELECT ST_AsMVT(q, 'counties', 4096, 'geom') AS mvt
+                        FROM (
+                            SELECT
+                                row_number() OVER () AS id,
+                                geoid,
+                                name,
+                                state_fp,
+                                ST_AsMVTGeom(
+                                    ST_Simplify(ST_Transform(tc.geom, 3857), {simplifyTolerance}), 
+                                    (SELECT geom FROM bounds_3857),
+                                    4096, 256, true
+                                ) AS geom
+                            FROM tiger_counties tc, bounds_4326 b
+                            WHERE tc.geom && b.geom
+                        ) q
+                        WHERE geom IS NOT NULL
+                    )
+                    SELECT mvt_states.mvt || mvt_counties.mvt FROM mvt_states, mvt_counties";
+                }
+                else
+                {
+                    sql += " SELECT mvt FROM mvt_states";
+                }
+
+                cmd.CommandText = sql;
+                cmd.Parameters.Add(new Npgsql.NpgsqlParameter("@z", z));
+                cmd.Parameters.Add(new Npgsql.NpgsqlParameter("@x", x));
+                cmd.Parameters.Add(new Npgsql.NpgsqlParameter("@y", y));
+
+                var mvt = await cmd.ExecuteScalarAsync();
+                if (mvt != null && mvt != DBNull.Value)
+                {
+                    var tileData = (byte[])mvt;
+                    var cacheDuration = includesCounties 
+                        ? TimeSpan.FromMinutes(30) 
+                        : TimeSpan.FromHours(2);
+                    cache.Set(cacheKey, tileData, cacheDuration);
+                    warmed++;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to warm tile z={z} x={x} y={y}: {ex.Message}");
+            }
+        }
+
+        Console.WriteLine($"MVT tile cache warmed: {warmed}/{tilesToWarm.Count} tiles.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"MVT tile cache warm failed: {ex.Message}");
+    }
+}
+
