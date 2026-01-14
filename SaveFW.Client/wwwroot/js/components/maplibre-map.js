@@ -137,6 +137,10 @@ window.MapLibreImpactMap = (function ()
     // DOM Elements cache
     let els = {};
 
+    // Tile loading state (module scope for access from drillToState)
+    let tileLoadingActive = false;
+    let tileLoadingTimeout = null;
+
     // === UTILITY FUNCTIONS ===
 
     function normalizeCountyFips(value)
@@ -417,6 +421,14 @@ window.MapLibreImpactMap = (function ()
 
     function calculateImpact()
     {
+        console.log('[Impact] calculateImpact called:', {
+            hasCalcFeatures: !!currentCalcFeatures,
+            hasCountyTotals: !!currentCountyTotals,
+            hasMarkerPosition: !!markerPosition,
+            hasCountyFips: !!currentCountyFips,
+            fullscreen: !!document.fullscreenElement
+        });
+
         if (!currentCalcFeatures || !currentCountyTotals || !markerPosition || !currentCountyFips) return;
 
         const baselineRate = parseFloat(els.inputRate ? els.inputRate.value : 2.3);
@@ -535,9 +547,18 @@ window.MapLibreImpactMap = (function ()
 
         if (els.totalVictims) els.totalVictims.textContent = Math.round(totalNetNewCounty).toLocaleString();
 
+        // Update fullscreen overlay labels
         const lblHighVal = document.getElementById('label-high-val');
         const lblElevatedVal = document.getElementById('label-elevated-val');
         const lblBaselineVal = document.getElementById('label-baseline-val');
+
+        console.log('[Impact] Updating fullscreen labels:', {
+            highRisk: Math.round(t1PopRegional),
+            elevated: Math.round(t2PopRegional),
+            baseline: Math.round(t3PopRegional),
+            labelsFound: { high: !!lblHighVal, elevated: !!lblElevatedVal, baseline: !!lblBaselineVal }
+        });
+
         if (lblHighVal) lblHighVal.textContent = Math.round(t1PopRegional).toLocaleString();
         if (lblElevatedVal) lblElevatedVal.textContent = Math.round(t2PopRegional).toLocaleString();
         if (lblBaselineVal) lblBaselineVal.textContent = Math.round(t3PopRegional).toLocaleString();
@@ -796,11 +817,23 @@ window.MapLibreImpactMap = (function ()
                 if (document.fullscreenElement)
                 {
                     btn.innerHTML = '<span class="material-symbols-outlined text-xl leading-none">fullscreen_exit</span>';
-                    if (map) map.scrollZoom.enable();
+                    if (map)
+                    {
+                        map.scrollZoom.enable();
+                        // Resize map to fit new fullscreen container dimensions
+                        setTimeout(() => map.resize(), 100);
+                    }
+                    console.log('[Map] Entered fullscreen mode');
                 } else
                 {
                     btn.innerHTML = '<span class="material-symbols-outlined text-xl leading-none">fullscreen</span>';
-                    if (map) map.scrollZoom.disable();
+                    if (map)
+                    {
+                        map.scrollZoom.disable();
+                        // Resize map to fit original container dimensions
+                        setTimeout(() => map.resize(), 100);
+                    }
+                    console.log('[Map] Exited fullscreen mode');
                 }
             }
         });
@@ -1942,6 +1975,9 @@ window.MapLibreImpactMap = (function ()
         currentStateFips = stateFips;
 
         // Show loading indicator immediately - tiles will be requested after filter change
+        // Also set tileLoadingActive to prevent idle handler from hiding overlay too early
+        tileLoadingActive = true;
+        clearTimeout(tileLoadingTimeout);
         toggleLoading(true, "Loading County Boundaries...");
 
         // Show counties only for this state and its neighbors
@@ -2178,6 +2214,12 @@ window.MapLibreImpactMap = (function ()
                     const displayEl = document.getElementById('county-display');
                     if (displayEl) displayEl.textContent = countyName;
 
+                    // Notify Blazor to sync the Assessed County dropdown
+                    if (window.notifyBlazorCountySelected)
+                    {
+                        window.notifyBlazorCountySelected(newCountyFips, countyName);
+                    }
+
                     if (layersVisible.isochrones) updateIsochrones(pos);
                     return; // Exit early, calculateImpact will be called after context loads
                 }
@@ -2406,27 +2448,21 @@ window.MapLibreImpactMap = (function ()
                 console.log('MapLibreImpactMap v2.0 initialized');
             });
 
-            // MVT tile loading indicator - track when census-vector tiles are loading
-            let tileLoadingActive = false;
-            let tileLoadingTimeout = null;
+            // MVT tile loading indicator - uses module-scoped tileLoadingActive and tileLoadingTimeout
 
             map.on('sourcedataloading', (e) =>
             {
-                // Only track our census-vector source
-                if (e.sourceId === 'census-vector' && e.tile)
+                // Only track our census-vector source, and only when a state is selected
+                // This prevents the loading overlay from appearing when just viewing states
+                // Also check zoom level - counties only show at zoom 4+
+                const zoom = map.getZoom();
+                if (e.sourceId === 'census-vector' && e.tile && currentStateFips && zoom >= 4)
                 {
                     if (!tileLoadingActive)
                     {
                         tileLoadingActive = true;
-                        // Show loading after brief delay to avoid flash for cached tiles
-                        clearTimeout(tileLoadingTimeout);
-                        tileLoadingTimeout = setTimeout(() =>
-                        {
-                            if (tileLoadingActive)
-                            {
-                                toggleLoading(true, "Loading County Boundaries...");
-                            }
-                        }, 150);
+                        // Show loading immediately since drillToState already set tileLoadingActive
+                        toggleLoading(true, "Loading County Boundaries...");
                     }
                 }
             });
