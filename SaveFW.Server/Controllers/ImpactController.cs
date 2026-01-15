@@ -123,15 +123,10 @@ public class ImpactController : ControllerBase
 
         var sql = lite
             ? @"
-                WITH target_county_geom AS (
-                    SELECT COALESCE(geom_simplified, geom) as geom
+                WITH county_center AS (
+                    SELECT ST_Centroid(geom) as pt, geoid
                     FROM tiger_counties
                     WHERE geoid = @fips
-                ),
-                search_area AS (
-                    -- Marker zones top out at 50 miles; buffer the county so any in-county marker is covered.
-                    SELECT ST_Buffer(geom::geography, 80467.2)::geometry as geom
-                    FROM target_county_geom
                 ),
                 county_stats AS (
                     SELECT
@@ -148,16 +143,16 @@ public class ImpactController : ControllerBase
                     'county_adults', (SELECT county_adults FROM county_stats),
                     'points', COALESCE(json_agg(
                         json_build_array(
-                            ST_X(ST_PointOnSurface(b.geom)),
-                            ST_Y(ST_PointOnSurface(b.geom)),
+                            ST_X(ST_Centroid(b.geom)),
+                            ST_Y(ST_Centroid(b.geom)),
                             b.pop_18_plus,
                             SUBSTRING(b.geoid, 1, 5)
                         )
                     ), '[]'::json)
                 )::text
-                FROM census_block_groups b, search_area s
+                FROM census_block_groups b, county_center c
                 WHERE
-                    ST_Intersects(b.geom, s.geom)
+                    ST_DWithin(b.geom::geography, c.pt::geography, 80467.2)
                     AND b.pop_18_plus > 0
                     AND SUBSTRING(b.geoid, 1, 2) = SUBSTRING(@fips, 1, 2);
             "

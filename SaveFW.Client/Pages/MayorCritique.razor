@@ -86,11 +86,11 @@
                                 "Economic Engine" Myth
                             </h4>
                             <div class="grid md:grid-cols-2 gap-8">
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-emerald-600 uppercase mb-3 block tracking-widest">The
                                         Pitch</span>
-                                    <ul class="space-y-2">
+                                    <ul class="space-y-2 flex-1">
                                         <li
                                             class="bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2 rounded border border-emerald-100 dark:border-emerald-800/50 text-xs font-bold text-emerald-800 dark:text-emerald-200">
                                             ECONOMIC ENGINE</li>
@@ -105,25 +105,26 @@
                                         Promises of growth often ignore the displacement of existing spending.
                                     </div>
                                 </div>
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-red-600 uppercase mb-3 block tracking-widest">The
                                         Reality</span>
-                                    <div class="space-y-3">
-                                        <!-- Preview of reality items -->
-                                        <div class="flex flex-wrap gap-2 mb-4">
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Local Businesses Lost</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Bankruptcies</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Poverty</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">+2 more</span>
-                                        </div>
-                                        <button onclick="openRealityModal('economic-engine')"
-                                            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm">
-                                            <span class="material-symbols-outlined text-lg">menu_book</span>
-                                            Learn More
-                                        </button>
-                                    </div>
+                                    <ul class="space-y-2 flex-1">
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Local Businesses Lost</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Bankruptcies</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Poverty</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Foreclosure</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Bad Debt</li>
+                                    </ul>
                                 </div>
+                            </div>
+                            <!-- Learn More button spanning full width -->
+                            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                <button onclick="openRealityModal('economic-engine')"
+                                    class="btn-depressed w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all text-sm">
+                                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                                    Learn More
+                                </button>
                             </div>
                         </div>
 
@@ -136,11 +137,11 @@
                                 "Jobs" Promise
                             </h4>
                             <div class="grid md:grid-cols-2 gap-8">
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-emerald-600 uppercase mb-3 block tracking-widest">The
                                         Pitch</span>
-                                    <ul class="space-y-2">
+                                    <ul class="space-y-2 flex-1">
                                         <li
                                             class="bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2 rounded border border-emerald-100 dark:border-emerald-800/50 text-xs font-bold text-emerald-800 dark:text-emerald-200">
                                             GOOD PAYING JOBS</li>
@@ -152,23 +153,24 @@
                                         "Good jobs" that pay less than fast food?
                                     </div>
                                 </div>
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-red-600 uppercase mb-3 block tracking-widest">The
                                         Reality</span>
-                                    <div class="space-y-3">
-                                        <div class="flex flex-wrap gap-2 mb-4">
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">The "5,520 Jobs" Myth</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Low Wage Jobs</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Embezzlement</span>
-                                        </div>
-                                        <button onclick="openRealityModal('jobs-promise')"
-                                            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm">
-                                            <span class="material-symbols-outlined text-lg">menu_book</span>
-                                            Learn More
-                                        </button>
-                                    </div>
+                                    <ul class="space-y-2 flex-1">
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">The "5,520 Jobs" Myth</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Low Wage Jobs</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Embezzlement</li>
+                                    </ul>
                                 </div>
+                            </div>
+                            <!-- Learn More button spanning full width -->
+                            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                <button onclick="openRealityModal('jobs-promise')"
+                                    class="btn-depressed w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all text-sm">
+                                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                                    Learn More
+                                </button>
                             </div>
                         </div>
 
@@ -181,11 +183,11 @@
                                 Community Health & Safety
                             </h4>
                             <div class="grid md:grid-cols-2 gap-8">
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-emerald-600 uppercase mb-3 block tracking-widest">The
                                         Pitch</span>
-                                    <ul class="space-y-2">
+                                    <ul class="space-y-2 flex-1">
                                         <li
                                             class="bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2 rounded border border-emerald-100 dark:border-emerald-800/50 text-xs font-bold text-emerald-800 dark:text-emerald-200">
                                             COMMUNITY WELL-BEING</li>
@@ -200,24 +202,26 @@
                                         How can a fund fix the damage caused by the funding source?
                                     </div>
                                 </div>
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-red-600 uppercase mb-3 block tracking-widest">The
                                         Reality</span>
-                                    <div class="space-y-3">
-                                        <div class="flex flex-wrap gap-2 mb-4">
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Addiction</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Homelessness</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Mental Health</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">+2 more</span>
-                                        </div>
-                                        <button onclick="openRealityModal('community-health')"
-                                            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm">
-                                            <span class="material-symbols-outlined text-lg">menu_book</span>
-                                            Learn More
-                                        </button>
-                                    </div>
+                                    <ul class="space-y-2 flex-1">
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Addiction</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Homelessness</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Mental Health Issues</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Substance Abuse</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Fatal Accidents</li>
+                                    </ul>
                                 </div>
+                            </div>
+                            <!-- Learn More button spanning full width -->
+                            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                <button onclick="openRealityModal('community-health')"
+                                    class="btn-depressed w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all text-sm">
+                                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                                    Learn More
+                                </button>
                             </div>
                         </div>
 
@@ -230,11 +234,11 @@
                                 "World-Class" Destination
                             </h4>
                             <div class="grid md:grid-cols-2 gap-8">
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-emerald-600 uppercase mb-3 block tracking-widest">The
                                         Pitch</span>
-                                    <ul class="space-y-2">
+                                    <ul class="space-y-2 flex-1">
                                         <li
                                             class="bg-emerald-50 dark:bg-emerald-900/10 px-3 py-2 rounded border border-emerald-100 dark:border-emerald-800/50 text-xs font-bold text-emerald-800 dark:text-emerald-200">
                                             WORLD-CLASS DESTINATION</li>
@@ -249,24 +253,27 @@
                                         "Responsible" for who? The casinos or the families?
                                     </div>
                                 </div>
-                                <div>
+                                <div class="flex flex-col">
                                     <span
                                         class="text-xs font-bold text-red-600 uppercase mb-3 block tracking-widest">The
                                         Reality</span>
-                                    <div class="space-y-3">
-                                        <div class="flex flex-wrap gap-2 mb-4">
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Saturation Barrier</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Human Trafficking</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">Corruption</span>
-                                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-bold rounded">+4 more</span>
-                                        </div>
-                                        <button onclick="openRealityModal('world-class')"
-                                            class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm">
-                                            <span class="material-symbols-outlined text-lg">menu_book</span>
-                                            Learn More
-                                        </button>
-                                    </div>
+                                    <ul class="space-y-2 flex-1">
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Saturation Barrier</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Human Trafficking</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Corruption</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Domestic Violence</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Child Neglect</li>
+                                        <li class="bg-red-100 dark:bg-red-900/20 px-3 py-2 rounded border border-red-200 dark:border-red-800/50 text-xs font-bold text-red-700 dark:text-red-300">Divorces</li>
+                                    </ul>
                                 </div>
+                            </div>
+                            <!-- Learn More button spanning full width -->
+                            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                <button onclick="openRealityModal('world-class')"
+                                    class="btn-depressed w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all text-sm">
+                                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                                    Learn More
+                                </button>
                             </div>
                         </div>
                     </div>

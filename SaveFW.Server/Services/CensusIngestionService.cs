@@ -46,11 +46,22 @@ public class CensusIngestionService
                 state_fp VARCHAR(2),                 -- State FIPS (e.g., '18' for Indiana)
                 pop_total INT,                       -- P1_001N (Reference: Total Population)
                 pop_18_plus INT,                     -- P3_001N (Critical: Voting Age Population)
-                geom GEOMETRY(MultiPolygon, 4326)    -- The Spatial Shape
+                geom GEOMETRY(MultiPolygon, 4326),   -- The Spatial Shape
+                cx DOUBLE PRECISION,                 -- Pre-computed centroid X (longitude)
+                cy DOUBLE PRECISION                  -- Pre-computed centroid Y (latitude)
             );
 
             -- Index for fast spatial querying
             CREATE INDEX IF NOT EXISTS idx_census_bg_geom ON census_block_groups USING GIST (geom);
+            
+            -- Add cx/cy columns if they don't exist (for existing tables)
+            ALTER TABLE census_block_groups ADD COLUMN IF NOT EXISTS cx DOUBLE PRECISION;
+            ALTER TABLE census_block_groups ADD COLUMN IF NOT EXISTS cy DOUBLE PRECISION;
+            
+            -- Populate centroids for any rows missing them
+            UPDATE census_block_groups 
+            SET cx = ST_X(ST_Centroid(geom)), cy = ST_Y(ST_Centroid(geom))
+            WHERE cx IS NULL OR cy IS NULL;
         ";
 
         await using var conn = new NpgsqlConnection(_connString);
@@ -170,7 +181,7 @@ public class CensusIngestionService
         await using var conn = await dataSource.OpenConnectionAsync();
 
         // Use Binary COPY for high-performance bulk insertion
-        using var writer = conn.BeginBinaryImport("COPY census_block_groups (geoid, state_fp, pop_total, pop_18_plus, geom) FROM STDIN (FORMAT BINARY)");
+        using var writer = conn.BeginBinaryImport("COPY census_block_groups (geoid, state_fp, pop_total, pop_18_plus, geom, cx, cy) FROM STDIN (FORMAT BINARY)");
 
         foreach (var feature in features)
         {
@@ -179,12 +190,17 @@ public class CensusIngestionService
             // Only insert if we have matching population data
             if (geoid != null && data.TryGetValue(geoid, out var pops))
             {
+                // Pre-compute centroid for faster queries
+                var centroid = feature.Geometry.Centroid;
+                
                 writer.StartRow();
                 writer.Write(geoid);            // geoid
                 writer.Write(stateFips);        // state_fp
                 writer.Write(pops.Total);       // pop_total
                 writer.Write(pops.Adult);       // pop_18_plus
                 writer.Write(feature.Geometry); // geom (Npgsql handles the conversion)
+                writer.Write(centroid.X);       // cx (pre-computed longitude)
+                writer.Write(centroid.Y);       // cy (pre-computed latitude)
             }
         }
 

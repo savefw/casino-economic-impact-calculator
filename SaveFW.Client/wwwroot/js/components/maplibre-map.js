@@ -138,8 +138,8 @@ window.MapLibreImpactMap = (function ()
     let els = {};
 
     // Tile loading state (module scope for access from drillToState)
-    let tileLoadingActive = false;
     let tileLoadingTimeout = null;
+    let initialStateDrill = false; // Only show loading during initial drill, not on zoom
 
     // === UTILITY FUNCTIONS ===
 
@@ -1635,9 +1635,13 @@ window.MapLibreImpactMap = (function ()
     }
 
     let lastHoveredCounty = null;
+    let markerDragging = false; // Suppress hover effects while dragging marker
 
     function onCountiesMouseMove(e)
     {
+        // Suppress hover during marker drag to avoid confusion
+        if (markerDragging) return;
+
         if (e.features.length > 0)
         {
             const props = e.features[0].properties;
@@ -1975,8 +1979,8 @@ window.MapLibreImpactMap = (function ()
         currentStateFips = stateFips;
 
         // Show loading indicator immediately - tiles will be requested after filter change
-        // Also set tileLoadingActive to prevent idle handler from hiding overlay too early
-        tileLoadingActive = true;
+        // Set initialStateDrill flag so tile loading handler knows to show overlay
+        initialStateDrill = true;
         clearTimeout(tileLoadingTimeout);
         toggleLoading(true, "Loading County Boundaries...");
 
@@ -2034,75 +2038,88 @@ window.MapLibreImpactMap = (function ()
     {
         currentCountyFips = countyFips;
 
-        // Try cached county data first
-        let countyFeature = countyData?.features?.find(f => f.properties.GEOID === countyFips || f.properties.geoid === countyFips);
+        // Show loading immediately when county is clicked
+        toggleLoading(true, "Loading County...");
 
-        // If not in cache, fetch from API
-        if (!countyFeature)
+        try
         {
-            try
+            // Try cached county data first
+            let countyFeature = countyData?.features?.find(f => f.properties.GEOID === countyFips || f.properties.geoid === countyFips);
+
+            // If not in cache, fetch from API
+            if (!countyFeature)
             {
-                const res = await fetch(`/api/census/county/${countyFips}`);
-                if (res.ok)
+                toggleLoading(true, "Fetching County Geometry...");
+                try
                 {
-                    countyFeature = await res.json();
+                    const res = await fetch(`/api/census/county/${countyFips}`);
+                    if (res.ok)
+                    {
+                        countyFeature = await res.json();
+                    }
+                } catch (e)
+                {
+                    console.warn('Failed to fetch county geometry:', e);
                 }
-            } catch (e)
-            {
-                console.warn('Failed to fetch county geometry:', e);
             }
+
+            toggleLoading(true, "Loading Population Data...");
+            await loadCountyContext(countyFips, true, "Loading Population Data...");
+
+            if (countyFeature && typeof turf !== 'undefined')
+            {
+                // Use centroid from API if available, otherwise calculate
+                let center;
+                if (countyFeature.properties?.centroid)
+                {
+                    center = countyFeature.properties.centroid;
+                } else
+                {
+                    center = turf.center(countyFeature).geometry.coordinates;
+                }
+
+                markerPosition = { lng: center[0], lat: center[1] };
+                updateMarker(markerPosition);
+                updateCircles(markerPosition);
+
+                // Use bbox from API if available, otherwise calculate around 50-mile circle
+                if (countyFeature.properties?.bbox)
+                {
+                    // Fit to 50-mile circle around center instead of county bbox for consistency
+                    const circle50 = createCircleGeoJSON([center[0], center[1]], CIRCLE_RADII.tier3);
+                    map.fitBounds(turf.bbox(circle50), { padding: 20 });
+                } else
+                {
+                    const circle50 = createCircleGeoJSON([center[0], center[1]], CIRCLE_RADII.tier3);
+                    map.fitBounds(turf.bbox(circle50), { padding: 20 });
+                }
+
+                highlightCounty(countyFeature);
+
+                if (els.displayCounty) els.displayCounty.textContent = countyFeature.properties.name || countyFeature.properties.NAME;
+            }
+
+            calculateImpact();
+
+            // Load tract boundaries if tracts layer is enabled
+            if (layersVisible.tracts) loadTracts(countyFips);
+
+            const countyName = countyFeature?.properties?.name || countyFeature?.properties?.NAME || '';
+            window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { geoid: countyFips, name: countyName } }));
+
+            // Notify Blazor to sync dropdown
+            if (window.notifyBlazorCountySelected)
+            {
+                window.notifyBlazorCountySelected(countyFips, countyName);
+            }
+
+            updateMapNavUI(3);
         }
-
-        await loadCountyContext(countyFips, true, "Loading County Data...");
-
-        if (countyFeature && typeof turf !== 'undefined')
+        finally
         {
-            // Use centroid from API if available, otherwise calculate
-            let center;
-            if (countyFeature.properties?.centroid)
-            {
-                center = countyFeature.properties.centroid;
-            } else
-            {
-                center = turf.center(countyFeature).geometry.coordinates;
-            }
-
-            markerPosition = { lng: center[0], lat: center[1] };
-            updateMarker(markerPosition);
-            updateCircles(markerPosition);
-
-            // Use bbox from API if available, otherwise calculate around 50-mile circle
-            if (countyFeature.properties?.bbox)
-            {
-                // Fit to 50-mile circle around center instead of county bbox for consistency
-                const circle50 = createCircleGeoJSON([center[0], center[1]], CIRCLE_RADII.tier3);
-                map.fitBounds(turf.bbox(circle50), { padding: 20 });
-            } else
-            {
-                const circle50 = createCircleGeoJSON([center[0], center[1]], CIRCLE_RADII.tier3);
-                map.fitBounds(turf.bbox(circle50), { padding: 20 });
-            }
-
-            highlightCounty(countyFeature);
-
-            if (els.displayCounty) els.displayCounty.textContent = countyFeature.properties.name || countyFeature.properties.NAME;
+            // Ensure loading is hidden even if there's an error
+            toggleLoading(false);
         }
-
-        calculateImpact();
-
-        // Load tract boundaries if tracts layer is enabled
-        if (layersVisible.tracts) loadTracts(countyFips);
-
-        const countyName = countyFeature?.properties?.name || countyFeature?.properties?.NAME || '';
-        window.dispatchEvent(new CustomEvent('county-selected-map', { detail: { geoid: countyFips, name: countyName } }));
-
-        // Notify Blazor to sync dropdown
-        if (window.notifyBlazorCountySelected)
-        {
-            window.notifyBlazorCountySelected(countyFips, countyName);
-        }
-
-        updateMapNavUI(3);
     }
 
     function updateMarker(lngLat)
@@ -2114,7 +2131,12 @@ window.MapLibreImpactMap = (function ()
             return;
         }
         const el = document.createElement('div');
-        el.style.cssText = 'width:50px;height:88px;cursor:grab;background:url(assets/Casino_Map_Marker.svg) no-repeat center/contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.4));';
+        el.style.cssText = 'width:50px;height:88px;cursor:grab;background:url(assets/Casino_Map_Marker.svg) no-repeat bottom center/contain;position:relative;';
+
+        // TEMPORARY: Green dot to verify anchor point alignment - positioned at the exact anchor point
+        const dot = document.createElement('span');
+        dot.style.cssText = 'position:absolute;bottom:0;left:50%;transform:translate(-50%, 50%);width:10px;height:10px;background:#00ff00;border-radius:50%;border:2px solid #000;box-shadow:0 0 4px #000;';
+        el.appendChild(dot);
 
         // Click to zoom handler
         el.addEventListener('click', (e) =>
@@ -2228,8 +2250,8 @@ window.MapLibreImpactMap = (function ()
             calculateImpact();
             if (layersVisible.isochrones) updateIsochrones(pos);
         });
-        marker.on('dragstart', () => { el.style.cursor = 'grabbing'; });
-        marker.on('dragend', () => { el.style.cursor = 'grab'; });
+        marker.on('dragstart', () => { el.style.cursor = 'grabbing'; markerDragging = true; });
+        marker.on('dragend', () => { el.style.cursor = 'grab'; markerDragging = false; });
     }
 
     function highlightCounty(feature)
@@ -2448,31 +2470,16 @@ window.MapLibreImpactMap = (function ()
                 console.log('MapLibreImpactMap v2.0 initialized');
             });
 
-            // MVT tile loading indicator - uses module-scoped tileLoadingActive and tileLoadingTimeout
-
-            map.on('sourcedataloading', (e) =>
-            {
-                // Only track our census-vector source, and only when a state is selected
-                // This prevents the loading overlay from appearing when just viewing states
-                // Also check zoom level - counties only show at zoom 4+
-                const zoom = map.getZoom();
-                if (e.sourceId === 'census-vector' && e.tile && currentStateFips && zoom >= 4)
-                {
-                    if (!tileLoadingActive)
-                    {
-                        tileLoadingActive = true;
-                        // Show loading immediately since drillToState already set tileLoadingActive
-                        toggleLoading(true, "Loading County Boundaries...");
-                    }
-                }
-            });
+            // Note: Tile loading indicator is handled by drillToState setting initialStateDrill=true,
+            // and the idle handler below clearing it. This prevents loading overlay on every zoom.
 
             map.on('idle', () =>
             {
                 // Map is idle = all tiles are loaded
-                if (tileLoadingActive)
+                // Only hide loading if we were doing initial state drill
+                if (initialStateDrill)
                 {
-                    tileLoadingActive = false;
+                    initialStateDrill = false;
                     clearTimeout(tileLoadingTimeout);
                     toggleLoading(false);
                 }

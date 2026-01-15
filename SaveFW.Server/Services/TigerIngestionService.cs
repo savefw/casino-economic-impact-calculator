@@ -324,12 +324,21 @@ namespace SaveFW.Server.Services
             else if (tableName == "census_block_groups")
             {
                  // We only update geometry here, assuming population data comes from a different ingestion process (Census API)
-                 // or we initialize with 0 pop.
+                 // or we initialize with 0 pop. We also compute and store cx/cy centroids for fast queries.
                  cmd.CommandText = @"
-                    INSERT INTO census_block_groups (geoid, geom, pop_total, pop_18_plus)
-                    VALUES (@geoid, ST_Transform(@geom, 4326), 0, 0)
+                    INSERT INTO census_block_groups (geoid, geom, pop_total, pop_18_plus, cx, cy)
+                    VALUES (
+                        @geoid, 
+                        ST_Transform(@geom, 4326), 
+                        0, 
+                        0,
+                        ST_X(ST_Centroid(ST_Transform(@geom, 4326))),
+                        ST_Y(ST_Centroid(ST_Transform(@geom, 4326)))
+                    )
                     ON CONFLICT (geoid) DO UPDATE 
-                    SET geom = EXCLUDED.geom;
+                    SET geom = EXCLUDED.geom,
+                        cx = EXCLUDED.cx,
+                        cy = EXCLUDED.cy;
                 ";
                 cmd.Parameters.Add(new NpgsqlParameter("geoid", NpgsqlTypes.NpgsqlDbType.Text));
                 cmd.Parameters.Add(new NpgsqlParameter("geom", NpgsqlTypes.NpgsqlDbType.Geometry));
@@ -474,9 +483,15 @@ namespace SaveFW.Server.Services
                         geoid text PRIMARY KEY,
                         pop_total bigint DEFAULT 0,
                         pop_18_plus bigint DEFAULT 0,
-                        geom geometry(MultiPolygon, 4326)
+                        geom geometry(MultiPolygon, 4326),
+                        cx DOUBLE PRECISION,
+                        cy DOUBLE PRECISION
                     );
                     CREATE INDEX IF NOT EXISTS idx_census_bg_geom ON census_block_groups USING GIST (geom);
+                    
+                    -- Add cx/cy columns if missing (for existing tables)
+                    ALTER TABLE census_block_groups ADD COLUMN IF NOT EXISTS cx DOUBLE PRECISION;
+                    ALTER TABLE census_block_groups ADD COLUMN IF NOT EXISTS cy DOUBLE PRECISION;
                  ";
             }
             else if (tableName == "tiger_address_ranges")
