@@ -132,10 +132,10 @@
             
             <!-- Modal Container -->
             <div class="absolute inset-4 md:inset-8 lg:inset-16 flex items-center justify-center pointer-events-none">
-                <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-full overflow-hidden pointer-events-auto flex flex-col">
+                <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden pointer-events-auto flex flex-col" style="height: 400px;">
                     
                     <!-- Header -->
-                    <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
                         <h3 id="reality-modal-title" class="text-lg font-black text-red-600 uppercase tracking-wide"></h3>
                         <button onclick="window.closeRealityModal()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
                             <span class="material-symbols-outlined text-slate-500">close</span>
@@ -151,9 +151,9 @@
                     </div>
                     
                     <!-- Footer with Navigation -->
-                    <div class="flex items-center justify-between p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                    <div class="flex items-center justify-between p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 shrink-0">
                         <!-- Prev Button -->
-                        <button id="reality-prev-btn" onclick="window.prevRealityItem()" class="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-colors font-bold text-sm text-slate-700 dark:text-slate-200">
+                        <button id="reality-prev-btn" onclick="window.prevRealityItem()" class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-bold text-sm text-white">
                             <span class="material-symbols-outlined">arrow_back</span>
                             Previous
                         </button>

@@ -286,7 +286,7 @@ window.MapLibreImpactMap = (function ()
     let activeContextLoad = null;
     let contextLoadSeq = 0;
 
-    async function loadCountyContext(fips, lite = false, loadingText = "Loading Data...")
+    async function loadCountyContext(fips, lite = false, loadingText = "Loading Data...", manageLoading = true)
     {
         fips = normalizeCountyFips(fips);
         if (!fips) return false;
@@ -318,7 +318,7 @@ window.MapLibreImpactMap = (function ()
         const timeoutMs = lite ? 45000 : 90000;
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-        toggleLoading(true, loadingText);
+        if (manageLoading) toggleLoading(true, loadingText);
 
         const promise = (async () =>
         {
@@ -408,7 +408,7 @@ window.MapLibreImpactMap = (function ()
                 if (activeContextLoad && activeContextLoad.id === loadId)
                 {
                     activeContextLoad = null;
-                    toggleLoading(false);
+                    if (manageLoading) toggleLoading(false);
                 }
             }
         })();
@@ -2064,7 +2064,7 @@ window.MapLibreImpactMap = (function ()
             }
 
             toggleLoading(true, "Loading Population Data...");
-            await loadCountyContext(countyFips, true, "Loading Population Data...");
+            await loadCountyContext(countyFips, true, "Loading Population Data...", false);
 
             if (countyFeature && typeof turf !== 'undefined')
             {
@@ -2549,8 +2549,25 @@ window.MapLibreImpactMap = (function ()
 
             new ResizeObserver(() => map?.resize()).observe(container);
 
+            // Set up listeners for rate sliders
+            // Use event delegation as backup in case elements load after map init
             if (els.inputRate) els.inputRate.addEventListener('input', () => calculateImpact());
             if (els.inputBaselineIncrease) els.inputBaselineIncrease.addEventListener('input', () => calculateImpact());
+
+            // Fallback: global listener for baseline increase in case element wasn't ready at init
+            document.addEventListener('input', (e) =>
+            {
+                if (e.target && e.target.id === 'input-baseline-increase')
+                {
+                    // Update els reference if it was null before
+                    if (!els.inputBaselineIncrease)
+                    {
+                        els.inputBaselineIncrease = e.target;
+                    }
+                    calculateImpact();
+                }
+            });
+
             return map;
         },
 

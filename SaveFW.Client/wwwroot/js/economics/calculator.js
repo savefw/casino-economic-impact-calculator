@@ -684,19 +684,25 @@ window.EconomicCalculator = (function ()
             if (!isNaN(val) && val > 0) adultPop = val;
         }
 
-        // REFACTORED: We now rely on the Map Logic to calculate true victim count.
-        // However, `calculate` runs when inputs change.
-        // We need to read the `totalVictims` that the Map logic pushed to the DOM,
-        // or re-calculate it if we want to be pure.
-        // Since Map Logic updates the DOM element #total-victims which is NOT in this `els` scope easily,
-        // let's use the value from #calc-result if available, or 0.
-        // BETTER: Read the text content of the global total-victims display.
+        // Get victim count from the map's calculation.
+        // PRIMARY: Use event data (lastImpactBreakdown.county.victims.total) - this is always accurate 
+        // and includes baseline increase. The map dispatches this with the correct calculated value.
+        // FALLBACK: Read from DOM only for initial load before any event has fired.
 
         let victims = 0;
-        const tvEl = document.getElementById('total-gamblers');
-        if (tvEl)
+        if (lastImpactBreakdown && lastImpactBreakdown.county && lastImpactBreakdown.county.victims && typeof lastImpactBreakdown.county.victims.total === 'number')
         {
-            victims = parseInt(tvEl.textContent.replace(/,/g, '')) || 0;
+            // Use the event data - this is the source of truth from the map's calculation
+            victims = Math.round(lastImpactBreakdown.county.victims.total) || 0;
+        }
+        else
+        {
+            // Fallback to DOM read for initial load
+            const tvEl = document.getElementById('total-gamblers');
+            if (tvEl)
+            {
+                victims = parseInt(tvEl.textContent.replace(/,/g, '')) || 0;
+            }
         }
 
         // If victims is 0 (initial load race condition), fallback to simple? 
@@ -840,9 +846,14 @@ window.EconomicCalculator = (function ()
         const subjectCountyName = (lastImpactBreakdown && lastImpactBreakdown.countyName) || countyIndex.get(subjectCountyFips) || subjectCountyFips || "Subject County";
         const subjectStateName = String((lastImpactBreakdown && lastImpactBreakdown.stateName) || "").trim();
 
+        // Get the baseline increase from the slider
+        const baselineIncreaseEl = document.getElementById('input-baseline-increase');
+        const baselineIncrease = baselineIncreaseEl ? parseFloat(baselineIncreaseEl.value) || 0 : 0;
+
         const otherCosts = computeOtherCountyCosts({
             impactBreakdown: lastImpactBreakdown,
             baselineRate: rate,
+            baselineIncrease: baselineIncrease,
             perVictimCosts: {
                 health: costHealthPer,
                 crime: costCrimePer,
@@ -1338,12 +1349,14 @@ window.EconomicCalculator = (function ()
         const baselineRate = Number.isFinite(baselineRateCandidate) ? baselineRateCandidate : 2.3;
 
         // Delta rates for NET NEW calculation (increase above baseline)
-        // T1 (≤10mi): 2x baseline rate → delta = baseline (e.g., 2.3% increase)
-        // T2 (10-20mi): 1.5x baseline rate → delta = 0.5x baseline (e.g., 1.15% increase)
-        // T3 (20-50mi): 1x baseline rate → delta = 0 (no increase)
-        const d1 = baselineRate / 100;        // e.g., 0.023 for 2.3% baseline
-        const d2 = (baselineRate * 0.5) / 100; // e.g., 0.0115 for 2.3% baseline
-        const d3 = 0;                          // No increase in baseline zone
+        // The baselineIncrease (Expected Baseline Increase slider) adds to ALL tiers
+        // T1 (≤10mi): 2x baseline rate → delta = baseline + baselineIncrease
+        // T2 (10-20mi): 1.5x baseline rate → delta = 0.5x baseline + baselineIncrease  
+        // T3 (20-50mi): 1x baseline rate → delta = baselineIncrease only
+        const baselineIncrease = Number(options.baselineIncrease || 0);
+        const d1 = (baselineRate + baselineIncrease) / 100;        // proximity premium + baseline increase
+        const d2 = ((baselineRate * 0.5) + baselineIncrease) / 100; // reduced proximity premium + baseline increase
+        const d3 = baselineIncrease / 100;                          // baseline increase only (no proximity premium)
 
         const perVictimCosts = (options && options.perVictimCosts) ? options.perVictimCosts : {};
         const costsPerVictim = {
@@ -1625,6 +1638,7 @@ window.EconomicCalculator = (function ()
         {
             if (e.detail)
             {
+                console.log('[Calculator] Received impact-breakdown-updated event, victims:', e.detail.county?.victims?.total);
                 lastImpactBreakdown = e.detail;
 
                 // Update local state if needed
