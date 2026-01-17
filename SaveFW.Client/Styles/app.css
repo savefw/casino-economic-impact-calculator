@@ -736,32 +736,209 @@ details summary:focus {
     background: radial-gradient(circle at 30% 30%, #cc0000, #660000);
 }
 
-.info-btn {
-    display: inline-flex;
+/* --- COIN TRAY --- */
+.coin-tray {
+    width: 100%;
+    max-width: 220px;
+    margin: 20px auto 0;
+    padding: 0;
+}
+
+.coin-tray-inner {
+    position: relative;
+    height: 50px;
+    background: linear-gradient(to bottom, #6b5c3d 0%, #8a7850 15%, #9d8b60 50%, #8a7850 85%, #6b5c3d 100%);
+    border-radius: 8px 8px 15px 15px;
+    border: 4px solid #5c4a00;
+    box-shadow:
+        inset 0 8px 20px rgba(0, 0, 0, 0.6),
+        inset 0 -3px 10px rgba(255, 255, 255, 0.15),
+        0 4px 8px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+/* Recessed floor area with depth */
+.coin-tray-floor {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    bottom: 6px;
+    background:
+        linear-gradient(to bottom,
+            #1a1a1a 0%,
+            #2d2d2d 20%,
+            #3a3a3a 50%,
+            #2d2d2d 80%,
+            #1a1a1a 100%);
+    border-radius: 4px 4px 10px 10px;
+    box-shadow:
+        inset 0 6px 15px rgba(0, 0, 0, 0.8),
+        inset 0 -2px 8px rgba(255, 255, 255, 0.05),
+        inset 2px 0 6px rgba(0, 0, 0, 0.3),
+        inset -2px 0 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Metallic ridges/grooves on floor */
+.coin-tray-floor::before {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 8px;
+    background: repeating-linear-gradient(90deg,
+            transparent 0px,
+            transparent 8px,
+            rgba(60, 60, 60, 0.8) 8px,
+            rgba(60, 60, 60, 0.8) 10px,
+            rgba(30, 30, 30, 1) 10px,
+            rgba(30, 30, 30, 1) 12px,
+            rgba(60, 60, 60, 0.8) 12px,
+            rgba(60, 60, 60, 0.8) 14px,
+            transparent 14px,
+            transparent 22px);
+    border-radius: 2px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtle reflection on the opening lip */
+.coin-tray-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15px;
+    right: 15px;
+    height: 3px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 245, 200, 0.4) 20%,
+            rgba(255, 255, 255, 0.6) 50%,
+            rgba(255, 245, 200, 0.4) 80%,
+            transparent 100%);
+    border-radius: 0 0 50% 50%;
+}
+
+/* Right panel containing credit counter and coin insert - positioned on RIGHT side */
+.coin-panel {
+    position: absolute;
+    right: 25px;
+    bottom: 15px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 12px;
-    background: radial-gradient(circle at 30% 30%, #475569, #0f172a);
-    border: 4px solid #020617;
-    color: white;
+    gap: 6px;
+    z-index: 60;
+}
+
+/* --- CREDIT COUNTER --- */
+.credit-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
+    border: 2px solid #cc0000;
+    border-radius: 5px;
+    box-shadow:
+        0 0 10px rgba(255, 0, 0, 0.4),
+        0 0 20px rgba(255, 0, 0, 0.2),
+        inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.credit-label {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 6px;
+    color: #ff3333;
+    text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.credit-value {
     font-family: 'Public Sans', sans-serif;
     font-weight: 900;
-    font-size: 14px;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    margin-top: 30px;
-}
-
-.info-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.4);
-}
-
-.info-btn .material-symbols-outlined {
     font-size: 18px;
+    color: #ff3333;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.5);
+    line-height: 1;
+}
+
+/* --- COIN INSERT PANEL --- */
+.coin-insert {
+    display: flex;
+    align-items: stretch;
+    height: 50px;
+    background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
+    border: 2px solid #cc0000;
+    border-radius: 5px;
+    box-shadow:
+        0 0 10px rgba(255, 0, 0, 0.4),
+        0 0 20px rgba(255, 0, 0, 0.2),
+        inset 0 0 10px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+}
+
+.coin-insert-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3px 6px;
+    text-align: center;
+}
+
+.coin-price {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 900;
+    font-size: 12px;
+    color: #ff3333;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.5);
+    line-height: 1;
+}
+
+.coin-text {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 700;
+    font-size: 6px;
+    color: #ff3333;
+    text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.coin-play {
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 900;
+    font-size: 8px;
+    color: #ff3333;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.5);
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.coin-slot {
+    width: 18px;
+    background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    border-left: 1px solid #cc0000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coin-slot-opening {
+    width: 4px;
+    height: 28px;
+    background: linear-gradient(90deg, #000 0%, #1a1a1a 50%, #000 100%);
+    border: 1px solid #333;
+    border-radius: 2px;
+    box-shadow:
+        inset 0 0 6px rgba(0, 0, 0, 1),
+        0 0 3px rgba(255, 0, 0, 0.3);
 }
 
 input::-webkit-outer-spin-button,

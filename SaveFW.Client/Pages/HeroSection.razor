@@ -104,11 +104,33 @@
                         <button class="reel-btn" @onclick="() => SpinReel(2)">SPIN</button>
                     </div>
 
-                    <!-- Learn More Button -->
-                    <button onclick="openSourcesModal()" class="info-btn">
-                        <span>About These Words</span>
-                        <span class="material-symbols-outlined">arrow_forward</span>
-                    </button>
+                    <!-- Coin Tray (centered) -->
+                    <div class="coin-tray">
+                        <div class="coin-tray-inner">
+                            <div class="coin-tray-floor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side Panel: Credit Counter + Coin Insert -->
+                    <div class="coin-panel">
+                        <!-- Credit Counter -->
+                        <div class="credit-counter">
+                            <span class="credit-label">CREDITS</span>
+                            <span class="credit-value" id="credit-display">02</span>
+                        </div>
+
+                        <!-- Coin Insert Slot -->
+                        <div class="coin-insert">
+                            <div class="coin-insert-inner">
+                                <span class="coin-price">25¢</span>
+                                <span class="coin-text">INSERT<br/>COIN TO</span>
+                                <span class="coin-play">PLAY</span>
+                            </div>
+                            <div class="coin-slot">
+                                <div class="coin-slot-opening"></div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 

@@ -73,10 +73,12 @@ window.MapLibreImpactMap = (function ()
         tracts: false,
         heatmap: false,
         streets: false,
-        isochrones: false,
         terrain3d: false,
         buildings3d: false
     };
+
+    // Risk Zone Mode: 'radius' or 'isochrone'
+    let riskZoneMode = 'radius';
 
     // Current basemap
     let currentBasemap = 'satellite';
@@ -690,7 +692,7 @@ window.MapLibreImpactMap = (function ()
     let isochroneTimeout = null;
     async function updateIsochrones(lngLat)
     {
-        if (!layersVisible.isochrones) return;
+        if (!layersVisible.zones || riskZoneMode !== 'isochrone') return;
         clearTimeout(isochroneTimeout);
         isochroneTimeout = setTimeout(async () =>
         {
@@ -991,10 +993,16 @@ window.MapLibreImpactMap = (function ()
                 </button>
             </div>
             <div class="panel-section">
+            <div class="panel-section">
                 <span class="section-label">Overlays</span>
                 <label class="toggle-row">
-                    <span>Impact Zones</span>
+                    <span>Show Risk Zones</span>
                     <input type="checkbox" id="toggle-zones" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="toggle-row" style="padding-left: 12px; border-left: 2px solid rgba(255,255,255,0.1); margin-left: 4px;">
+                    <span class="text-xs text-slate-400">Use Valhalla Isochrones</span>
+                    <input type="checkbox" id="toggle-valhalla" />
                     <span class="toggle-slider"></span>
                 </label>
                 <label class="toggle-row">
@@ -1010,11 +1018,6 @@ window.MapLibreImpactMap = (function ()
                 <label class="toggle-row">
                     <span>Heatmap</span>
                     <input type="checkbox" id="toggle-heatmap" />
-                    <span class="toggle-slider"></span>
-                </label>
-                <label class="toggle-row">
-                    <span>Drive-Time Isochrones</span>
-                    <input type="checkbox" id="toggle-isochrones" />
                     <span class="toggle-slider"></span>
                 </label>
                 <label class="toggle-row">
@@ -1063,9 +1066,9 @@ window.MapLibreImpactMap = (function ()
         // Toggle handlers
         const toggles = {
             'toggle-zones': 'zones',
+            'toggle-valhalla': 'valhalla',
             'toggle-boundary': 'boundary',
             'toggle-heatmap': 'heatmap',
-            'toggle-isochrones': 'isochrones',
             'toggle-tracts': 'tracts',
             'toggle-terrain3d': 'terrain3d',
             'toggle-buildings3d': 'buildings3d'
@@ -1311,19 +1314,31 @@ window.MapLibreImpactMap = (function ()
         switch (layerType)
         {
             case 'zones':
+                // Logic respects riskZoneMode: only show the active mode's layers
+                const showCircles = visible && riskZoneMode === 'radius';
+                const showIso = visible && riskZoneMode === 'isochrone';
+
+                // update circles
                 ['circle-tier1-fill', 'circle-tier1-line', 'circle-tier2-fill', 'circle-tier2-line', 'circle-tier3-fill', 'circle-tier3-line']
-                    .forEach(id => setLayerVisibility(id, visible));
+                    .forEach(id => setLayerVisibility(id, showCircles));
+
+                // update isochrones
+                setLayerVisibility('isochrone-fill', showIso);
+                setLayerVisibility('isochrone-line', showIso);
+
+                if (showIso && markerPosition) updateIsochrones(markerPosition);
+                // Circles can always be updated or just on drag, updateMarker calls updateCircles anyway.
+                break;
+            case 'valhalla':
+                riskZoneMode = visible ? 'isochrone' : 'radius';
+                // Trigger refresh of zones visibility to apply mode change
+                toggleLayerVisibility('zones', layersVisible.zones);
                 break;
             case 'boundary':
                 ['counties-fill', 'counties-line', 'county-highlight-line'].forEach(id => setLayerVisibility(id, visible));
                 break;
             case 'heatmap':
                 setLayerVisibility('block-groups-heat', visible);
-                break;
-            case 'isochrones':
-                setLayerVisibility('isochrone-fill', visible);
-                setLayerVisibility('isochrone-line', visible);
-                if (visible && markerPosition) updateIsochrones(markerPosition);
                 break;
             case 'tracts':
                 setLayerVisibility('tract-lines', visible);
@@ -2242,13 +2257,14 @@ window.MapLibreImpactMap = (function ()
                         window.notifyBlazorCountySelected(newCountyFips, countyName);
                     }
 
-                    if (layersVisible.isochrones) updateIsochrones(pos);
+                    if (layersVisible.zones && riskZoneMode === 'isochrone') updateIsochrones(pos);
                     return; // Exit early, calculateImpact will be called after context loads
                 }
             }
 
             calculateImpact();
-            if (layersVisible.isochrones) updateIsochrones(pos);
+            calculateImpact();
+            if (layersVisible.zones && riskZoneMode === 'isochrone') updateIsochrones(pos);
         });
         marker.on('dragstart', () => { el.style.cursor = 'grabbing'; markerDragging = true; });
         marker.on('dragend', () => { el.style.cursor = 'grab'; markerDragging = false; });
@@ -2573,10 +2589,23 @@ window.MapLibreImpactMap = (function ()
 
         toggleLayer: function (type)
         {
-            layersVisible[type] = !layersVisible[type];
-            if (type === 'zones') ['circle-tier1-fill', 'circle-tier1-line', 'circle-tier2-fill', 'circle-tier2-line', 'circle-tier3-fill', 'circle-tier3-line'].forEach(id => setLayerVisibility(id, layersVisible.zones));
-            if (type === 'heatmap') setLayerVisibility('block-groups-heat', layersVisible.heatmap);
-            if (type === 'isochrones') { setLayerVisibility('isochrone-fill', layersVisible.isochrones); setLayerVisibility('isochrone-line', layersVisible.isochrones); if (layersVisible.isochrones && markerPosition) updateIsochrones(markerPosition); }
+            if (type === 'valhalla')
+            {
+                const newVal = riskZoneMode !== 'isochrone';
+                toggleLayerVisibility('valhalla', newVal);
+                // Sync UI if needed
+                const cb = document.getElementById('toggle-valhalla');
+                if (cb) cb.checked = newVal;
+                return;
+            }
+
+            // For other layers, toggle visibility
+            const newVal = !layersVisible[type];
+            toggleLayerVisibility(type, newVal);
+
+            // Sync UI
+            const cb = document.getElementById('toggle-' + type);
+            if (cb) cb.checked = newVal;
         },
 
         navigateToStep: function (step)
@@ -2687,7 +2716,7 @@ window.MapLibreImpactMap = (function ()
         getMap: () => map,
         loadState: (fips) => drillToState(fips),
         loadCounty: (fips) => selectCounty(fips),
-        setIsochroneVisibility: (v) => { layersVisible.isochrones = v; setLayerVisibility('isochrone-fill', v); setLayerVisibility('isochrone-line', v); if (v && markerPosition) updateIsochrones(markerPosition); }
+        setIsochroneVisibility: (v) => { toggleLayerVisibility('valhalla', v); const cb = document.getElementById('toggle-valhalla'); if (cb) cb.checked = v; }
     };
 })();
 

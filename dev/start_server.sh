@@ -29,16 +29,15 @@ cd /root/SaveFW/SaveFW.Server || exit 1
 # Clean old wwwroot artifacts if they exist
 rm -rf /root/SaveFW/SaveFW.Server/wwwroot
 
-# Build the project
-echo "Building SaveFW.Server..."
-/root/.dotnet/dotnet build /root/SaveFW/SaveFW.Server/SaveFW.Server.csproj
-
-# Run the server in the background
+# Run the server with hot reload (dotnet watch)
 # ASPNETCORE_URLS sets the listening port to 5000
-# ASPNETCORE_ENVIRONMENT=Development ensures we use appsettings.Development.json (which should point Valhalla to 8003 or similar)
-env ASPNETCORE_ENVIRONMENT=Development DOTNET_ROOT=/root/.dotnet PATH=/root/.dotnet:$PATH nohup /root/.dotnet/dotnet /root/SaveFW/SaveFW.Server/bin/Debug/net10.0/SaveFW.Server.dll --urls "http://0.0.0.0:$DEV_PORT" > /root/server.log 2>&1 &
+# ASPNETCORE_ENVIRONMENT=Development ensures we use appsettings.Development.json
+echo "Starting server with hot reload..."
+echo "File changes will automatically trigger rebuilds."
+echo "Press Ctrl+C to stop."
+echo ""
 
-echo "Server process started."
-sleep 2
-tail -n 40 /root/server.log
-echo "To follow logs: tail -f /root/server.log"
+env ASPNETCORE_ENVIRONMENT=Development DOTNET_ROOT=/root/.dotnet PATH=/root/.dotnet:$PATH \
+  /root/.dotnet/dotnet watch run \
+  --project /root/SaveFW/SaveFW.Server/SaveFW.Server.csproj \
+  --urls "http://0.0.0.0:$DEV_PORT"
