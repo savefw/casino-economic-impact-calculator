@@ -121,7 +121,7 @@ window.SlotMachine = (function ()
             const layer = document.createElement('div');
             layer.className = 'coin-layer';
 
-            let transform = `translateZ(${i * 0.5}px)`;
+            let transform = `translateZ(${i * 4}px)`;
             if (i === -2) transform += ' rotateY(180deg)';
             layer.style.transform = transform;
 

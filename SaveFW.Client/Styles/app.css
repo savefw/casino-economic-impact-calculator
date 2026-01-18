@@ -958,8 +958,10 @@ details summary:focus {
     position: absolute;
     top: -20px;
     right: -4px;
-    width: 24px;
-    height: 24px;
+    width: 192px;
+    height: 192px;
+    margin-left: -84px;
+    margin-top: -84px;
     transform-style: preserve-3d;
     pointer-events: none;
     z-index: 9999;
@@ -1005,7 +1007,7 @@ details summary:focus {
 @keyframes insertCoin {
     0% {
         opacity: 0;
-        transform: translate3d(120px, 200px, 400px) scale(8) rotateY(-45deg);
+        transform: translate3d(120px, 200px, 400px) scale(1) rotateY(-45deg);
     }
 
     15% {
@@ -1013,17 +1015,17 @@ details summary:focus {
     }
 
     60% {
-        transform: translate3d(0, 0, 0) scale(1) rotateY(0deg);
+        transform: translate3d(0, 0, 0) scale(0.125) rotateY(0deg);
         opacity: 1;
     }
 
     85% {
-        transform: translate3d(0, 25px, 0) scale(1.2) rotateY(88deg);
+        transform: translate3d(0, 25px, 0) scale(0.15) rotateY(88deg);
         opacity: 1;
     }
 
     100% {
-        transform: translate3d(0, 65px, -20px) scale(1.2) rotateY(88deg);
+        transform: translate3d(0, 65px, -20px) scale(0.15) rotateY(88deg);
         opacity: 0;
     }
 }
