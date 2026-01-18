@@ -746,7 +746,7 @@ details summary:focus {
 
 .coin-tray-inner {
     position: relative;
-    height: 50px;
+    height: 80px;
     background: linear-gradient(to bottom, #6b5c3d 0%, #8a7850 15%, #9d8b60 50%, #8a7850 85%, #6b5c3d 100%);
     border-radius: 8px 8px 15px 15px;
     border: 4px solid #5c4a00;
@@ -824,7 +824,7 @@ details summary:focus {
 .coin-panel {
     position: absolute;
     right: 25px;
-    bottom: 15px;
+    bottom: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -833,7 +833,18 @@ details summary:focus {
 }
 
 /* --- CREDIT COUNTER --- */
+@keyframes rotateGlow {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
 .credit-counter {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -845,6 +856,64 @@ details summary:focus {
         0 0 10px rgba(255, 0, 0, 0.4),
         0 0 20px rgba(255, 0, 0, 0.2),
         inset 0 0 10px rgba(0, 0, 0, 0.8);
+    /* Ensure children stay on top */
+    z-index: 0;
+    overflow: hidden;
+}
+
+
+
+@keyframes textBlink {
+
+    0%,
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 15px #ff0000;
+    }
+
+    50% {
+        opacity: 0.2;
+        text-shadow: none;
+    }
+}
+
+/* Alarm State: Rotating Border Glow */
+.credit-counter.credit-alarm {
+    border-color: transparent;
+    background: transparent;
+}
+
+.credit-counter.credit-alarm::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(transparent 0deg,
+            transparent 200deg,
+            #ff0000 260deg,
+            #ffffff 300deg,
+            #ff0000 340deg,
+            transparent 360deg);
+    animation: rotateGlow 0.8s linear infinite;
+    z-index: -2;
+    filter: drop-shadow(0 0 8px #ff0000);
+}
+
+.credit-counter.credit-alarm::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.credit-counter.credit-alarm .credit-label,
+.credit-counter.credit-alarm .credit-value {
+    animation: textBlink 0.4s infinite;
+    color: #ffcccc;
 }
 
 .credit-label {
@@ -869,9 +938,10 @@ details summary:focus {
 
 /* --- COIN INSERT PANEL --- */
 .coin-insert {
+    position: relative;
     display: flex;
     align-items: stretch;
-    height: 50px;
+    height: 40px;
     background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
     border: 2px solid #cc0000;
     border-radius: 5px;
@@ -879,7 +949,83 @@ details summary:focus {
         0 0 10px rgba(255, 0, 0, 0.4),
         0 0 20px rgba(255, 0, 0, 0.2),
         inset 0 0 10px rgba(0, 0, 0, 0.8);
-    overflow: hidden;
+    cursor: pointer;
+    perspective: 800px;
+    /* Enable 3D space for coin animation */
+}
+
+.coin-wrapper {
+    position: absolute;
+    top: -20px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+
+    transform-origin: center center;
+}
+
+.coin-wrapper.anim-insert {
+    animation: insertCoin 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.coin-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.coin-face {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #d6d6d6;
+}
+
+.coin-face-front {
+    background-image: url('/assets/quarter/USA_QUARTER_BACK_FRONT.png');
+}
+
+.coin-face-back {
+    background-image: url('/assets/quarter/USA_QUARTER_BACK_MEDIUM.png');
+}
+
+.coin-edge {
+    background: #888;
+    border: 1px solid #666;
+    box-shadow: inset 0 0 0 1px #555;
+}
+
+@keyframes insertCoin {
+    0% {
+        opacity: 0;
+        transform: translate3d(120px, 200px, 400px) scale(8) rotateY(-45deg);
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    60% {
+        transform: translate3d(0, 0, 0) scale(1) rotateY(0deg);
+        opacity: 1;
+    }
+
+    85% {
+        transform: translate3d(0, 25px, 0) scale(1.2) rotateY(88deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate3d(0, 65px, -20px) scale(1.2) rotateY(88deg);
+        opacity: 0;
+    }
 }
 
 .coin-insert-inner {
@@ -887,14 +1033,14 @@ details summary:focus {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 3px 6px;
+    padding: 2px 4px;
     text-align: center;
 }
 
 .coin-price {
     font-family: 'Public Sans', sans-serif;
     font-weight: 900;
-    font-size: 12px;
+    font-size: 10px;
     color: #ff3333;
     text-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.5);
     line-height: 1;
@@ -903,7 +1049,7 @@ details summary:focus {
 .coin-text {
     font-family: 'Public Sans', sans-serif;
     font-weight: 700;
-    font-size: 6px;
+    font-size: 5px;
     color: #ff3333;
     text-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
     line-height: 1.1;
@@ -914,7 +1060,7 @@ details summary:focus {
 .coin-play {
     font-family: 'Public Sans', sans-serif;
     font-weight: 900;
-    font-size: 8px;
+    font-size: 7px;
     color: #ff3333;
     text-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.5);
     line-height: 1;
@@ -922,7 +1068,7 @@ details summary:focus {
 }
 
 .coin-slot {
-    width: 18px;
+    width: 16px;
     background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
     border-left: 1px solid #cc0000;
     display: flex;
@@ -931,8 +1077,8 @@ details summary:focus {
 }
 
 .coin-slot-opening {
-    width: 4px;
-    height: 28px;
+    width: 3px;
+    height: 22px;
     background: linear-gradient(90deg, #000 0%, #1a1a1a 50%, #000 100%);
     border: 1px solid #333;
     border-radius: 2px;

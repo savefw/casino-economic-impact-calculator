@@ -26,6 +26,130 @@ window.SlotMachine = (function ()
     let lightAnimationId = null;
     let sirenTimeout = null;
 
+    // Credit System
+    let currentCredits = 2;
+    let isAlarmActive = false;
+
+    function updateCreditDisplay()
+    {
+        const display = document.getElementById('credit-display');
+        if (display)
+        {
+            display.textContent = String(currentCredits).padStart(2, '0');
+        }
+    }
+
+    function triggerCreditAlarm()
+    {
+        if (isAlarmActive) return;
+        isAlarmActive = true;
+
+        const counter = document.querySelector('.credit-counter');
+        if (counter)
+        {
+            counter.classList.add('credit-alarm');
+            // Remove alarm after 3 seconds
+            setTimeout(() =>
+            {
+                // Only clear if still active (didn't insert coin)
+                if (isAlarmActive)
+                {
+                    counter.classList.remove('credit-alarm');
+                    isAlarmActive = false;
+                }
+            }, 3000);
+        }
+    }
+
+    function insertCoin()
+    {
+        // Cancel alarm if active
+        if (isAlarmActive)
+        {
+            isAlarmActive = false;
+            const counter = document.querySelector('.credit-counter');
+            if (counter) counter.classList.remove('credit-alarm');
+        }
+
+        const container = document.querySelector('.coin-insert');
+        if (!container)
+        {
+            console.error("SlotMachine: .coin-insert container not found");
+            return;
+        }
+
+        // Calculate Position for Portal
+        const rect = container.getBoundingClientRect();
+        const scrollX = window.scrollX || window.pageXOffset;
+        const scrollY = window.scrollY || window.pageYOffset;
+
+        // Target offsets relative to container (from previous CSS)
+        // CSS was: top: -20px, right: -4px
+        // width: 24px
+        // rect.right is the right edge.
+        // We place the 24px coin such that its right edge is at rect.right - (-4) = rect.right + 4?
+        // "right: -4px" means pushed outside. Position = rect.right + 4 - width.
+        const coinW = 24;
+        const left = (rect.right + 4 - coinW) + scrollX;
+        const top = (rect.top - 20) + scrollY;
+
+        // Create Scene (Perspective Container)
+        const scene = document.createElement('div');
+        scene.style.position = 'absolute';
+        scene.style.left = `${left}px`;
+        scene.style.top = `${top}px`;
+        scene.style.width = `${coinW}px`;
+        scene.style.height = '24px';
+        scene.style.zIndex = '99999';
+        scene.style.pointerEvents = 'none';
+        scene.style.perspective = '2000px'; // Fixes distortion
+
+        // Create 3D Coin Wrapper
+        const coinWrapper = document.createElement('div');
+        coinWrapper.className = 'coin-wrapper anim-insert';
+        // Reset positioning relative to scene
+        coinWrapper.style.position = 'absolute';
+        coinWrapper.style.top = '0';
+        coinWrapper.style.left = '0';
+        coinWrapper.style.right = 'auto';
+
+        // Create Layers (Heads/Tails Logic)
+        const isHeads = Math.random() > 0.5;
+
+        for (let i = -2; i <= 2; i++)
+        {
+            const layer = document.createElement('div');
+            layer.className = 'coin-layer';
+
+            let transform = `translateZ(${i * 0.5}px)`;
+            if (i === -2) transform += ' rotateY(180deg)';
+            layer.style.transform = transform;
+
+            if (Math.abs(i) === 2)
+            {
+                layer.classList.add('coin-face');
+                if (i === 2) layer.classList.add(isHeads ? 'coin-face-front' : 'coin-face-back');
+                if (i === -2) layer.classList.add(isHeads ? 'coin-face-back' : 'coin-face-front');
+            } else
+            {
+                layer.classList.add('coin-edge');
+            }
+
+            coinWrapper.appendChild(layer);
+        }
+
+        scene.appendChild(coinWrapper);
+        document.body.appendChild(scene);
+
+        // Cleanup
+        setTimeout(() =>
+        {
+            if (scene.parentNode) scene.parentNode.removeChild(scene);
+            currentCredits++;
+            updateCreditDisplay();
+        }, 1500);
+    }
+
     // Casino Lights Generator
     function initLights()
     {
@@ -347,7 +471,19 @@ window.SlotMachine = (function ()
 
     function spinTheTruth()
     {
+        // Credit Check
+        if (currentCredits <= 0)
+        {
+            triggerCreditAlarm();
+            return;
+        }
+
         if (isSpinning) return;
+
+        // Decrement Credit
+        currentCredits--;
+        updateCreditDisplay();
+
         isSpinning = true;
 
         resetSiren();
@@ -479,6 +615,7 @@ window.SlotMachine = (function ()
         initReels();
         initLights();
         initLever();
+        updateCreditDisplay();
 
         const wrapper = document.querySelector('.slot-machine-wrapper');
         if (wrapper)
@@ -497,6 +634,7 @@ window.SlotMachine = (function ()
     }
 
     return {
-        init: init
+        init: init,
+        insertCoin: insertCoin
     };
 })();

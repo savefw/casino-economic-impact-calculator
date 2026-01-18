@@ -2148,10 +2148,7 @@ window.MapLibreImpactMap = (function ()
         const el = document.createElement('div');
         el.style.cssText = 'width:50px;height:88px;cursor:grab;background:url(assets/Casino_Map_Marker.svg) no-repeat bottom center/contain;position:relative;';
 
-        // TEMPORARY: Green dot to verify anchor point alignment - positioned at the exact anchor point
-        const dot = document.createElement('span');
-        dot.style.cssText = 'position:absolute;bottom:0;left:50%;transform:translate(-50%, 50%);width:10px;height:10px;background:#00ff00;border-radius:50%;border:2px solid #000;box-shadow:0 0 4px #000;';
-        el.appendChild(dot);
+
 
         // Click to zoom handler
         el.addEventListener('click', (e) =>
